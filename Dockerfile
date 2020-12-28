@@ -31,7 +31,13 @@ WORKDIR $ROS_WS
 # Copy nanosaur project
 COPY . $ROS_WS/src
 # Install dependencies
-RUN rosdep install -i --from-path src --rosdistro foxy -y
+RUN apt-get update && \
+    rosdep fix-permissions && \
+    rosdep update && \
+    rosdep install -i --from-path src --rosdistro foxy -y && \
+    rm -rf /var/lib/apt/lists/*
 # build ros package source
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build
+    colcon build \
+    --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release
