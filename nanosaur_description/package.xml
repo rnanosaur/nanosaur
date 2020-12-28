@@ -27,10 +27,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>nanosaur</name>
+  <name>nanosaur_description</name>
   <version>0.1.0</version>
-  <description>NanoSaur support meta package</description>
-
+  <description>This package collect NanoSaur meshes and urdf</description>
   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
   <license>MIT</license>
 
@@ -39,9 +38,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <url type="bugtracker">https://github.com/rnanosaur/nanosaur/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <exec_depend>nanosaur_robot</exec_depend>
-  <exec_depend>nanosaur_description</exec_depend>
+  <depend>urdf</depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>
