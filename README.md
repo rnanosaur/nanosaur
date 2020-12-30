@@ -13,3 +13,5 @@ cd dev_ws/src
 ```
 docker build -t nanosaur .
 ```
+
+https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
