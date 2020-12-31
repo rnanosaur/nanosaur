@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot name="nanosaur" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
+    <!-- NanoSaur parts -->
+    <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
+    <!-- Global properties -->
+    <xacro:property name="M_PI" value="3.14159"/>
+    <xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>
+
+    <link name="base_link" />
+
+    <joint name="base_front_joint" type="fixed">
+        <origin xyz="0 0 0.03" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="base_front"/>
+    </joint>
+
+    <link name="base_front">
+        <visual>
+            <geometry><mesh filename="${path_meshes}/base_front.stl" scale="0.001 0.001 0.001"/></geometry>
+            <material name="Green" />
+        </visual>
+    </link>
+
+    <joint name="base_rear_joint" type="fixed">
+        <origin xyz="0 0 0.03" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="base_rear"/>
+    </joint>
+
+    <link name="base_rear">
+        <visual>
+            <geometry><mesh filename="${path_meshes}/base_rear.stl" scale="0.001 0.001 0.001"/></geometry>
+            <material name="Green" />
+        </visual>
+    </link>
+
+    <xacro:track type="left" />
+    <xacro:track type="right" />
+    <xacro:head />
+    <xacro:flap />
+
+</robot>

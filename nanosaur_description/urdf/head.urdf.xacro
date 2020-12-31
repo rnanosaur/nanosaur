@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_head" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="head">
+
+        <joint name="cover_joint" type="fixed">
+            <origin xyz="0.06 0 -0.025" rpy="0 0 0" />
+            <parent link="base_front"/>
+            <child link="cover"/>
+        </joint>
+
+        <link name="cover">
+            <visual>
+                <geometry><mesh filename="${path_meshes}/cover.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+
+</robot>

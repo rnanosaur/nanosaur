@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_flap" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="flap">
+
+        <joint name="flap_bottom_joint" type="fixed">
+            <origin xyz="-0.05 0 0" rpy="0 0 0" />
+            <parent link="base_rear"/>
+            <child link="flap_bottom"/>
+        </joint>
+
+        <link name="flap_bottom">
+            <visual>
+                <origin xyz="-0.0161 0 0.009" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/flap_bottom.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="flap_top_joint" type="fixed">
+            <parent link="flap_bottom"/>
+            <child link="flap_top"/>
+        </joint>
+
+        <link name="flap_top">
+            <visual>
+                <origin xyz="-0.0161 0 0.009" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/flap_top.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+
+</robot>

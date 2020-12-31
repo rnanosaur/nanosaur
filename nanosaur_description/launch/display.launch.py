@@ -31,7 +31,7 @@ import os
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
-    default_model_path = os.path.join(pkg_share, 'urdf/nanosaur.urdf')
+    default_model_path = os.path.join(pkg_share, 'urdf/nanosaur.urdf.xml')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf.rviz')
 
     robot_state_publisher_node = launch_ros.actions.Node(
@@ -67,8 +67,8 @@ def generate_launch_description():
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
                                              description='Absolute path to rviz config file'),
         joint_state_publisher_node,
-        joint_state_publisher_gui_node,
+        #joint_state_publisher_gui_node,
         robot_state_publisher_node,
-        rviz_node
+        #rviz_node
     ])
 # EOF

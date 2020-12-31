@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_track" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <xacro:macro name="track" params="type">
+
+        <!-- Define orientation -->
+        <xacro:if value="${type == 'left'}">
+            <xacro:property name="orientation" value="-1"/>
+        </xacro:if>
+        <xacro:if value="${type == 'right'}">
+            <xacro:property name="orientation" value="1"/>
+        </xacro:if>
+
+        <joint name="motor_${type}_joint" type="fixed">
+            <origin xyz="0.053 ${orientation * -0.043} -0.015" rpy="${orientation * M_PI/2} 0 0" />
+            <parent link="base_front"/>
+            <child link="motor_${type}"/>
+        </joint>
+
+        <link name="motor_${type}">
+            <visual>
+                <origin xyz="0 0 -0.031" rpy="0 0 -${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/Pololu-Micro-Metal-Gearmotor.stl"/></geometry>
+                <material name="Gold" />
+            </visual>
+        </link>
+
+        <joint name="sprocket_${type}_joint" type="fixed">
+            <parent link="motor_${type}"/>
+            <child link="sprocket_${type}"/>
+        </joint>
+
+        <link name="sprocket_${type}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/sprocket.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="wheel_${type}_joint" type="fixed">
+            <origin xyz="-0.099 0 0" rpy="0 0 0" />
+            <parent link="motor_${type}"/>
+            <child link="wheel_${type}"/>
+        </joint>
+
+        <link name="wheel_${type}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="track_${type}_joint" type="fixed">
+            <origin xyz="-0.049 0 0" rpy="0 0 0" />
+            <parent link="motor_${type}"/>
+            <child link="track_${type}"/>
+        </joint>
+
+        <link name="track_${type}">
+            <visual>
+                <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+                <geometry><mesh filename="${path_meshes}/track.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="slider_${type}_joint" type="fixed">
+            <parent link="track_${type}"/>
+            <child link="slider_${type}"/>
+        </joint>
+
+        <link name="slider_${type}">
+            <visual>
+                <origin xyz="0 0 0.008" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/slider.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+
+</robot>

@@ -1,0 +1,19 @@
+<robot name="materials">
+
+  <material name="Black">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <material name="Green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+
+  <material name="GunMetalGrey">
+    <color rgba="0.46 0.5 0.56 1.0"/>
+  </material>
+
+  <material name="Gold">
+    <color rgba="1 1 0.752941176470588 1" />
+  </material>
+
+</robot>
