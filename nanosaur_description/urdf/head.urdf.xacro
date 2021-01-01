@@ -48,18 +48,26 @@
         </link>
 
         <joint name="camera_joint" type="fixed">
-            <origin xyz="0.010 0 0.0275" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
+            <origin xyz="0.010 0 0.0250" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
             <parent link="cover"/>
             <child link="camera_board"/>
         </joint>
 
         <link name="camera_board">
             <visual>
-                <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+                <origin xyz="-0.0025 0 0" rpy="0 0 ${M_PI}" />
                 <geometry><mesh filename="${path_meshes}/parts/rasp_camera.stl"/></geometry>
-                <material name="Black" />
+                <material name="Grey" />
             </visual>
         </link>
+
+        <joint name="camera_optical_joint" type="fixed">
+            <origin xyz="0 0 0.005" rpy="0 0 -${M_PI/2}"/>
+            <parent link="camera_board"/>
+            <child link="camera_optical_frame"/>
+        </joint>
+
+        <link name="camera_optical_frame"/>
 
     </xacro:macro>
 

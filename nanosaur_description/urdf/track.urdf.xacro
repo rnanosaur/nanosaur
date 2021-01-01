@@ -26,9 +26,10 @@
             </visual>
         </link>
 
-        <joint name="sprocket_${type}_joint" type="fixed">
+        <joint name="sprocket_${type}_joint" type="continuous">
             <parent link="motor_${type}"/>
             <child link="sprocket_${type}"/>
+            <axis xyz="0 0 ${-1 * orientation}" />
         </joint>
 
         <link name="sprocket_${type}">
@@ -37,12 +38,21 @@
                 <geometry><mesh filename="${path_meshes}/sprocket.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Black" />
             </visual>
+            <!-- Collision cylinder -->
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><cylinder length="0.015" radius="0.0105"/></geometry>
+                <material name="Black" />
+            </collision>
         </link>
 
-        <joint name="wheel_${type}_joint" type="fixed">
+        <joint name="wheel_${type}_joint" type="continuous">
             <origin xyz="-0.099 0 0" rpy="0 0 0" />
             <parent link="motor_${type}"/>
             <child link="wheel_${type}"/>
+            <axis xyz="0 0 ${-1 * orientation}" />
+            <!-- Passive sprocket rotate automatically according to the status of the active one -->
+            <mimic joint="sprocket_${type}_joint" multiplier="1" offset="0"/>
         </joint>
 
         <link name="wheel_${type}">
@@ -51,6 +61,12 @@
                 <geometry><mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Black" />
             </visual>
+            <!-- Collision cylinder -->
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><cylinder length="0.015" radius="0.0105"/></geometry>
+                <material name="Black" />
+            </collision>
         </link>
 
         <joint name="track_${type}_joint" type="fixed">
