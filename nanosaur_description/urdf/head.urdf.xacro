@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot name="nanosaur_head" xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <xacro:property name="cam_angle" value="5"/>
+    <xacro:property name="display_angle" value="70.6"/>
+
     <xacro:macro name="head">
 
         <joint name="cover_joint" type="fixed">
@@ -13,6 +16,48 @@
             <visual>
                 <geometry><mesh filename="${path_meshes}/cover.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="display_left_joint" type="fixed">
+            <origin xyz="-0.017 0.0244 0.052" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="display_left"/>
+        </joint>
+
+        <link name="display_left">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="display_right_joint" type="fixed">
+            <origin xyz="-0.017 -0.0244 0.052" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="display_right"/>
+        </joint>
+
+        <link name="display_right">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="camera_joint" type="fixed">
+            <origin xyz="0.010 0 0.0275" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="camera_board"/>
+        </joint>
+
+        <link name="camera_board">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+                <geometry><mesh filename="${path_meshes}/parts/rasp_camera.stl"/></geometry>
+                <material name="Black" />
             </visual>
         </link>
 

@@ -30,6 +30,19 @@
             </visual>
         </link>
 
+        <joint name="board_expansion_joint" type="fixed">
+            <parent link="flap_bottom"/>
+            <child link="board_expansion"/>
+        </joint>
+
+        <link name="board_expansion">
+            <visual>
+                <origin xyz="-0.0017 0 0.019" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/board_expansion.stl"/></geometry>
+                <material name="GunMetalGrey" />
+            </visual>
+        </link>
+
     </xacro:macro>
 
 </robot>

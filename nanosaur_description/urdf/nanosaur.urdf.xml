@@ -10,6 +10,8 @@
     <xacro:property name="M_PI" value="3.14159"/>
     <xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>
 
+    <xacro:property name="motor_board_angle" value="35"/>
+
     <link name="base_link" />
 
     <joint name="base_front_joint" type="fixed">
@@ -35,6 +37,61 @@
         <visual>
             <geometry><mesh filename="${path_meshes}/base_rear.stl" scale="0.001 0.001 0.001"/></geometry>
             <material name="Green" />
+        </visual>
+    </link>
+
+    <joint name="motor_board_joint" type="fixed">
+        <origin xyz="0.055 0 0.005" rpy="0 ${M_PI/2 - motor_board_angle * M_PI/180} 0" />
+        <parent link="base_front"/>
+        <child link="motor_board"/>
+    </joint>
+
+    <link name="motor_board">
+        <visual>
+            <geometry><mesh filename="${path_meshes}/parts/motor_board.stl"/></geometry>
+            <material name="GunMetalGrey" />
+        </visual>
+    </link>
+
+    <joint name="power_bank_joint" type="fixed">
+        <origin xyz="0.0 0 0.0" rpy="0 0 0" />
+        <parent link="base_rear"/>
+        <child link="power_bank"/>
+    </joint>
+
+    <link name="power_bank">
+        <visual>
+            <origin xyz="0.0 0 -0.0115" rpy="0 0 ${M_PI}" />
+            <geometry><mesh filename="${path_meshes}/parts/power_bank.stl"/></geometry>
+            <material name="DarkGrey" />
+        </visual>
+    </link>
+
+    <joint name="pb_holder_joint" type="fixed">
+        <origin xyz="-0.0545 0 -0.0061" rpy="0 0 0" />
+        <parent link="base_rear"/>
+        <child link="pb_holder"/>
+    </joint>
+
+    <link name="pb_holder">
+        <visual>
+            <origin xyz="0.0 0 0" rpy="0 0 0" />
+            <geometry><mesh filename="${path_meshes}/pb_holder.stl" scale="0.001 0.001 0.001"/></geometry>
+            <material name="Green" />
+        </visual>
+    </link>
+
+    <joint name="NVIDIA_jetson_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_rear"/>
+        <child link="NVIDIA_jetson"/>
+    </joint>
+
+    <link name="NVIDIA_jetson">
+        <visual>
+            <origin xyz="0.039 0.022 0.005" rpy="0 0 ${M_PI}" />
+            <geometry><mesh filename="${path_meshes}/parts/NVIDIA_jetson_nano_4gb.stl"/></geometry>
+            <material name="DarkGrey" />
         </visual>
     </link>
 
