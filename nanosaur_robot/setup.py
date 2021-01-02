@@ -26,6 +26,7 @@
 from setuptools import setup
 # Launch command
 from os import path
+from glob import glob
 
 package_name = 'nanosaur_robot'
 
@@ -41,6 +42,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (path.join('share', package_name), glob('launch/*.py'))
     ],
     install_requires=requirements,
     zip_safe=True,
@@ -51,6 +53,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'nanosaur = nanosaur_robot.nanosaur:main'
         ],
     },
 )

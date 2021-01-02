@@ -1,4 +1,4 @@
-# Copyright (C) 2020, Raffaello Bonghi <raffaello@rnext.it>
+# Copyright (C) 2021, Raffaello Bonghi <raffaello@rnext.it>
 # All rights reserved
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -42,6 +42,11 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
 
+# Install python dependencies
+RUN apt-get update && \
+    apt-get install python3-pip -y && \
+    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
+    rm -rf /var/lib/apt/lists/*
 # source ros package from entrypoint
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \

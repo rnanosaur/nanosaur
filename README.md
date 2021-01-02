@@ -33,3 +33,19 @@ sudo apt-get install libssl-dev
 
 pip3 install -U docker-compose
 ```
+
+### Detect I2C devices
+
+```
+sudo apt-get install -y python-smbus
+sudo apt-get install -y i2c-tools
+```
+
+```
+sudo i2cdetect -y -r 1
+```
+
+Devices:
+* **3C** left Display
+* **3D** right display
+* **60** motor driver

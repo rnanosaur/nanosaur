@@ -22,3 +22,15 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import launch
+from launch.substitutions import Command, LaunchConfiguration
+import launch_ros
+import os
+
+def generate_launch_description():
+    
+    return launch.LaunchDescription([
+
+    ])
+# EOF

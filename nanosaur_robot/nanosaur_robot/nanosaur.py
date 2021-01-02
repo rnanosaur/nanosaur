@@ -22,3 +22,47 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import rclpy
+from rclpy.node import Node
+
+from geometry_msgs.msg import Twist
+
+
+class NanoSaur(Node):
+
+    def __init__(self):
+        super().__init__('nanosaur')
+        self.i = 0
+        timer_period = 1  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.subscription = self.create_subscription(
+            Twist,
+            'cmd_vel',
+            self.drive_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+
+        self.get_logger().info("Good morning NanoSaur")
+
+    def drive_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.linear)
+
+    def timer_callback(self):
+        self.get_logger().info(f"Counter {self.i}")
+        self.i += 1
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    nanosaur = NanoSaur()
+    rclpy.spin(nanosaur)
+    # Destroy the node explicitly
+    nanosaur.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+# EOF
