@@ -41,3 +41,11 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
+
+# source ros package from entrypoint
+RUN sed --in-place --expression \
+      '$isource "$ROS_WS/install/setup.bash"' \
+      /ros_entrypoint.sh
+
+# run ros package launch file
+CMD ["ros2", "launch", "nanosaur_description", "description.launch.py"]
