@@ -23,16 +23,28 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import atexit
 import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
+# Load Adafruit motor driver
+from Adafruit_MotorHAT import Adafruit_MotorHAT
 
 
 class NanoSaur(Node):
 
-    def __init__(self):
+    def __init__(self, left_id=1, right_id=2, left_trim=0, right_trim=0):
         super().__init__('nanosaur')
+        # Initialize motor HAT and left, right motor.
+        self._mh = Adafruit_MotorHAT(i2c_bus=1)
+        self._left = self._mh.getMotor(left_id)
+        self._right = self._mh.getMotor(right_id)
+        self._left_trim = left_trim
+        self._right_trim = right_trim
+        # Start with motors turned off.
+        self.stop()
+
         self.i = 0
         timer_period = 1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -42,22 +54,48 @@ class NanoSaur(Node):
             self.drive_callback,
             10)
         self.subscription  # prevent unused variable warning
+        # Configure all motors to stop at program exit
+        atexit.register(self.stop)
 
         self.get_logger().info("Good morning NanoSaur")
 
     def drive_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.linear)
+        self.get_logger().info(f'I heard: "{msg.linear}"')
 
     def timer_callback(self):
         self.get_logger().info(f"Counter {self.i}")
         self.i += 1
+
+    def _left_speed(self, speed):
+        """Set the speed of the left motor, taking into account its trim offset.
+        """
+        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
+        speed += self._left_trim
+        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
+        self._left.setSpeed(speed)
+
+    def _right_speed(self, speed):
+        """Set the speed of the right motor, taking into account its trim offset.
+        """
+        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
+        speed += self._right_trim
+        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
+        self._right.setSpeed(speed)
+
+    def stop(self):
+        """Stop all movement."""
+        self._left.run(Adafruit_MotorHAT.RELEASE)
+        self._right.run(Adafruit_MotorHAT.RELEASE)
 
 
 def main(args=None):
     rclpy.init(args=args)
 
     nanosaur = NanoSaur()
-    rclpy.spin(nanosaur)
+    try:
+        rclpy.spin(nanosaur)
+    except KeyboardInterrupt:
+        pass
     # Destroy the node explicitly
     nanosaur.destroy_node()
     rclpy.shutdown()
