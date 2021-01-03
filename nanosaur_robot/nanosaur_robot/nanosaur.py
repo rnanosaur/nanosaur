@@ -23,8 +23,6 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import argparse
-import sys
 
 import rclpy
 from rclpy.node import Node
@@ -32,6 +30,7 @@ from rclpy.qos import QoSProfile
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from .motors import Motors
+
 
 class NanoSaur(Node):
 
@@ -41,24 +40,32 @@ class NanoSaur(Node):
         self.motors = Motors()
         timer_period = 1  # seconds
         qos_profile = QoSProfile(depth=10)
+        # joint state controller
+        # https://index.ros.org/doc/ros2/Tutorials/URDF/Using-URDF-with-Robot-State-Publisher/
+        self.joint_state = JointState()
         self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
         self.timer = self.create_timer(timer_period, self.transform_callback)
+        # Drive control
+        self.v = 0.0
+        self.w = 0.0
         self.subscription = self.create_subscription(
             Twist,
             'cmd_vel',
             self.drive_callback,
             10)
         self.subscription  # prevent unused variable warning
-        self.joint_state = JointState()
         # Node started
-        self.get_logger().info("Good morning NanoSaur")
+        self.get_logger().info("Hello NanoSaur!")        
 
     def drive_callback(self, msg):
-        self.get_logger().info(f'I heard: "{msg.linear}"')
+        # Store linear velocity and angular velocity
+        self.v = msg.linear.x
+        self.w = msg.angular.z
+        self.get_logger().info(f"v={self.v} w={self.w}")
 
     def transform_callback(self):
         now = self.get_clock().now()
-        self.get_logger().info(f"Transfer callback {now.to_msg()}")
+        self.get_logger().info(f"TF update callback")
         # send the joint state and transform
         self.joint_state.header.stamp = now.to_msg()
         self.joint_state.name = ['sprocket_left_joint', 'sprocket_right_joint']

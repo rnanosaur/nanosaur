@@ -36,17 +36,17 @@ RUN apt-get update && \
     rosdep update && \
     rosdep install -i --from-path src --rosdistro foxy -y && \
     rm -rf /var/lib/apt/lists/*
+# Install python dependencies
+RUN apt-get update && \
+    apt-get install python3-pip -y && \
+    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
+    rm -rf /var/lib/apt/lists/*
 # build ros package source
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
 
-# Install python dependencies
-RUN apt-get update && \
-    apt-get install python3-pip -y && \
-    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
-    rm -rf /var/lib/apt/lists/*
 # source ros package from entrypoint
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \

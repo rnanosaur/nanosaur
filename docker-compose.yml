@@ -2,6 +2,7 @@ version: "3.9"
 services:
   nanosaur:
     build: .
+    image: nanosaur
     network_mode: "host"
     devices:
      - "/dev/i2c-1:/dev/i2c-1"
