@@ -23,70 +23,48 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import atexit
+import argparse
+import sys
+
 import rclpy
 from rclpy.node import Node
-
+from rclpy.qos import QoSProfile
+from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
-# Load Adafruit motor driver
-from Adafruit_MotorHAT import Adafruit_MotorHAT
-
+from .motors import Motors
 
 class NanoSaur(Node):
 
-    def __init__(self, left_id=1, right_id=2, left_trim=0, right_trim=0):
+    def __init__(self):
         super().__init__('nanosaur')
-        # Initialize motor HAT and left, right motor.
-        self._mh = Adafruit_MotorHAT(i2c_bus=1)
-        self._left = self._mh.getMotor(left_id)
-        self._right = self._mh.getMotor(right_id)
-        self._left_trim = left_trim
-        self._right_trim = right_trim
-        # Start with motors turned off.
-        self.stop()
-
-        self.i = 0
+        # Load motors
+        self.motors = Motors()
         timer_period = 1  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        qos_profile = QoSProfile(depth=10)
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
+        self.timer = self.create_timer(timer_period, self.transform_callback)
         self.subscription = self.create_subscription(
             Twist,
             'cmd_vel',
             self.drive_callback,
             10)
         self.subscription  # prevent unused variable warning
-        # Configure all motors to stop at program exit
-        atexit.register(self.stop)
-
+        self.joint_state = JointState()
+        # Node started
         self.get_logger().info("Good morning NanoSaur")
 
     def drive_callback(self, msg):
         self.get_logger().info(f'I heard: "{msg.linear}"')
 
-    def timer_callback(self):
-        self.get_logger().info(f"Counter {self.i}")
-        self.i += 1
-
-    def _left_speed(self, speed):
-        """Set the speed of the left motor, taking into account its trim offset.
-        """
-        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
-        speed += self._left_trim
-        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
-        self._left.setSpeed(speed)
-
-    def _right_speed(self, speed):
-        """Set the speed of the right motor, taking into account its trim offset.
-        """
-        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
-        speed += self._right_trim
-        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
-        self._right.setSpeed(speed)
-
-    def stop(self):
-        """Stop all movement."""
-        self._left.run(Adafruit_MotorHAT.RELEASE)
-        self._right.run(Adafruit_MotorHAT.RELEASE)
-
+    def transform_callback(self):
+        now = self.get_clock().now()
+        self.get_logger().info(f"Transfer callback {now.to_msg()}")
+        # send the joint state and transform
+        self.joint_state.header.stamp = now.to_msg()
+        self.joint_state.name = ['sprocket_left_joint', 'sprocket_right_joint']
+        self.joint_state.position = [0.5, 0.5]
+        self.joint_state.velocity = [0.1, 0.1]
+        self.joint_pub.publish(self.joint_state)
 
 def main(args=None):
     rclpy.init(args=args)

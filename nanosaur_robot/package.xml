@@ -27,25 +27,28 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>nanosaur_robot</name>
-  <version>0.1.0</version>
-  <description>Basic drivers for NanoSaur, motors and displays</description>
-  <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
-  <license>MIT</license>
+   <name>nanosaur_robot</name>
+   <version>0.1.0</version>
+   <description>Basic drivers for NanoSaur, motors and displays</description>
+   <author email="raffaello@rnext.it">Raffaello Bonghi</author>
+   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
+   <license>MIT</license>
 
-  <url type="website">https://rnanosaur.github.io/</url>
-  <url type="repository">https://github.com/rnanosaur/nanosaur</url>
-  <url type="bugtracker">https://github.com/rnanosaur/nanosaur/issues</url>
+   <url type="website">https://nanosaur.ai/</url>
+   <url type="repository">https://github.com/rnanosaur/nanosaur</url>
+   <url type="bugtracker">https://github.com/rnanosaur/nanosaur/issues</url>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+   <test_depend>ament_copyright</test_depend>
+   <test_depend>ament_flake8</test_depend>
+   <test_depend>ament_pep257</test_depend>
+   <test_depend>python3-pytest</test_depend>
 
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
+   <exec_depend>rclpy</exec_depend>
+   <exec_depend>geometry_msgs</exec_depend>
+   <exec_depend>sensor_msgs</exec_depend>
+   <exec_depend>joint_state_publisher</exec_depend>
 
-  <export>
-    <build_type>ament_python</build_type>
-  </export>
+   <export>
+      <build_type>ament_python</build_type>
+   </export>
 </package>

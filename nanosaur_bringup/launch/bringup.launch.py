@@ -24,24 +24,25 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import launch
-from launch.substitutions import Command, LaunchConfiguration
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_ros
-import os
-
 
 def generate_launch_description():
-    pkg_share = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
-    default_model_path = os.path.join(pkg_share, 'urdf/nanosaur.urdf.xml')
+    pkg_description = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
 
-    robot_state_publisher_node = launch_ros.actions.Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')])}]
+    nanosaur_node = launch_ros.actions.Node(
+        package='nanosaur_robot',
+        executable='nanosaur',
+        name='nanosaur',
+        output='screen'
     )
 
     return launch.LaunchDescription([
-        launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path,
-                                             description='Absolute path to robot urdf file'),
-        robot_state_publisher_node,
+        # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [pkg_description, '/launch/description.launch.py'])),
+        nanosaur_node
     ])
 # EOF

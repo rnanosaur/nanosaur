@@ -23,14 +23,42 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import launch
-from launch.substitutions import Command, LaunchConfiguration
-import launch_ros
-import os
+import atexit
+# Load Adafruit motor driver
+from Adafruit_MotorHAT import Adafruit_MotorHAT
 
-def generate_launch_description():
-    
-    return launch.LaunchDescription([
+class Motors:
 
-    ])
+    def __init__(self, left_id=1, right_id=2, left_trim=0, right_trim=0):
+        # Initialize motor HAT and left, right motor.
+        self._mh = Adafruit_MotorHAT(i2c_bus=1)
+        self._left = self._mh.getMotor(left_id)
+        self._right = self._mh.getMotor(right_id)
+        self._left_trim = left_trim
+        self._right_trim = right_trim
+        # Start with motors turned off.
+        self.stop()
+        # Configure all motors to stop at program exit
+        atexit.register(self.stop)
+
+    def _left_speed(self, speed):
+        """Set the speed of the left motor, taking into account its trim offset.
+        """
+        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
+        speed += self._left_trim
+        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
+        self._left.setSpeed(speed)
+
+    def _right_speed(self, speed):
+        """Set the speed of the right motor, taking into account its trim offset.
+        """
+        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
+        speed += self._right_trim
+        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
+        self._right.setSpeed(speed)
+
+    def stop(self):
+        """Stop all movement."""
+        self._left.run(Adafruit_MotorHAT.RELEASE)
+        self._right.run(Adafruit_MotorHAT.RELEASE)
 # EOF
