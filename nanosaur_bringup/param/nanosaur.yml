@@ -1,0 +1,5 @@
+nanosaur:
+  ros__parameters:
+
+    left_wheel: sprocket_left_joint
+    right_wheel: sprocket_right_joint

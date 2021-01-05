@@ -11,7 +11,7 @@ find_package(ament_cmake REQUIRED)
 # Install
 ################################################################################
 install(
-  DIRECTORY launch config
+  DIRECTORY launch param
   DESTINATION share/${PROJECT_NAME}
 )
 

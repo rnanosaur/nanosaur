@@ -48,6 +48,7 @@ def get_joint(robot, joint_name):
             return joint
     raise Exception(f"Joint {joint_name} not found")
 
+
 def get_link(robot, link_name):
     for link in robot.links:
         if link.name == link_name:
@@ -87,22 +88,30 @@ class NanoSaur(Node):
     def configure_robot(self, description):
         self.get_logger().info('Got description, configuring robot')
         # Load description
-        # Idea from
-        # https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/diff_drive_controller.cpp
+        # From https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/diff_drive_controller.cpp
         robot = URDF.from_xml_string(description)
 
-        joint_left = get_joint(robot, 'sprocket_left_joint')
-        self.get_logger().debug(f"left {joint_left.origin.xyz}")
-        joint_right = get_joint(robot, 'sprocket_right_joint')
-        self.get_logger().debug(f"right {joint_right.origin.xyz}")
+        # Get parameter left wheel name
+        # https://index.ros.org/doc/ros2/Tutorials/Using-Parameters-In-A-Class-Python/
+        self.declare_parameter("left_wheel")
+        left_wheel_name = self.get_parameter("left_wheel").get_parameter_value().string_value
+        self.get_logger().debug(f"Right wheel name: {left_wheel_name}")
+        # Get left joint wheel
+        joint_left = get_joint(robot, left_wheel_name)
 
-        distance = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
-
-        self.get_logger().info(f"distance {distance}")
-
+        # Get parameter right wheel name
+        self.declare_parameter("right_wheel")
+        right_wheel_name = self.get_parameter("right_wheel").get_parameter_value().string_value
+        self.get_logger().debug(f"Left wheel name: {right_wheel_name}")
+        # Get right joint wheel
+        joint_right = get_joint(robot, right_wheel_name)
+        # Measure distance
+        self.distance = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
+        # Get radius joint
         link_left = get_link(robot, joint_left.child)
-        radius = link_left.collision.geometry.radius
-        self.get_logger().info(f"right {radius}")
+        self.radius = link_left.collision.geometry.radius
+
+        self.get_logger().info(f"Distance {self.distance} - Radius {self.radius}")
 
     def drive_callback(self, msg):
         # Store linear velocity and angular velocity
@@ -119,6 +128,7 @@ class NanoSaur(Node):
         self.joint_state.position = [0.5, 0.5]
         self.joint_state.velocity = [0.1, 0.1]
         self.joint_pub.publish(self.joint_state)
+
 
 def main(args=None):
     rclpy.init(args=args)
