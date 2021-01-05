@@ -10,6 +10,8 @@
     <xacro:property name="M_PI" value="3.14159"/>
     <xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>
 
+    <xacro:property name="sprocket_radius" value="0.0105"/>
+
     <xacro:property name="motor_board_angle" value="35"/>
 
     <link name="base_link" />
@@ -100,8 +102,8 @@
         </visual>
     </link>
 
-    <xacro:track type="left" />
-    <xacro:track type="right" />
+    <xacro:track type="left" parent="base_link" radius="${sprocket_radius}"/>
+    <xacro:track type="right" parent="base_link" radius="${sprocket_radius}"/>
     <xacro:head />
     <xacro:flap />
 

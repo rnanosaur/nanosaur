@@ -25,11 +25,34 @@
 
 
 import rclpy
+import math
+from urdf_parser_py.urdf import URDF
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 from .motors import Motors
+
+
+def euclidean_of_vectors(xyz1, xyz2):
+    return math.sqrt(
+        (xyz1[0] - xyz2[0]) ** 2 +
+        (xyz1[1] - xyz2[1]) ** 2 +
+        (xyz1[2] - xyz2[2]) ** 2)
+
+
+def get_joint(robot, joint_name):
+    for joint in robot.joints:
+        if joint.name == joint_name:
+            return joint
+    raise Exception(f"Joint {joint_name} not found")
+
+def get_link(robot, link_name):
+    for link in robot.links:
+        if link.name == link_name:
+            return link
+    raise Exception(f"link {link_name} not found")
 
 
 class NanoSaur(Node):
@@ -40,6 +63,10 @@ class NanoSaur(Node):
         self.motors = Motors()
         timer_period = 1  # seconds
         qos_profile = QoSProfile(depth=10)
+        self.create_subscription(
+            String, 'robot_description',
+            lambda msg: self.configure_robot(msg.data),
+            rclpy.qos.QoSProfile(depth=1, durability=rclpy.qos.QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL))
         # joint state controller
         # https://index.ros.org/doc/ros2/Tutorials/URDF/Using-URDF-with-Robot-State-Publisher/
         self.joint_state = JointState()
@@ -55,7 +82,27 @@ class NanoSaur(Node):
             10)
         self.subscription  # prevent unused variable warning
         # Node started
-        self.get_logger().info("Hello NanoSaur!")        
+        self.get_logger().info("Hello NanoSaur!")
+
+    def configure_robot(self, description):
+        self.get_logger().info('Got description, configuring robot')
+        # Load description
+        # Idea from
+        # https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/diff_drive_controller.cpp
+        robot = URDF.from_xml_string(description)
+
+        joint_left = get_joint(robot, 'sprocket_left_joint')
+        self.get_logger().debug(f"left {joint_left.origin.xyz}")
+        joint_right = get_joint(robot, 'sprocket_right_joint')
+        self.get_logger().debug(f"right {joint_right.origin.xyz}")
+
+        distance = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
+
+        self.get_logger().info(f"distance {distance}")
+
+        link_left = get_link(robot, joint_left.child)
+        radius = link_left.collision.geometry.radius
+        self.get_logger().info(f"right {radius}")
 
     def drive_callback(self, msg):
         # Store linear velocity and angular velocity
