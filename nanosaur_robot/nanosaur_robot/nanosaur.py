@@ -64,6 +64,17 @@ class NanoSaur(Node):
         self.motors = Motors()
         timer_period = 1  # seconds
         qos_profile = QoSProfile(depth=10)
+
+        # Get parameter left wheel name
+        # https://index.ros.org/doc/ros2/Tutorials/Using-Parameters-In-A-Class-Python/
+        self.declare_parameter("left_wheel")
+        self.left_wheel_name = self.get_parameter("left_wheel").get_parameter_value().string_value
+        self.get_logger().debug(f"Right wheel name: {self.left_wheel_name}")
+        # Get parameter right wheel name
+        self.declare_parameter("right_wheel")
+        self.right_wheel_name = self.get_parameter("right_wheel").get_parameter_value().string_value
+        self.get_logger().debug(f"Left wheel name: {self.right_wheel_name}")
+        # Load subscriber robot_description
         self.create_subscription(
             String, 'robot_description',
             lambda msg: self.configure_robot(msg.data),
@@ -90,21 +101,10 @@ class NanoSaur(Node):
         # Load description
         # From https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/diff_drive_controller.cpp
         robot = URDF.from_xml_string(description)
-
-        # Get parameter left wheel name
-        # https://index.ros.org/doc/ros2/Tutorials/Using-Parameters-In-A-Class-Python/
-        self.declare_parameter("left_wheel")
-        left_wheel_name = self.get_parameter("left_wheel").get_parameter_value().string_value
-        self.get_logger().debug(f"Right wheel name: {left_wheel_name}")
         # Get left joint wheel
-        joint_left = get_joint(robot, left_wheel_name)
-
-        # Get parameter right wheel name
-        self.declare_parameter("right_wheel")
-        right_wheel_name = self.get_parameter("right_wheel").get_parameter_value().string_value
-        self.get_logger().debug(f"Left wheel name: {right_wheel_name}")
+        joint_left = get_joint(robot, self.left_wheel_name)
         # Get right joint wheel
-        joint_right = get_joint(robot, right_wheel_name)
+        joint_right = get_joint(robot, self.right_wheel_name)
         # Measure distance
         self.distance = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
         # Get radius joint
@@ -124,7 +124,7 @@ class NanoSaur(Node):
         self.get_logger().info(f"TF update callback")
         # send the joint state and transform
         self.joint_state.header.stamp = now.to_msg()
-        self.joint_state.name = ['sprocket_left_joint', 'sprocket_right_joint']
+        self.joint_state.name = [self.left_wheel_name, self.right_wheel_name]
         self.joint_state.position = [0.5, 0.5]
         self.joint_state.velocity = [0.1, 0.1]
         self.joint_pub.publish(self.joint_state)
