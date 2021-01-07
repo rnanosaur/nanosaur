@@ -62,31 +62,37 @@ class NanoSaur(Node):
         super().__init__('nanosaur')
         # Load motors
         self.motors = Motors()
-        timer_period = 1  # seconds
-        qos_profile = QoSProfile(depth=10)
-
+        # Get rate joint_states
+        self.declare_parameter("rate", 5)
+        self.timer_period = 1. / float(self.get_parameter("rate").value)
+        self.get_logger().debug(f"timer {self.timer_period}")
+        # Get RPM motors
+        self.declare_parameter("rpm")
+        self.rpm = self.get_parameter("rpm").value
+        self.get_logger().debug(f"RPM motors {self.rpm}")
         # Get parameter left wheel name
         # https://index.ros.org/doc/ros2/Tutorials/Using-Parameters-In-A-Class-Python/
         self.declare_parameter("left_wheel")
-        self.left_wheel_name = self.get_parameter("left_wheel").get_parameter_value().string_value
+        self.left_wheel_name = self.get_parameter("left_wheel").value
         self.get_logger().debug(f"Right wheel name: {self.left_wheel_name}")
         # Get parameter right wheel name
         self.declare_parameter("right_wheel")
-        self.right_wheel_name = self.get_parameter("right_wheel").get_parameter_value().string_value
+        self.right_wheel_name = self.get_parameter("right_wheel").value
         self.get_logger().debug(f"Left wheel name: {self.right_wheel_name}")
         # Load subscriber robot_description
         self.create_subscription(
             String, 'robot_description',
             lambda msg: self.configure_robot(msg.data),
-            rclpy.qos.QoSProfile(depth=1, durability=rclpy.qos.QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL))
+            QoSProfile(depth=1, durability=rclpy.qos.QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL))
         # joint state controller
         # https://index.ros.org/doc/ros2/Tutorials/URDF/Using-URDF-with-Robot-State-Publisher/
         self.joint_state = JointState()
+        qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
-        self.timer = self.create_timer(timer_period, self.transform_callback)
+        self.timer = self.create_timer(self.timer_period, self.transform_callback)
         # Drive control
-        self.v = 0.0
-        self.w = 0.0
+        self.p = [0.0, 0.0] # [right, left]
+        self.r = [0.0, 0.0] # [right, left]
         self.subscription = self.create_subscription(
             Twist,
             'cmd_vel',
@@ -105,28 +111,53 @@ class NanoSaur(Node):
         joint_left = get_joint(robot, self.left_wheel_name)
         # Get right joint wheel
         joint_right = get_joint(robot, self.right_wheel_name)
-        # Measure distance
-        self.distance = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
+        # Measure wheel separation
+        self.wheel_separation = euclidean_of_vectors(joint_left.origin.xyz, joint_right.origin.xyz)
         # Get radius joint
         link_left = get_link(robot, joint_left.child)
         self.radius = link_left.collision.geometry.radius
+        self.get_logger().info(f"Wheel separation {self.wheel_separation} - Radius {self.radius}")
 
-        self.get_logger().info(f"Distance {self.distance} - Radius {self.radius}")
+    def convert_speed(self, v, w):
+        half_wheel_separation = self.wheel_separation / 2.
+        vr = v + half_wheel_separation * w
+        vl = v - half_wheel_separation * w
+        rr = vr / self.radius
+        rl = vl / self.radius
+        return [rr, rl]
 
     def drive_callback(self, msg):
         # Store linear velocity and angular velocity
-        self.v = msg.linear.x
-        self.w = msg.angular.z
-        self.get_logger().info(f"v={self.v} w={self.w}")
+        v = msg.linear.x
+        w = msg.angular.z
+        # Convert linear and angular velocity to radiant motor speed
+        self.get_logger().debug(f"v={v} w={w}")
+        r = self.convert_speed(v, w)
+        self.get_logger().debug(f"rad {r}")
+        max_speed = self.rpm / 60.
+        # Constrain between -max_speed << speed << max_speed.
+        self.r = [max(-max_speed, min(max_speed, r[0])), max(-max_speed, min(max_speed, r[1]))]
+        # Send a warning message if speed is over 
+        if r[0] != self.r[0]:
+            self.get_logger().warning(f"ref speed over {r[0] - self.r[0]}")
+        if r[1] != self.r[1]:
+            self.get_logger().warning(f"ref speed over {r[1] - self.r[1]}")
+        # Convert speed to motor speed in RPM
+        rpmr = self.r[0] * 60.
+        rpml = self.r[1] * 60.
+        # Set to max RPM available
+        self.get_logger().info(f"RPM R={rpmr} L={rpml}")
 
     def transform_callback(self):
         now = self.get_clock().now()
-        self.get_logger().info(f"TF update callback")
         # send the joint state and transform
         self.joint_state.header.stamp = now.to_msg()
         self.joint_state.name = [self.left_wheel_name, self.right_wheel_name]
-        self.joint_state.position = [0.5, 0.5]
-        self.joint_state.velocity = [0.1, 0.1]
+        # Estimate angle position
+        self.p[0] = (self.p[0] + self.r[0] * self.timer_period) % (2 * math.pi)
+        self.p[1] = (self.p[1] + self.r[1] * self.timer_period) % (2 * math.pi)
+        self.joint_state.position = self.p
+        self.joint_state.velocity = self.r
         self.joint_pub.publish(self.joint_state)
 
 
