@@ -32,7 +32,7 @@ from rclpy.qos import QoSProfile
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
-from .motors import Motors
+from .motor import Motor
 
 
 def euclidean_of_vectors(xyz1, xyz2):
@@ -60,8 +60,6 @@ class NanoSaur(Node):
 
     def __init__(self):
         super().__init__('nanosaur')
-        # Load motors
-        self.motors = Motors()
         # Get rate joint_states
         self.declare_parameter("rate", 5)
         self.timer_period = 1. / float(self.get_parameter("rate").value)
@@ -79,6 +77,11 @@ class NanoSaur(Node):
         self.declare_parameter("right_wheel")
         self.right_wheel_name = self.get_parameter("right_wheel").value
         self.get_logger().debug(f"Left wheel name: {self.right_wheel_name}")
+        # Load motors
+        left_id = 1
+        right_id = 2
+        self.mright = Motor(right_id, self.rpm)
+        self.mleft = Motor(left_id, self.rpm)
         # Load subscriber robot_description
         self.create_subscription(
             String, 'robot_description',
@@ -147,6 +150,8 @@ class NanoSaur(Node):
         rpml = self.r[1] * 60.
         # Set to max RPM available
         self.get_logger().info(f"RPM R={rpmr} L={rpml}")
+        self.mright.set_speed(rpmr)
+        self.mleft.set_speed(rpml)
 
     def transform_callback(self):
         now = self.get_clock().now()

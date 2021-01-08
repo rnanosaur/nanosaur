@@ -24,41 +24,34 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import atexit
-# Load Adafruit motor driver
 from Adafruit_MotorHAT import Adafruit_MotorHAT
 
-class Motors:
+# addr=0x60
+mh = Adafruit_MotorHAT(i2c_bus=1)
 
-    def __init__(self, left_id=1, right_id=2, left_trim=0, right_trim=0):
-        # Initialize motor HAT and left, right motor.
-        self._mh = Adafruit_MotorHAT(i2c_bus=1)
-        self._left = self._mh.getMotor(left_id)
-        self._right = self._mh.getMotor(right_id)
-        self._left_trim = left_trim
-        self._right_trim = right_trim
-        # Start with motors turned off.
-        self.stop()
+
+class Motor:
+
+    def __init__(self, channel_id, rpm, alpha=1.0, beta=0.0):
+        self.alpha = alpha
+        self.beta = beta
+        # load motor channel
+        self._motor = mh.getMotor(channel_id)
+        self._rpm = rpm
         # Configure all motors to stop at program exit
-        atexit.register(self.stop)
+        atexit.register(self._release)
 
-    def _left_speed(self, speed):
-        """Set the speed of the left motor, taking into account its trim offset.
-        """
-        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
-        speed += self._left_trim
-        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
-        self._left.setSpeed(speed)
+    def set_speed(self, rpm):
+        value = rpm / self._rpm
+        mapped_value = int(255.0 * (self.alpha * value + self.beta))
+        speed = min(max(abs(mapped_value), 0), 255)
+        self._motor.setSpeed(speed)
+        if mapped_value < 0:
+            self._motor.run(Adafruit_MotorHAT.BACKWARD)
+        else:
+            self._motor.run(Adafruit_MotorHAT.FORWARD)
 
-    def _right_speed(self, speed):
-        """Set the speed of the right motor, taking into account its trim offset.
-        """
-        assert 0 <= speed <= 255, 'Speed must be a value between 0 to 255 inclusive!'
-        speed += self._right_trim
-        speed = max(0, min(255, speed))  # Constrain speed to 0-255 after trimming.
-        self._right.setSpeed(speed)
-
-    def stop(self):
-        """Stop all movement."""
-        self._left.run(Adafruit_MotorHAT.RELEASE)
-        self._right.run(Adafruit_MotorHAT.RELEASE)
+    def _release(self):
+        """Stops motor by releasing control"""
+        self._motor.run(Adafruit_MotorHAT.RELEASE)
 # EOF
