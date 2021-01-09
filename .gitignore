@@ -1,3 +1,7 @@
+
+# VSCode
+.vscode/
+
 devel/
 logs/
 build/
