@@ -31,6 +31,12 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
+# Load sudo user nane
+if [ ! -z $SUDO_USER ] ; then
+    USER=$SUDO_USER
+    HOSTNAME="$(cat /etc/hostname)"
+fi
+
 
 usage()
 {
@@ -38,7 +44,8 @@ usage()
 		echo "${red}$1${reset}"
 	fi
 	
-    echo "nanosaur installer. This script install all dependencies"
+    echo "${bold}${green}nanosaur installer.${reset} This script install all dependencies. Use this script to setup your host."
+    echo "${bold}${red}Do not use${reset} to setup a docker image"
     echo "Usage:"
     echo "$0 [options]"
     echo "options,"
@@ -68,10 +75,48 @@ main()
             shift 1
     done
 
-    echo "Installer"
+	# Check run in sudo
+    if [[ `id -u` -ne 0 ]] ; then 
+        echo "${red}Please run as root${reset}"
+        exit 1
+    fi
+
+    # Recap installatation
+    echo "------ Configuration ------"
+    echo " - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
+    echo " - ${bold}User:${reset} ${green}$USER${reset}"
+    echo " - ${bold}Home:${reset} ${green}$HOME${reset}"
+    echo "---------------------------"
+
+    while ! $SILENT; do
+        read -p "Do you wish to install nanosaur config? [Y/n] " yn
+            case $yn in
+                [Yy]* ) # Break and install jetson_stats 
+                        break;;
+                [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    echo " - ${bold}${green}Install jetson-stats${reset}"
+    sudo -H pip3 install -U jetson-stats
+
+    echo " - ${bold}${green}Add docker permissions to user=$user${reset}"
+    sudo usermod -aG docker $USER
+
+    echo " - ${bold}${green}Install docker-compose${reset}"
+    sudo apt-get install -y libffi-dev
+    sudo apt-get install -y python-openssl
+    sudo apt-get install libssl-dev
+    pip3 install -U docker-compose
+
+    if [ -f /var/run/reboot-required ] ; then
+        # After install require reboot
+        echo "${red}*** System Restart Required ***${reset}"
+    fi
 }
 
 main $@
-return
+exit 0
 
 # EOF
