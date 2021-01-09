@@ -1,3 +1,4 @@
 setuptools
-Adafruit_MotorHat
+pillow
 Adafruit-SSD1306
+Adafruit_MotorHat

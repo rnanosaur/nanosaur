@@ -29,17 +29,14 @@ ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 WORKDIR $ROS_WS
 # Copy nanosaur project
-COPY . $ROS_WS/src
-# Install dependencies
+COPY . $ROS_WS/src/nanosaur
+# Install python dependencies and ROS2 dependencies
 RUN apt-get update && \
+    apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
+    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
     rosdep fix-permissions && \
     rosdep update && \
     rosdep install -i --from-path src --rosdistro foxy -y && \
-    rm -rf /var/lib/apt/lists/*
-# Install python dependencies
-RUN apt-get update && \
-    apt-get install python3-pip -y && \
-    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 # build ros package source
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
@@ -53,4 +50,4 @@ RUN sed --in-place --expression \
       /ros_entrypoint.sh
 
 # run ros package launch file
-CMD ["ros2", "launch", "nanosaur_description", "description.launch.py"]
+CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]

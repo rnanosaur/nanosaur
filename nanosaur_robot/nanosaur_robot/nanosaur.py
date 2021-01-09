@@ -33,6 +33,7 @@ from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from .motor import Motor
+from .display import Display
 
 
 def euclidean_of_vectors(xyz1, xyz2):
@@ -60,6 +61,9 @@ class NanoSaur(Node):
 
     def __init__(self):
         super().__init__('nanosaur')
+        # Load Display controller
+        self.display_left = Display(self, i2c_address=0x3C)
+        self.display_right = Display(self, i2c_address=0x3D)
         # Get rate joint_states
         self.declare_parameter("rate", 5)
         self.timer_period = 1. / float(self.get_parameter("rate").value)
