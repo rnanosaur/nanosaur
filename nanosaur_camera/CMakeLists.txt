@@ -19,7 +19,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(vision_msgs REQUIRED)
 
 include_directories(/usr/include/gstreamer-1.0 /usr/include/glib-2.0 /usr/include/libxml2 /usr/lib/aarch64-linux-gnu/gstreamer-1.0/include /usr/lib/x86_64-linux-gnu/gstreamer-1.0/include/ /usr/lib/aarch64-linux-gnu/glib-2.0/include/ /usr/lib/x86_64-linux-gnu/glib-2.0/include/)
 ## System dependencies are found with CMake's conventions
@@ -33,7 +32,7 @@ include_directories(
     ${CUDA_INCLUDE_DIRS}
 )
 add_executable(nanosaur_camera src/camera_publisher.cpp src/image_converter.cpp)
-ament_target_dependencies(nanosaur_camera rclcpp std_msgs sensor_msgs vision_msgs)
+ament_target_dependencies(nanosaur_camera rclcpp std_msgs sensor_msgs)
 target_link_libraries(nanosaur_camera jetson-utils)
 
 install(TARGETS

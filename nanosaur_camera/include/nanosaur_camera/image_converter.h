@@ -7,26 +7,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/image_encodings.hpp>
-#include <vision_msgs/msg/classification2_d.hpp>
-#include <vision_msgs/msg/detection2_d_array.hpp>
-#include <vision_msgs/msg/vision_info.hpp>
-
-namespace vision_msgs
-{
-	typedef msg::Classification2D Classification2D;
-	typedef msg::Detection2D		Detection2D;
-	typedef msg::Detection2DArray Detection2DArray;
-	typedef msg::ObjectHypothesis ObjectHypothesis;
-	typedef msg::ObjectHypothesisWithPose ObjectHypothesisWithPose;
-	typedef msg::VisionInfo 		VisionInfo;
-}
-
-namespace sensor_msgs
-{
-	typedef msg::Image Image;
-	typedef msg::Image::SharedPtr ImagePtr;
-	typedef msg::Image::ConstSharedPtr ImageConstPtr;
-}
 
 /**
  * GPU image conversion
@@ -67,17 +47,17 @@ public:
 	/**
 	 * Convert to 32-bit RGBA floating point
 	 */
-	bool Convert( const sensor_msgs::ImageConstPtr& input );
+	bool Convert( const sensor_msgs::msg::Image::ConstSharedPtr& input );
 
 	/**
 	 * Convert to ROS sensor_msgs::Image message
 	 */
-	bool Convert( sensor_msgs::Image& msg_out, imageFormat outputFormat );
+	bool Convert( sensor_msgs::msg::Image& msg_out, imageFormat outputFormat );
 
 	/**
 	 * Convert to ROS sensor_msgs::Image message
 	 */
-	bool Convert( sensor_msgs::Image& msg_out, imageFormat outputFormat, PixelType* imageGPU );
+	bool Convert( sensor_msgs::msg::Image& msg_out, imageFormat outputFormat, PixelType* imageGPU );
 
 	/**
 	 * Resize the memory (if necessary)

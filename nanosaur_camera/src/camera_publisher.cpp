@@ -34,10 +34,11 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
+#include <sensor_msgs/msg/image.hpp>
 #include <jetson-utils/gstCamera.h>
 
 #include "nanosaur_camera/image_converter.h"
-#include <sensor_msgs/msg/image.hpp>
+
 
 using namespace std::chrono_literals;
 
@@ -45,62 +46,68 @@ using namespace std::chrono_literals;
 class CameraPublisher : public rclcpp::Node
 {
 public:
-  CameraPublisher()
-  : Node("camera_publisher"), count_(0)
+  CameraPublisher() : Node("camera_publisher")
   {
-    publisher_ = this->create_publisher<sensor_msgs::Image>("image_raw", 10);
+    publisher_ = this->create_publisher<sensor_msgs::msg::Image>("image_raw", 10);
+
     std::string camera_device = "0";	// MIPI CSI camera by default
-
     RCLCPP_INFO(this->get_logger(), "opening camera device %s", camera_device.c_str());
+
     /* open camera device */
-	camera = gstCamera::Create(camera_device.c_str());
+	  camera = gstCamera::Create(camera_device.c_str());
 
-	if( !camera )
-	{
-		RCLCPP_ERROR(this->get_logger(), "failed to open camera device %s", camera_device.c_str());
-	}
+    if( !camera )
+    {
+      RCLCPP_ERROR(this->get_logger(), "failed to open camera device %s", camera_device.c_str());
+    }
 
-	/* create image converter */
-	camera_cvt = new imageConverter(this);
+    /* create image converter */
+    camera_cvt = new imageConverter(this);
 
-    timer_ = this->create_wall_timer(
-      200ms, std::bind(&CameraPublisher::acquire, this));
+    timer_ = this->create_wall_timer(300ms, std::bind(&CameraPublisher::acquire, this));
   }
 
   bool acquire()
   {
     float4* imgRGBA = NULL;
-	// get the latest frame
-	if( !camera->CaptureRGBA((float**)&imgRGBA, 1000) )
-	{
-		RCLCPP_ERROR(this->get_logger(), "failed to capture camera frame");
-	}
+    // get the latest frame
+    if( !camera->CaptureRGBA((float**)&imgRGBA, 1000) )
+    {
+      RCLCPP_ERROR(this->get_logger(), "failed to capture camera frame");
+      return false;
+    }
+    // assure correct image size
+    if( !camera_cvt->Resize(camera->GetWidth(), camera->GetHeight(), IMAGE_RGBA32F) )
+    {
+      RCLCPP_ERROR(this->get_logger(), "failed to resize camera image converter");
+      return false;
+    }
+    // populate the message
+    sensor_msgs::msg::Image msg;
 
-	// assure correct image size
-	if( !camera_cvt->Resize(camera->GetWidth(), camera->GetHeight(), IMAGE_RGBA32F) )
-	{
-		RCLCPP_ERROR(this->get_logger(), "failed to resize camera image converter");
-		return false;
-	}
-	// populate the message
-	sensor_msgs::Image msg;
-
-	if( !camera_cvt->Convert(msg, imageConverter::ROSOutputFormat, imgRGBA) )
-	{
-		RCLCPP_ERROR(this->get_logger(), "failed to convert camera frame to sensor_msgs::Image");
-		return false;
-	}
-
+    if( !camera_cvt->Convert(msg, imageConverter::ROSOutputFormat, imgRGBA) )
+    {
+      RCLCPP_ERROR(this->get_logger(), "failed to convert camera frame to sensor_msgs::Image");
+      return false;
+    }
+    // Publish camera frame message
     publisher_->publish(msg);
     RCLCPP_INFO(this->get_logger(), "Published camera frame");
     return true;
   }
 
+  ~CameraPublisher()
+  {
+    RCLCPP_INFO(this->get_logger(), "Close camera_publisher");
+
+    camera->Close();
+    camera_cvt->Free();
+  }
+
 private:
-  size_t count_;
   gstCamera* camera;
   imageConverter* camera_cvt;
-  rclcpp::Publisher<sensor_msgs::Image>::SharedPtr publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 

@@ -95,7 +95,7 @@ void imageConverter::Free()
 }
 
 // Convert
-bool imageConverter::Convert( const sensor_msgs::ImageConstPtr& input )
+bool imageConverter::Convert( const sensor_msgs::msg::Image::ConstSharedPtr& input )
 {
 	RCLCPP_DEBUG(node->get_logger(), "converting %ux%u %s image", input->width, input->height, input->encoding.c_str());
 
@@ -127,14 +127,14 @@ bool imageConverter::Convert( const sensor_msgs::ImageConstPtr& input )
 
 
 // Convert
-bool imageConverter::Convert( sensor_msgs::Image& msg, imageFormat format )
+bool imageConverter::Convert( sensor_msgs::msg::Image& msg, imageFormat format )
 {
 	return Convert(msg, format, ImageGPU());
 }
 
 
 // Convert
-bool imageConverter::Convert( sensor_msgs::Image& msg, imageFormat format, PixelType* imageGPU )
+bool imageConverter::Convert( sensor_msgs::msg::Image& msg, imageFormat format, PixelType* imageGPU )
 {
 	if( !mInputCPU || !imageGPU || mWidth == 0 || mHeight == 0 || mSizeInput == 0 || mSizeOutput == 0 )
 		return false;
