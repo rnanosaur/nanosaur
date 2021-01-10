@@ -41,6 +41,13 @@ https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 docker run --net=host -v $HOME/dev_ws/src:/opt/ros_ws/src -v "/run/jtop.sock:/run/jtop.sock" --device /dev/i2c-1 -it --rm nanosaur bash
 ```
 
+Debug camera
+
+```
+cd src/nanosaur
+docker run --runtime nvidia -it --rm  --network host -v /tmp/argus_socket:/tmp/argus_socket -v $(pwd):/opt/ros_ws/src/nanosaur nanosaur:test bash
+```
+
 ## Detect I2C devices
 
 Install I2C tools and dectect all devices

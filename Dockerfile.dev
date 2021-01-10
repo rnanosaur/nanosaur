@@ -23,14 +23,33 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-version: "3.9"
-services:
-  nanosaur:
-    build: .
-    image: nanosaur
-    network_mode: "host"
-    devices:
-     - "/dev/i2c-1:/dev/i2c-1" # I2C motors and displays
-    volumes:
-     - "/run/jtop.sock:/run/jtop.sock" # jtop socket
-     - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
+FROM ros:foxy-ros-base-l4t-r32.4.4
+
+ENV ROS_WS /opt/ros_ws
+RUN mkdir -p $ROS_WS/src
+# Install gstream libraries
+RUN apt-get update && \
+    apt-get install -y libglew-dev glew-utils libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev libglib2.0-dev && \
+    rm -rf /var/lib/apt/lists/*
+# Install jetson-utils
+RUN cd /opt && \
+    git clone https://github.com/dusty-nv/jetson-utils.git && \
+    mkdir -p jetson-utils/build && cd jetson-utils/build && \
+    cmake ../ && \
+    make -j4 && make install && ldconfig
+# Change workdir
+WORKDIR $ROS_WS
+# Copy nanosaur project
+COPY . $ROS_WS/src/nanosaur
+# build ros package source
+RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
+    colcon build --symlink-install \
+    --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release
+# source ros package from entrypoint
+RUN sed --in-place --expression \
+      '$isource "$ROS_WS/install/setup.bash"' \
+      /ros_entrypoint.sh
+# run ros package launch file
+CMD ["ros2", "run", "nanosaur_camera", "nanosaur_camera"]
