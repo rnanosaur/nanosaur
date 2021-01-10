@@ -38,7 +38,7 @@ docker build -t nanosaur .
 https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 
 ```
-docker run --net=host --device /dev/i2c-1 -it --rm nanosaur
+docker run --net=host -v $HOME/dev_ws/src:/opt/ros_ws/src -v "/run/jtop.sock:/run/jtop.sock" --device /dev/i2c-1 -it --rm nanosaur bash
 ```
 
 ## Detect I2C devices

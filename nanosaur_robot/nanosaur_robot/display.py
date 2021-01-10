@@ -35,6 +35,10 @@ from PIL import ImageFont
 class Display:
 
     def __init__(self, node, timer_period=1, i2c_address=0x3C) -> None:
+        """
+        Reference:
+        - https://github.com/adafruit/Adafruit_Python_SSD1306/blob/master/examples/shapes.py
+        """
         self.node = node
         self.i2c_address = i2c_address
         # 128x32 display with hardware I2C:

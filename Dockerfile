@@ -40,7 +40,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 # build ros package source
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build \
+    colcon build  --symlink-install \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
 
