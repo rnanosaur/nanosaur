@@ -1,5 +1,6 @@
-#ifndef __ROS_DEEP_LEARNING_IMAGE_CONVERTER_H_
-#define __ROS_DEEP_LEARNING_IMAGE_CONVERTER_H_
+
+#ifndef IMAGE_CONVERTER_H
+#define IMAGE_CONVERTER_H
 
 #include <jetson-utils/cudaUtility.h>
 #include <jetson-utils/imageFormat.h>
@@ -32,7 +33,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	imageConverter(rclcpp::Node* node);
+	imageConverter();
 
 	/**
 	 * Destructor
@@ -91,8 +92,6 @@ private:
 
 	PixelType* mOutputCPU;
 	PixelType* mOutputGPU;
-
-	rclcpp::Node* node;
 };
 
-#endif
+#endif // IMAGE_CONVERTER_H

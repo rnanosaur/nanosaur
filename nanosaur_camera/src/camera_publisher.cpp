@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2021, Raffaello Bonghi <raffaello@rnext.it>
  * All rights reserved
@@ -62,7 +61,7 @@ public:
     }
 
     /* create image converter */
-    camera_cvt = new imageConverter(this);
+    camera_cvt = new imageConverter();
 
     timer_ = this->create_wall_timer(300ms, std::bind(&CameraPublisher::acquire, this));
   }
@@ -92,14 +91,13 @@ public:
     }
     // Publish camera frame message
     publisher_->publish(msg);
-    RCLCPP_INFO(this->get_logger(), "Published camera frame");
+    RCLCPP_DEBUG(this->get_logger(), "Published camera frame");
     return true;
   }
 
   ~CameraPublisher()
   {
-    RCLCPP_INFO(this->get_logger(), "Close camera_publisher");
-
+    RCLCPP_DEBUG(this->get_logger(), "Close camera_publisher");
     camera->Close();
     camera_cvt->Free();
   }

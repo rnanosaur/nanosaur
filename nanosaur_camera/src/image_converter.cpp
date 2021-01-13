@@ -1,3 +1,4 @@
+
 #include "nanosaur_camera/image_converter.h"
 
 #include <jetson-utils/cudaColorspace.h>
@@ -44,6 +45,8 @@ static std::string imageFormatToEncoding( imageFormat fmt )
 		case IMAGE_BAYER_BGGR:	return sensor_msgs::image_encodings::BAYER_BGGR8;
 		case IMAGE_BAYER_GBRG:	return sensor_msgs::image_encodings::BAYER_GBRG8;
 		case IMAGE_BAYER_GRBG:	return sensor_msgs::image_encodings::BAYER_GRBG8;
+		default:
+			return "invalid";
 	}
 
 	return "invalid";
@@ -51,10 +54,10 @@ static std::string imageFormatToEncoding( imageFormat fmt )
 
 
 // constructor
-imageConverter::imageConverter(rclcpp::Node* node)
+imageConverter::imageConverter()
 {
-	mWidth  	  = 0;
-	mHeight 	  = 0;
+	mWidth = 0;
+	mHeight = 0;
 	mSizeInput  = 0;
 	mSizeOutput = 0;
 
@@ -63,7 +66,6 @@ imageConverter::imageConverter(rclcpp::Node* node)
 
 	mOutputCPU = NULL;
 	mOutputGPU = NULL;
-	node = node;
 }
 
 
@@ -97,14 +99,14 @@ void imageConverter::Free()
 // Convert
 bool imageConverter::Convert( const sensor_msgs::msg::Image::ConstSharedPtr& input )
 {
-	RCLCPP_DEBUG(node->get_logger(), "converting %ux%u %s image", input->width, input->height, input->encoding.c_str());
+	RCLCPP_DEBUG(rclcpp::get_logger("imageConverter"), "converting %ux%u %s image", input->width, input->height, input->encoding.c_str());
 
 	// parse the input format
 	const imageFormat input_format = imageFormatFromEncoding(input->encoding);
 
 	if( input_format == IMAGE_UNKNOWN )
 	{
-		RCLCPP_ERROR(node->get_logger(), "image encoding %s is not a compatible format to use with ros_deep_learning", input->encoding.c_str());
+		RCLCPP_ERROR(rclcpp::get_logger("imageConverter"), "image encoding %s is not a compatible format to use with ros_deep_learning", input->encoding.c_str());
 		return false;
 	}
 
@@ -118,7 +120,7 @@ bool imageConverter::Convert( const sensor_msgs::msg::Image::ConstSharedPtr& inp
 	// convert image format
 	if( CUDA_FAILED(cudaConvertColor(mInputGPU, input_format, mOutputGPU, InternalFormat, input->width, input->height)) )
 	{
-		RCLCPP_ERROR(node->get_logger(), "failed to convert %ux%u image (from %s to %s) with CUDA", mWidth, mHeight, imageFormatToStr(input_format), imageFormatToStr(InternalFormat));
+		RCLCPP_ERROR(rclcpp::get_logger("imageConverter"), "failed to convert %ux%u image (from %s to %s) with CUDA", mWidth, mHeight, imageFormatToStr(input_format), imageFormatToStr(InternalFormat));
 		return false;
 	}
 
@@ -143,7 +145,7 @@ bool imageConverter::Convert( sensor_msgs::msg::Image& msg, imageFormat format, 
 	// in this direction, we reverse use of input/output pointers
 	if( CUDA_FAILED(cudaConvertColor(imageGPU, InternalFormat, mInputGPU, format, mWidth, mHeight)) )
 	{
-		RCLCPP_ERROR(node->get_logger(), "failed to convert %ux%u image (from %s to %s) with CUDA", mWidth, mHeight, imageFormatToStr(InternalFormat), imageFormatToStr(format));
+		RCLCPP_ERROR(rclcpp::get_logger("imageConverter"), "failed to convert %ux%u image (from %s to %s) with CUDA", mWidth, mHeight, imageFormatToStr(InternalFormat), imageFormatToStr(format));
 		return false;
 	}
 
@@ -181,11 +183,11 @@ bool imageConverter::Resize( uint32_t width, uint32_t height, imageFormat inputF
 		if( !cudaAllocMapped((void**)&mInputCPU, (void**)&mInputGPU, input_size) ||
 		    !cudaAllocMapped((void**)&mOutputCPU, (void**)&mOutputGPU, output_size) )
 		{
-			RCLCPP_ERROR(node->get_logger(), "failed to allocate memory for %ux%u image conversion", width, height);
+			RCLCPP_ERROR(rclcpp::get_logger("imageConverter"), "failed to allocate memory for %ux%u image conversion", width, height);
 			return false;
 		}
 
-		RCLCPP_INFO(node->get_logger(), "allocated CUDA memory for %ux%u image conversion", width, height);
+		RCLCPP_INFO(rclcpp::get_logger("imageConverter"), "allocated CUDA memory for %ux%u image conversion", width, height);
 
 		mWidth      = width;
 		mHeight     = height;
