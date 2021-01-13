@@ -26,6 +26,10 @@
 nanosaur_camera:
   ros__parameters:
 
+    frame_id: 'camera_optical_frame'
+
     camera:
       device: "0"
-      framerate: 30
+      frameRate: 15.0
+      width: 640
+      height: 480

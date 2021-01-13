@@ -36,6 +36,7 @@ import launch_ros
 def generate_launch_description():
     pkg_bringup = launch_ros.substitutions.FindPackageShare(package='nanosaur_bringup').find('nanosaur_bringup')
     pkg_description = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
+    pkg_camera = launch_ros.substitutions.FindPackageShare(package='nanosaur_camera').find('nanosaur_camera')
 
     nanosaur_dir = LaunchConfiguration(
         'nanosaur_dir',
@@ -59,6 +60,11 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 [pkg_description, '/launch/description.launch.py'])),
+        # Camera launch
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [pkg_camera, '/launch/camera.launch.py'])),
+        # Launch nanusaur driver
         nanosaur_node
     ])
 # EOF

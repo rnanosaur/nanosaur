@@ -41,7 +41,9 @@ RUN cd /opt && \
     git clone https://github.com/dusty-nv/jetson-utils.git && \
     mkdir -p jetson-utils/build && cd jetson-utils/build && \
     cmake ../ && \
-    make -j4 && make install && ldconfig
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
 # Clone and build missing packages
 RUN cd ${ROS_ROOT}/src && \
     git clone --branch dashing-devel https://github.com/ros/xacro.git && \
@@ -71,5 +73,4 @@ RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
       /ros_entrypoint.sh
 # run ros package launch file
-# CMD ["ros2", "run", "nanosaur_camera", "nanosaur_camera"]
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]

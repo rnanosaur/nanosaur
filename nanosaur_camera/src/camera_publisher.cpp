@@ -47,27 +47,46 @@ class CameraPublisher : public rclcpp::Node
 public:
   CameraPublisher() : Node("camera_publisher"), frameId("base_link")
   {
+    /* create image converter */
+    camera_cvt = new imageConverter();
     // Load frame_id name
     this->declare_parameter<std::string>("frame_id", frameId);
     this->get_parameter("frame_id", frameId);
+    RCLCPP_INFO(this->get_logger(), "Frame ID: %s", frameId.c_str());
+    // Initialize publisher
+    publisher_ = this->create_publisher<sensor_msgs::msg::Image>("image_raw", 10);
     // Initialize camera
     std::string camera_device = "0";	// MIPI CSI camera by default
-    this->declare_parameter<std::string>("camera_device", camera_device);
-    this->get_parameter("camera_device", camera_device);
+    this->declare_parameter<std::string>("camera.device", camera_device);
+    this->get_parameter("camera.device", camera_device);
     RCLCPP_INFO(this->get_logger(), "opening camera device %s", camera_device.c_str());
+    // Load configuration
+    double frameRate = 120.0;
+    this->declare_parameter<double>("camera.frameRate", frameRate);
+    this->get_parameter("camera.frameRate", frameRate);
+    int camera_width = gstCamera::DefaultWidth;
+    this->declare_parameter<int>("camera.width", camera_width);
+    this->get_parameter("camera.width", camera_width);
+    int camera_height = gstCamera::DefaultHeight;
+    this->declare_parameter<int>("camera.height", camera_height);
+    this->get_parameter("camera.height", camera_height);
 
-    publisher_ = this->create_publisher<sensor_msgs::msg::Image>("image_raw", 10);
+    RCLCPP_INFO(this->get_logger(), "width %d height %d - Framerate %f", camera_width, camera_height, frameRate);
+
+    videoOptions opt;
+    opt.resource = camera_device.c_str();
+    opt.width = camera_width;
+    opt.height = camera_height;
+    opt.frameRate = (float)frameRate;
+    opt.ioType = videoOptions::INPUT;
 
     /* open camera device */
-	  camera = gstCamera::Create(camera_device.c_str());
+	  camera = gstCamera::Create(opt);
 
     if( !camera )
     {
       RCLCPP_ERROR(this->get_logger(), "failed to open camera device %s", camera_device.c_str());
     }
-
-    /* create image converter */
-    camera_cvt = new imageConverter();
   }
 
   bool acquire()
