@@ -62,8 +62,6 @@ public:
 
     /* create image converter */
     camera_cvt = new imageConverter();
-
-    timer_ = this->create_wall_timer(300ms, std::bind(&CameraPublisher::acquire, this));
   }
 
   bool acquire()
@@ -106,14 +104,20 @@ private:
   gstCamera* camera;
   imageConverter* camera_cvt;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
-  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<CameraPublisher>());
+  // Initialize Camera publisher node
+  CameraPublisher camera;
+
+  while (rclcpp::ok()) {
+    // If acquire got an error close the stream and close the node
+    if ( ! camera.acquire())
+      return 1;
+  }
   rclcpp::shutdown();
   return 0;
 }

@@ -65,3 +65,13 @@ Devices:
 * **3C** left Display
 * **3D** right display
 * **60** motor driver
+
+## Camera fail
+
+If the camera fail do:
+
+```
+sudo systemctl restart nvargus-daemon
+```
+
+And rerun the docker container
