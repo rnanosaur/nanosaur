@@ -44,5 +44,17 @@ install(
   INCLUDES DESTINATION include
 )
 
+# Install PARAMS files
+install(
+  DIRECTORY param
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install launch files.
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_export_include_directories(include)
 ament_package()

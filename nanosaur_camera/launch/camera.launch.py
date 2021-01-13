@@ -23,42 +23,33 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 import os
 import launch
 from launch.actions import DeclareLaunchArgument
-from launch.actions import IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_ros
 
-
 def generate_launch_description():
-    pkg_bringup = launch_ros.substitutions.FindPackageShare(package='nanosaur_bringup').find('nanosaur_bringup')
-    pkg_description = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
+    pkg_camera = launch_ros.substitutions.FindPackageShare(package='nanosaur_camera').find('nanosaur_camera')
 
-    nanosaur_dir = LaunchConfiguration(
-        'nanosaur_dir',
-        default=os.path.join(pkg_bringup, 'param', 'nanosaur.yml'))
+    camera_dir = LaunchConfiguration(
+        'camera_dir',
+        default=os.path.join(pkg_camera, 'param', 'camera.yml'))
 
-    nanosaur_node = launch_ros.actions.Node(
-        package='nanosaur_robot',
-        executable='nanosaur',
-        name='nanosaur',
-        parameters=[nanosaur_dir],
+    camera_node = launch_ros.actions.Node(
+        package='nanosaur_camera',
+        executable='nanosaur_camera',
+        name='nanosaur_camera',
+        parameters=[camera_dir],
         output='screen'
     )
 
     return launch.LaunchDescription([
         DeclareLaunchArgument(
-            'nanosaur_dir',
-            default_value=nanosaur_dir,
-            description='Full path to nanosaur parameter file to load'),
+            'camera_dir',
+            default_value=camera_dir,
+            description='Full path to camera parameter file to load'),
 
-        # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                [pkg_description, '/launch/description.launch.py'])),
-        nanosaur_node
+        camera_node
     ])
 # EOF
