@@ -45,12 +45,18 @@ using namespace std::chrono_literals;
 class CameraPublisher : public rclcpp::Node
 {
 public:
-  CameraPublisher() : Node("camera_publisher")
+  CameraPublisher() : Node("camera_publisher"), frameId("base_link")
   {
-    publisher_ = this->create_publisher<sensor_msgs::msg::Image>("image_raw", 10);
-
+    // Load frame_id name
+    this->declare_parameter<std::string>("frame_id", frameId);
+    this->get_parameter("frame_id", frameId);
+    // Initialize camera
     std::string camera_device = "0";	// MIPI CSI camera by default
+    this->declare_parameter<std::string>("camera_device", camera_device);
+    this->get_parameter("camera_device", camera_device);
     RCLCPP_INFO(this->get_logger(), "opening camera device %s", camera_device.c_str());
+
+    publisher_ = this->create_publisher<sensor_msgs::msg::Image>("image_raw", 10);
 
     /* open camera device */
 	  camera = gstCamera::Create(camera_device.c_str());
@@ -87,6 +93,9 @@ public:
       RCLCPP_ERROR(this->get_logger(), "failed to convert camera frame to sensor_msgs::Image");
       return false;
     }
+    // Add header,timestamp and frame_id
+    msg.header.stamp = this->get_clock()->now();
+    msg.header.frame_id = frameId;
     // Publish camera frame message
     publisher_->publish(msg);
     RCLCPP_DEBUG(this->get_logger(), "Published camera frame");
@@ -104,6 +113,7 @@ private:
   gstCamera* camera;
   imageConverter* camera_cvt;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
+  std::string frameId;
 };
 
 
@@ -112,7 +122,8 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   // Initialize Camera publisher node
   CameraPublisher camera;
-
+  // Reference rclppp
+  // https://github.com/ros2/ros_core_documentation/blob/master/source/rclcpp_cpp_client_library_overview.rst
   while (rclcpp::ok()) {
     // If acquire got an error close the stream and close the node
     if ( ! camera.acquire())
