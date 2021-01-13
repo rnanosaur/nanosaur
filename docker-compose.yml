@@ -27,8 +27,9 @@ version: "3.9"
 services:
   nanosaur:
     build: .
-    image: nanosaur
+    image: nanosaur:l4t-r32.4.4
     network_mode: "host"
+    restart: always
     devices:
      - "/dev/i2c-1:/dev/i2c-1" # I2C motors and displays
     volumes:

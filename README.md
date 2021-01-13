@@ -29,8 +29,18 @@ This following part is to develop with nanosaur
 
 ##  Build Docker
 
+Make ROS2 foxy jetson-container
+
 ```
-docker build -t nanosaur .
+git clone --branch patch-1 https://github.com/rbonghi/jetson-containers.git
+./jetson-containers/scripts/docker_build_ros.sh foxy
+```
+
+After foxy build, build the nanosaur docker for jetson
+
+```
+cd nanosaur
+docker build -f Dockerfile.dev -t nanosaur:l4t-r32.4.4 .
 ```
 
 ## Run docker container
