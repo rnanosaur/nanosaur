@@ -31,12 +31,13 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          platforms: linux/arm64
           push: true
           tags: nanosaur/nanosaur:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-      - 
+      - # https://github.com/marketplace/actions/actions-for-discord
         name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
