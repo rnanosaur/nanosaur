@@ -7,11 +7,16 @@ on:
 # https://github.com/docker/build-push-action
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest #self-hosted
     steps:
       -
         name: Checkout
         uses: actions/checkout@v2
+      -
+        name: Build image
+        run: |
+          sudo apt-get install qemu binfmt-support qemu-user-static -y
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       -
         name: Login to DockerHub
         uses: docker/login-action@v1 
