@@ -24,6 +24,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Display
+# https://github.com/adafruit/Adafruit_Python_SSD1306
 import Adafruit_SSD1306
 
 import atexit
@@ -60,7 +61,7 @@ class Display:
         self.font = ImageFont.load_default()
         # Draw some shapes.
         # First define some constants to allow easy resizing of shapes.
-        padding = -2
+        padding = 2
         self.top = padding
         self.bottom = self.height-padding
         # Move left to right keeping track of the current x position for drawing shapes.
@@ -74,7 +75,27 @@ class Display:
         # Draw a black filled box to clear the image.
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
         # Draw text
-        self.draw.text((self.x, self.top), f"ID: {self.i2c_address}", font=self.font, fill=255)
+        # self.draw.text((self.x, self.top), f"ID: {self.i2c_address}", font=self.font, fill=255)
+
+        self.x = 0
+        shape_width = 20
+        padding = 2
+        # Draw an ellipse.
+        self.draw.ellipse((self.x, self.top , self.x+shape_width, self.bottom), outline=255, fill=0)
+        self.x += shape_width+padding
+        # Draw a rectangle.
+        self.draw.rectangle((self.x, self.top, self.x+shape_width, self.bottom), outline=255, fill=0)
+        self.x += shape_width+padding
+        # Draw a triangle.
+        self.draw.polygon([(self.x, self.bottom), (self.x+shape_width/2, self.top), (self.x+shape_width, self.bottom)], outline=255, fill=0)
+        self.x += shape_width+padding
+        # Draw an X.
+        self.draw.line((self.x, self.bottom, self.x+shape_width, self.top), fill=255)
+        self.draw.line((self.x, self.top, self.x+shape_width, self.bottom), fill=255)
+        self.x += shape_width+padding
+
+        self.draw.text((self.x, self.top),    'Hello',  font=self.font, fill=255)
+        self.draw.text((self.x, self.top+20), 'World!', font=self.font, fill=255)
 
         self.disp.image(self.image)
         self.disp.display()

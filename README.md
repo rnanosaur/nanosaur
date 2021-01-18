@@ -49,14 +49,7 @@ docker build -f Dockerfile.dev -t nanosaur:l4t-r32.4.4 .
 https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 
 ```
-docker run --net=host -v $HOME/dev_ws/src:/opt/ros_ws/src -v "/run/jtop.sock:/run/jtop.sock" --device /dev/i2c-1 -it --rm nanosaur bash
-```
-
-Debug camera
-
-```
-cd src/nanosaur
-docker run --runtime nvidia -it --rm  --network host -v /tmp/argus_socket:/tmp/argus_socket -v $(pwd):/opt/ros_ws/src/nanosaur nanosaur:test bash
+docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur:/opt/ros_ws/src/nanosaur nanosaur:l4t-r32.4.4 bash
 ```
 
 ## Detect I2C devices
