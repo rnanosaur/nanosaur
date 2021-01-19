@@ -4,11 +4,14 @@ updates:
   directory: "/nanosaur_robot"
   schedule:
     interval: daily
-    time: "13:00"
   open-pull-requests-limit: 10
 - package-ecosystem: docker
   directory: "/"
   schedule:
     interval: daily
-    time: "13:00"
   open-pull-requests-limit: 10
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    # Check for updates to GitHub Actions every weekday
+    interval: "daily"

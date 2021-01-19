@@ -1,5 +1,7 @@
 # :sauropod: nanosaur
 
+[![Docker Builder CI](https://github.com/rnanosaur/nanosaur/workflows/Docker%20Builder%20CI/badge.svg)](https://github.com/rnanosaur/nanosaur/actions?query=workflow%3A%22Docker+Builder+CI%22)
+
 NanoSaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
 
 * Website: [nanosaur.ai](https://nanosaur.ai)

@@ -27,7 +27,7 @@ version: "3.9"
 services:
   nanosaur:
     build: .
-    image: nanosaur:l4t-r32.4.4
+    image: nanosaur:latest
     network_mode: "host"
     restart: always
     devices:
@@ -35,3 +35,8 @@ services:
     volumes:
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
