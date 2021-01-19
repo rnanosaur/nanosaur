@@ -35,7 +35,8 @@ RUN mkdir -p $ROS_WS/src
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
     apt-get install -y libglew-dev glew-utils libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev libglib2.0-dev && \
+    libgstreamer-plugins-base1.0-dev libglib2.0-dev \
+    nvidia-tensorrt && \
     rm -rf /var/lib/apt/lists/*
 # Install jetson-utils
 RUN cd /opt && \
