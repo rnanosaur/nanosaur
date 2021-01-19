@@ -23,7 +23,7 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ARG BASE_IMAGE=officinerobotiche/ros:foxy-ros-base-l4t-r32.4.4-cv-4.5.0
+ARG BASE_IMAGE=officinerobotiche/ros:foxy-ros-base-l4t-r32.4.4-cv-4.4.0
 FROM ${BASE_IMAGE}
 
 ENV ROS_DISTRO=foxy
