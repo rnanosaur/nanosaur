@@ -56,7 +56,7 @@ docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp
 
 ## Detect I2C devices
 
-Install I2C tools and dectect all devices
+Install I2C tools and detect all devices
 
 ```
 sudo apt-get install -y python-smbus
