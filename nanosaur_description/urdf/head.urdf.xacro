@@ -7,7 +7,7 @@
     <xacro:macro name="head">
 
         <joint name="cover_joint" type="fixed">
-            <origin xyz="0.06 0 -0.025" rpy="0 0 0" />
+            <origin xyz="0.06 0 -0.026" rpy="0 0 0" />
             <parent link="base_front"/>
             <child link="cover"/>
         </joint>
