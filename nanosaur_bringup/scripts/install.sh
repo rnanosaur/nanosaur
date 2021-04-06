@@ -98,6 +98,7 @@ main()
         esac
     done
 
+    sudo apt-get install -y python3-pip
     echo " - ${bold}${green}Install jetson-stats${reset}"
     sudo -H pip3 install -U jetson-stats
 
@@ -108,6 +109,7 @@ main()
     sudo apt-get install -y libffi-dev
     sudo apt-get install -y python-openssl
     sudo apt-get install libssl-dev
+    pip3 install --upgrade pip
     pip3 install -U docker-compose
 
     if [ -f /var/run/reboot-required ] ; then
