@@ -25,9 +25,8 @@
 
 version: "3.9"
 services:
-  nanosaur:
-    build: .
-    image: nanosaur:latest
+  nanosaur: # https://nanosaur.ai
+    image: nanosaur/nanosaur
     network_mode: "host"
     restart: always
     devices:
@@ -35,8 +34,10 @@ services:
     volumes:
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
-  watchtower:
+  watchtower: # https://containrrr.dev/watchtower
     image: containrrr/watchtower
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
+    command: --interval 86400 # Check every day

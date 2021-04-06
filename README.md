@@ -43,7 +43,7 @@ After foxy build, build the nanosaur docker for jetson
 
 ```
 cd nanosaur
-docker build -f Dockerfile.dev -t nanosaur:l4t-r32.4.4 .
+docker build -f Dockerfile.dev -t nanosaur/nanosaur:latest .
 ```
 
 ## Run docker container
@@ -51,7 +51,7 @@ docker build -f Dockerfile.dev -t nanosaur:l4t-r32.4.4 .
 https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 
 ```
-docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur:/opt/ros_ws/src/nanosaur nanosaur:l4t-r32.4.4 bash
+docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur:/opt/ros_ws/src/nanosaur nanosaur/nanosaur:latest bash
 ```
 
 ## Detect I2C devices
