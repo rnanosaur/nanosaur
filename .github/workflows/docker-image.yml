@@ -18,7 +18,7 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: nanosaur_stl.zip
+        name: data
         path: nanosaur_stl.zip
 
   test_read:
@@ -27,7 +27,7 @@ jobs:
     - name: Extract artifact
       uses: actions/download-artifact@v2
       with:
-        name: nanosaur_stl.zip
+        name: data
     - name: read data
       run: |
         ls
