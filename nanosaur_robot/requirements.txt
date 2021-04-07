@@ -1,4 +1,0 @@
-setuptools
-pillow
-Adafruit-SSD1306
-Adafruit_MotorHat
