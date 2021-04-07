@@ -19,7 +19,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: nanosaur_stl.zip
-        path: data
+        path: nanosaur_stl.zip
 
   test_read:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
     - name: Extract artifact
       uses: actions/download-artifact@v2
       with:
-        name: data
+        name: nanosaur_stl.zip
     - name: read data
       run: |
         ls
