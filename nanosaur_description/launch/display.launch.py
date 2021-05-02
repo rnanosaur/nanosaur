@@ -24,7 +24,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import launch
+from launch.actions import IncludeLaunchDescription
 from launch.substitutions import Command, LaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_ros
 import os
 
@@ -58,6 +60,11 @@ def generate_launch_description():
                                              description='Flag to enable joint_state_publisher_gui'),
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
                                              description='Absolute path to rviz config file'),
+        # Nanosaur description launch
+        # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [pkg_share, '/launch/description.launch.py'])),
         joint_state_publisher_node,
         joint_state_publisher_gui_node,
         rviz_node

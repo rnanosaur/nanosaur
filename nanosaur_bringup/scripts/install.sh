@@ -54,6 +54,30 @@ usage()
 }
 
 
+# Modules check sudo
+# https://serverfault.com/questions/266039/temporarily-increasing-sudos-timeout-for-the-duration-of-an-install-script
+sudo_me()
+{
+    local start=$1
+    # write sudo me file
+    local sudo_stat="/tmp/nanosaur_sudo_status"
+    # No sudo loop
+    if $start ; then
+        touch $sudo_stat
+        # Loop script
+        while [ -f $sudo_stat ]; do
+            # echo "checking $$ ...$(date)"
+            sudo -v
+            sleep 5
+        done &
+    else
+        if [ -f $sudo_stat ] ; then
+            rm $sudo_stat
+        fi
+    fi
+}
+
+
 main()
 {
     local SILENT=false
@@ -76,8 +100,8 @@ main()
     done
 
 	# Check run in sudo
-    if [[ `id -u` -ne 0 ]] ; then 
-        echo "${red}Please run as root${reset}"
+    if [[ `id -u` -eq 0 ]] ; then 
+        echo "${red}Please don't run as root${reset}"
         exit 1
     fi
 
@@ -98,19 +122,41 @@ main()
         esac
     done
 
-    sudo apt-get install -y python3-pip
-    echo " - ${bold}${green}Install jetson-stats${reset}"
-    sudo -H pip3 install -U jetson-stats
+    # Request sudo password
+    sudo -v
+    sudo_me true
 
-    echo " - ${bold}${green}Add docker permissions to user=$user${reset}"
-    sudo usermod -aG docker $USER
+    if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
+        echo " - ${bold}${green}Install pip/pip3${reset}"
+        sudo apt-get install -y python3-pip
+    fi
 
-    echo " - ${bold}${green}Install docker-compose${reset}"
-    sudo apt-get install -y libffi-dev
-    sudo apt-get install -y python-openssl
-    sudo apt-get install libssl-dev
-    pip3 install --upgrade pip
-    pip3 install -U docker-compose
+    # Check if is installed jtop
+    if ! command -v jtop &> /dev/null ; then
+        echo " - ${bold}${green}Install/Update jetson-stats${reset}"
+        sudo -H pip3 install -U jetson-stats
+    fi
+
+    if ! getent group docker | grep -q "\b$USER\b" ; then
+        echo " - ${bold}${green}Add docker permissions to user=$USER${reset}"
+        sudo usermod -aG docker $USER
+    fi
+
+    # Check if is installed docker-compose
+    if ! command -v docker-compose &> /dev/null ; then
+        echo " - ${bold}${green}Install docker-compose${reset}"
+        sudo apt-get install -y libffi-dev
+        sudo apt-get install -y python-openssl
+        sudo apt-get install libssl-dev
+        # pip3 install --upgrade pip
+        sudo pip3 install -U docker-compose
+    fi
+
+    if [] ; then
+    fi
+
+    # Disable sudo me
+    sudo_me false
 
     if [ -f /var/run/reboot-required ] ; then
         # After install require reboot

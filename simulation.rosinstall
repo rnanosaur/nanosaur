@@ -1,0 +1,3 @@
+- git:
+    local-name: nanosaur
+    uri: https://github.com/rnanosaur/nanosaur.git
