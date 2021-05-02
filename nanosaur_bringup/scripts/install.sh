@@ -126,6 +126,16 @@ main()
     sudo -v
     sudo_me true
 
+    # https://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
+    # Absolute path to this script, e.g. /home/user/bin/foo.sh
+    SCRIPT=$(readlink -f "$0")
+    # Absolute path this script is in, thus /home/user/bin
+    SCRIPTPATH=$(dirname "$SCRIPT")
+    if [ -d $SCRIPTPATH/bin ] ; then
+        echo " - ${bold}${green}Copy nanosaur command${reset}"
+        sudo cp $SCRIPTPATH/bin/nanosaur /usr/local/bin/nanosaur
+    fi
+
     if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
         echo " - ${bold}${green}Install pip/pip3${reset}"
         sudo apt-get install -y python3-pip
@@ -150,9 +160,6 @@ main()
         sudo apt-get install libssl-dev
         # pip3 install --upgrade pip
         sudo pip3 install -U docker-compose
-    fi
-
-    if [] ; then
     fi
 
     # Disable sudo me
