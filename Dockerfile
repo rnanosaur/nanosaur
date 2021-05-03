@@ -56,7 +56,8 @@ RUN cd ${ROS_ROOT}/src && \
 # Copy nanosaur project
 COPY . $ROS_WS/src/nanosaur
 # Initialize ROS2 workspace
-RUN wstool init $ROS_WS/src
+RUN sudo apt-get install python3-wstool && \
+    wstool init $ROS_WS/src
 
 RUN wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall
 # Change workdir

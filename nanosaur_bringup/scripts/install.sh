@@ -218,9 +218,13 @@ main()
 
     # Download docker-compose and run the system
     if ! $DESKTOP ; then
-        # Download the docker-compose image and run
-        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o docker-compose.yml
-
+        if [ ! -f $HOME/docker-compose.yml ] ; then
+            echo " - Download Nanosaur docker-compose in ${bold}${yellow}$HOME/docker-compose.yml${reset}"
+            # Download the docker-compose image and run
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $HOME/docker-compose.yml
+        fi
+        # Run docker compose a daemon
+        docker-compose -f $HOME/docker-compose.yml up -d
     fi
 
     if [ -f /var/run/reboot-required ] ; then
