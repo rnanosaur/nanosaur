@@ -32,13 +32,6 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 
-# Copy wstool robot.rosinstall
-COPY robot.rosinstall robot.rosinstall
-# Initialize ROS2 workspace
-RUN pip3 install -U wstool && \
-    wstool init $ROS_WS/src && \
-    wstool merge -t $ROS_WS/src robot.rosinstall && \
-    wstool update -t $ROS_WS/src
 # Install gstream libraries
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
