@@ -37,6 +37,9 @@ if [ ! -z $SUDO_USER ] ; then
     HOSTNAME="$(cat /etc/hostname)"
 fi
 
+# Nanosaur configuration variables
+CONFIG_FILE=".nanosaur.config"
+
 
 usage()
 {
@@ -81,12 +84,16 @@ sudo_me()
 main()
 {
     local SILENT=false
+    local DESKTOP=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
             -h|--help) # Load help
                 usage
                 exit 0
+                ;;
+            --desktop)
+                DESKTOP=true
                 ;;
             -s|--silent)
                 SILENT=true
@@ -105,11 +112,13 @@ main()
         exit 1
     fi
 
+    local type_install=$( $DESKTOP && echo "desktop" || echo "robot" )
     # Recap installatation
     echo "------ Configuration ------"
     echo " - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
     echo " - ${bold}User:${reset} ${green}$USER${reset}"
     echo " - ${bold}Home:${reset} ${green}$HOME${reset}"
+    echo " - ${bold}Type:${reset} ${green}$type_install${reset}"
     echo "---------------------------"
 
     while ! $SILENT; do
@@ -125,6 +134,8 @@ main()
     # Request sudo password
     sudo -v
     sudo_me true
+    # Run update function
+    local THIS="$(pwd)"
 
     # https://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
     # Absolute path to this script, e.g. /home/user/bin/foo.sh
@@ -132,8 +143,12 @@ main()
     # Absolute path this script is in, thus /home/user/bin
     SCRIPTPATH=$(dirname "$SCRIPT")
     if [ -d $SCRIPTPATH/bin ] ; then
-        echo " - ${bold}${green}Copy nanosaur command${reset}"
+        echo " - Copy nanosaur command in ${bold}${green}/usr/local/bin${reset}"
         sudo cp $SCRIPTPATH/bin/nanosaur /usr/local/bin/nanosaur
+    #else
+    #    echo " - ${bold}${green}Pull nanosaur command${reset} and copy in /usr/local/bin"
+    #    sudo curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur_bringup/scripts//bin/nanosaur -o /usr/local/bin/nanosaur
+    #    sudo chmod +x /usr/local/bin/nanosaur
     fi
 
     if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
@@ -148,7 +163,7 @@ main()
     fi
 
     if ! getent group docker | grep -q "\b$USER\b" ; then
-        echo " - ${bold}${green}Add docker permissions to user=$USER${reset}"
+        echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
         sudo usermod -aG docker $USER
     fi
 
@@ -162,6 +177,41 @@ main()
         sudo pip3 install -U docker-compose
     fi
 
+    # Install basic packages on desktop
+    if $DESKTOP ; then
+        ROS_WS_NAME="nanosaur_ws"
+        ROBOT_WORKSPACE=$HOME/$ROS_WS_NAME
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/desktop.rosinstall"
+
+        echo " - Write nanosaur configuration in ${bold}${green}$HOME/$CONFIG_FILE${reset}"
+        #touch $HOME/$CONFIG_FILE
+        echo "#!/bin/bash" > $HOME/$CONFIG_FILE
+        # ROS main sources
+        echo "export ROS_WS_NAME=$ROS_WS_NAME" >> $HOME/$CONFIG_FILE
+        echo "export ROBOT_WORKSPACE=$ROBOT_WORKSPACE" >> $HOME/$CONFIG_FILE
+
+        # Make nanosaur workspace
+        if [ ! -d $ROBOT_WORKSPACE ] ; then
+            echo " - Make Nanosaur ROS2 workspace folder in ${bold}${green}$ROBOT_WORKSPACE${reset}"
+            mkdir -p $ROBOT_WORKSPACE/src
+        else
+            echo " - Nanosaur workspace folder already exist in ${bold}${yellow}$ROBOT_WORKSPACE${reset}"
+        fi
+        # Initialize wstool
+        # https://www.systutorials.com/docs/linux/man/1-wstool/
+        if [ ! -f $ROBOT_WORKSPACE/src/.rosinstall ] ; then
+            wstool init $ROBOT_WORKSPACE/src
+        fi
+        # Load wstool config
+        wstool merge -t $ROBOT_WORKSPACE/src $ROSINSTALL_FILE
+        # Update workspace
+        wstool update -t $ROBOT_WORKSPACE/src
+        # Build nanosaur
+        nanosaur update
+    fi
+
+    # Return to main path
+    cd $THIS
     # Disable sudo me
     sudo_me false
 

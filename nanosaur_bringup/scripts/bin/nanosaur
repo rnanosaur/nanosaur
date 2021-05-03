@@ -24,18 +24,25 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-old=`tput bold`
+bold=`tput bold`
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
+# Load nanosaur configuration file
+if [ -f $HOME/.nanosaur.config ] ; then
+    source $HOME/.nanosaur.config
+fi
+
 ROBOT_DISTRO="foxy"
 ROBOT_NAME="nanosaur"
-ROS_WS_NAME="dev_ws"
 
+if [ -z ${ROS_WS_NAME+x} ]; then
+    ROS_WS_NAME="dev_ws"
+fi
 if [ -z ${ROBOT_WORKSPACE+x} ]; then
-    ROBOT_WORKSPACE=/home/$USER/$ROS_WS_NAME/
+    ROBOT_WORKSPACE=/$HOME/$ROS_WS_NAME/
 fi
 
 # Modules check sudo
@@ -135,7 +142,7 @@ update()
         rosdep install --from-paths "$ROBOT_WORKSPACE/src" --ignore-src -r -y
     fi
     # Go to catkin path
-    cd "$ROBOT_WORKSPACE/src"
+    cd $ROBOT_WORKSPACE
     # Catkin make all workspace
     echo " ${bold}*${reset} ${bold}colcon build${reset} $ROBOT_WORKSPACE"
     colcon build
@@ -211,6 +218,10 @@ if [[ $0 != $BASH_SOURCE ]] ; then
     # Load ROS2 workpspace
     source /opt/ros/$ROBOT_DISTRO/setup.bash
     # Load Nanosaur workspace
+    if [ ! -d $ROBOT_WORKSPACE/install ] ; then
+        echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$ROBOT_WORKSPACE${reset}"
+        return
+    fi
     source $ROBOT_WORKSPACE/install/setup.bash
     # Setup PS1
     _OLD_VIRTUAL_PS1="$PS1"
