@@ -39,7 +39,7 @@ ROBOT_DISTRO="foxy"
 ROBOT_NAME="nanosaur"
 
 if [ -z ${ROS_WS_NAME+x} ]; then
-    ROS_WS_NAME="dev_ws"
+    ROS_WS_NAME="nanosaur_ws"
 fi
 if [ -z ${ROBOT_WORKSPACE+x} ]; then
     ROBOT_WORKSPACE=/$HOME/$ROS_WS_NAME/
@@ -144,7 +144,7 @@ update()
     # Go to catkin path
     cd $ROBOT_WORKSPACE
     # Catkin make all workspace
-    echo " ${bold}*${reset} ${bold}colcon build${reset} $ROBOT_WORKSPACE"
+    echo " ${bold}*${reset} ${green}colcon build${reset} $ROBOT_WORKSPACE"
     colcon build
     # Return to main path
     cd $THIS
