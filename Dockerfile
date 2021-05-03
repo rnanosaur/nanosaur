@@ -54,22 +54,20 @@ RUN cd ${ROS_ROOT}/src && \
     git clone --branch foxy https://github.com/ros/joint_state_publisher.git && \
     cd ${ROS_ROOT} && \
     colcon build --symlink-install --packages-select xacro urdfdom_py joint_state_publisher
-# Copy nanosaur project
-# COPY . $ROS_WS/src/nanosaur
 # Copy wstool robot.rosinstall
 COPY robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
-RUN pip3 install -U wstool && \
+RUN pip3 install wheel && \
+    pip3 install -U wstool && \
     wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src robot.rosinstall && \
     wstool update -t $ROS_WS/src
 # Copy nanosaur project
-# COPY nanosaur_robot/requirements.txt $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt
+# COPY . $ROS_WS/src/nanosaur
 # Install python dependencies
 RUN apt-get update && \
     apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
-    pip3 install wheel && \
-    pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_drive/requirements.txt && \
+    pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_hardware/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 # Change workdir
 WORKDIR $ROS_WS

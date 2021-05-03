@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-Copyright (C) 2020, Raffaello Bonghi <raffaello@rnext.it>
+Copyright (C) 2021, Raffaello Bonghi <raffaello@rnext.it>
 All rights reserved
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,22 +27,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>nanosaur</name>
-  <version>0.1.0</version>
-  <description>NanoSaur support meta package</description>
+   <name>nanosaur_drive</name>
+   <version>0.1.0</version>
+   <description>Launch files and configuration scripts to control NanoSaur Robot.</description>
+   <author email="raffaello@rnext.it">Raffaello Bonghi</author>
+   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
+   <license>MIT</license>
 
-  <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
-  <license>MIT</license>
+   <url type="website">https://nanosaur.ai/</url>
+   <url type="repository">https://github.com/rnanosaur/nanosaur</url>
+   <url type="bugtracker">https://github.com/rnanosaur/nanosaur/issues</url>
 
-  <url type="website">https://rnanosaur.github.io/</url>
-  <url type="repository">https://github.com/rnanosaur/nanosaur</url>
-  <url type="bugtracker">https://github.com/rnanosaur/nanosaur/issues</url>
+   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+   <test_depend>ament_lint_auto</test_depend>
+   <test_depend>ament_lint_common</test_depend>
 
-  <exec_depend>nanosaur_description</exec_depend>
-  <exec_depend>nanosaur_drive</exec_depend>
-  <export>
-    <build_type>ament_cmake</build_type>
-  </export>
+   <export>
+      <build_type>ament_cmake</build_type>
+   </export>
 </package>
