@@ -31,6 +31,14 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
+
+# Copy nanosaur project
+COPY . $ROS_WS/src/nanosaur
+# Initialize ROS2 workspace
+RUN sudo apt-get install python3-wstool -y && \
+    wstool init $ROS_WS/src && \
+    wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
+    wstool update -t $ROS_WS/src
 # Install gstream libraries
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
@@ -56,10 +64,10 @@ RUN cd ${ROS_ROOT}/src && \
 # Copy nanosaur project
 COPY . $ROS_WS/src/nanosaur
 # Initialize ROS2 workspace
-RUN sudo apt-get install python3-wstool && \
-    wstool init $ROS_WS/src
-
-RUN wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall
+RUN sudo apt-get install python3-wstool -y && \
+    wstool init $ROS_WS/src && \
+    wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
+    wstool update -t $ROS_WS/src
 # Change workdir
 WORKDIR $ROS_WS
 # Copy nanosaur project
