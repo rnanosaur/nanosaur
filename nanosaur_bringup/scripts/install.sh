@@ -192,6 +192,7 @@ main()
         # ROS main sources
         echo "export ROS_WS_NAME=$ROS_WS_NAME" >> $HOME/$CONFIG_FILE
         echo "export ROBOT_WORKSPACE=$ROBOT_WORKSPACE" >> $HOME/$CONFIG_FILE
+        echo "export ROSINSTALL_FILE=$ROSINSTALL_FILE" >> $HOME/$CONFIG_FILE
 
         # Make nanosaur workspace
         if [ ! -d $ROBOT_WORKSPACE ] ; then
@@ -199,6 +200,11 @@ main()
             mkdir -p $ROBOT_WORKSPACE/src
         else
             echo " - Nanosaur workspace folder already exist in ${bold}${yellow}$ROBOT_WORKSPACE${reset}"
+        fi
+        # Install wstool
+        if ! command -v wstool &> /dev/null ; then
+            echo " - ${bold}${green}Install wstool${reset}"
+            sudo apt install python3-wstool -y
         fi
         # Initialize wstool
         # https://www.systutorials.com/docs/linux/man/1-wstool/

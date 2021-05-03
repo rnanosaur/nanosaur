@@ -55,13 +55,6 @@ RUN cd ${ROS_ROOT}/src && \
     cd ${ROS_ROOT} && \
     colcon build --symlink-install --packages-select xacro urdfdom_py joint_state_publisher
 # Copy nanosaur project
-COPY . $ROS_WS/src/nanosaur
-# Initialize ROS2 workspace
-RUN sudo apt-get install python3-wstool -y && \
-    wstool init $ROS_WS/src && \
-    wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
-    wstool update -t $ROS_WS/src
-# Copy nanosaur project
 # COPY . $ROS_WS/src/nanosaur
 # Copy wstool robot.rosinstall
 COPY robot.rosinstall robot.rosinstall

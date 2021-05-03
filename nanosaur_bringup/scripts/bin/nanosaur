@@ -128,18 +128,18 @@ update()
 
     if $rosinstall ; then
         # Update workspace
-        wstool update -t "$ROBOT_WORKSPACE/src"
+        wstool update -t $ROBOT_WORKSPACE/src
         # Status update wstool
         if [ $? -ne 0 ] ; then
             # Try to make again
             echo "${red}Please check workspace status ${reset}"
-            sudo_me false
+            # sudo_me false
             exit 1
         fi
         # Install all dependencies
         # http://wiki.ros.org/rosdep
         echo " ${bold}*${reset} Install all ${bold}dependencies${reset}"
-        rosdep install --from-paths "$ROBOT_WORKSPACE/src" --ignore-src -r -y
+        rosdep install --from-paths $ROBOT_WORKSPACE/src --ignore-src -r -y
     fi
     # Go to catkin path
     cd $ROBOT_WORKSPACE
