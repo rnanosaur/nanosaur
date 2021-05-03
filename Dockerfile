@@ -35,7 +35,7 @@ RUN mkdir -p $ROS_WS/src
 # Copy nanosaur project
 COPY . $ROS_WS/src/nanosaur
 # Initialize ROS2 workspace
-RUN sudo apt-get install python-wstool -y && \
+RUN apt-get install python3-wstool -y && \
     wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
     wstool update -t $ROS_WS/src
