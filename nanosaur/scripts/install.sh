@@ -54,6 +54,7 @@ usage()
     echo "options,"
     echo "   -h|--help            | This help"
     echo "   -s|--silent          | Run this script silent"
+    echo "   --desktop            | Install nanosaur for desktop"
 }
 
 
@@ -143,10 +144,10 @@ main()
     if [ -d $SCRIPTPATH/bin ] ; then
         echo " - Copy nanosaur command in ${bold}${green}/usr/local/bin${reset}"
         sudo cp $SCRIPTPATH/bin/nanosaur /usr/local/bin/nanosaur
-    #else
-    #    echo " - ${bold}${green}Pull nanosaur command${reset} and copy in /usr/local/bin"
-    #    sudo curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur_bringup/scripts//bin/nanosaur -o /usr/local/bin/nanosaur
-    #    sudo chmod +x /usr/local/bin/nanosaur
+    elif $DESKTOP ; then
+        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in /usr/local/bin"
+        sudo curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o /usr/local/bin/nanosaur
+        sudo chmod +x /usr/local/bin/nanosaur
     fi
 
     if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
@@ -211,12 +212,8 @@ main()
         if [ ! -f $ROBOT_WORKSPACE/src/.rosinstall ] ; then
             wstool init $ROBOT_WORKSPACE/src
         fi
-        # Load wstool config
-        wstool merge -t $ROBOT_WORKSPACE/src $ROSINSTALL_FILE
-        # Update workspace
-        wstool update -t $ROBOT_WORKSPACE/src
         # Build nanosaur
-        nanosaur update
+        nanosaur update --rosinstall
     fi
 
     # Return to main path

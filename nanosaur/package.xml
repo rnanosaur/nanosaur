@@ -40,9 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>nanosaur_robot</exec_depend>
   <exec_depend>nanosaur_description</exec_depend>
-  <exec_depend>nanosaur_bringup</exec_depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

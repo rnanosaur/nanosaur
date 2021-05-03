@@ -93,7 +93,7 @@ update_usage()
     echo "${bold}$name update${reset} [options]"
     echo "options,"
     echo "   -h|--help        | This help"
-    echo "   -f|--file [FILE] | File to read"
+    echo "   --rosinstall     | Update rosinstall workspace"
 }
 
 
@@ -127,6 +127,10 @@ update()
     local THIS="$(pwd)"
 
     if $rosinstall ; then
+        # Load ROS2 workspace
+        source /opt/ros/$ROBOT_DISTRO/setup.bash
+        # Merge workspace
+        wstool merge -t $ROBOT_WORKSPACE/src $ROSINSTALL_FILE
         # Update workspace
         wstool update -t $ROBOT_WORKSPACE/src
         # Status update wstool
