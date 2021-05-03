@@ -2,7 +2,7 @@ name: Docker Builder CI
 
 # Reference:
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
-on: [push, pull_request]
+on: [push, pull_request, repository_dispatch]
 
 # https://github.com/docker/build-push-action
 jobs:
@@ -21,6 +21,59 @@ jobs:
       with:
         name: data
         path: nanosaur_stl.zip
+
+  docker:
+    name: "Build and push Docker image develop"
+    runs-on: ubuntu-latest #self-hosted
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        tags: nanosaur/nanosaur:dev
+        outputs: type=docker,dest=/tmp/nanosaur.tar
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: nanosaur
+        path: /tmp/nanosaur.tar
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
+
+  docker_deploy:
+    name: "Deploy Docker image"
+    runs-on: ubuntu-latest #self-hosted
+    needs: [docker]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: nanosaur
+        path: /tmp
+    - name: Load Docker image
+      run: |
+        docker load --input /tmp/nanosaur.tar
+        docker image ls -a
+    - name: Push Docker image
+      run: |
+        docker push nanosaur:dev
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
 
   release_stl:
     name: Upload release
@@ -53,7 +106,7 @@ jobs:
         asset_name: nanosaur_stl.zip
         asset_content_type: application/zip
 
-  docker:
+  docker_deploy:
     name: "Deploy Docker image"
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest #self-hosted
@@ -61,8 +114,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to DockerHub
@@ -70,12 +121,15 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
+    - name: Download artifact
+      uses: actions/download-artifact@v2
       with:
-        push: true
-        tags: nanosaur/nanosaur:latest
+        name: nanosaur
+        path: /tmp
+    - name: Load Docker image
+      run: |
+        docker load --input /tmp/nanosaur.tar
+        docker image ls -a
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
   

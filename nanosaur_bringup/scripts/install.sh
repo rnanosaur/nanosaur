@@ -134,8 +134,6 @@ main()
     # Request sudo password
     sudo -v
     sudo_me true
-    # Run update function
-    local THIS="$(pwd)"
 
     # https://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
     # Absolute path to this script, e.g. /home/user/bin/foo.sh
@@ -177,6 +175,11 @@ main()
         sudo pip3 install -U docker-compose
     fi
 
+    # Disable sudo me
+    sudo_me false
+    # Run update function
+    local THIS="$(pwd)"
+
     # Install basic packages on desktop
     if $DESKTOP ; then
         ROS_WS_NAME="nanosaur_ws"
@@ -212,8 +215,6 @@ main()
 
     # Return to main path
     cd $THIS
-    # Disable sudo me
-    sudo_me false
 
     if [ -f /var/run/reboot-required ] ; then
         # After install require reboot
