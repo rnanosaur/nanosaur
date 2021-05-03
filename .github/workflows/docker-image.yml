@@ -2,7 +2,7 @@ name: Docker Builder CI
 
 # Reference:
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
-on: [push, pull_request, repository_dispatch]
+on: [push, pull_request, workflow_dispatch]
 
 # https://github.com/docker/build-push-action
 jobs:
