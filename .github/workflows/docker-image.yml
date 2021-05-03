@@ -74,7 +74,7 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        repository: nanosaur/nanosaur
+        repository: rnanosaur/nanosaur
         short-description: ${{ github.event.repository.description }}
 
   release_stl:
