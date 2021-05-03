@@ -58,8 +58,9 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
     - name: Docker inputs digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
-      run: echo ${{ steps.meta.outputs.tags }}
+      run: |
+        echo ${{ steps.docker_build.outputs.digest }}
+        echo ${{ steps.meta.outputs.tags }}
 
   release_stl:
     name: Upload release
