@@ -56,8 +56,9 @@ RUN cd ${ROS_ROOT}/src && \
 # Copy nanosaur project
 COPY . $ROS_WS/src/nanosaur
 # Initialize ROS2 workspace
-RUN wstool init $ROS_WS/src && \
-    wstool merge -t $ROBOT_WORKSPACE/src robot.rosinstall
+RUN wstool init $ROS_WS/src
+
+RUN wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall
 # Change workdir
 WORKDIR $ROS_WS
 # Copy nanosaur project

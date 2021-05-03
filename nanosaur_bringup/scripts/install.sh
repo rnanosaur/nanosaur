@@ -216,6 +216,13 @@ main()
     # Return to main path
     cd $THIS
 
+    # Download docker-compose and run the system
+    if ! $DESKTOP ; then
+        # Download the docker-compose image and run
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o docker-compose.yml
+
+    fi
+
     if [ -f /var/run/reboot-required ] ; then
         # After install require reboot
         echo "${red}*** System Restart Required ***${reset}"
