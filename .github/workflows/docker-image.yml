@@ -106,7 +106,7 @@ jobs:
         asset_name: nanosaur_stl.zip
         asset_content_type: application/zip
 
-  docker_deploy:
+  docker_deploy_new:
     name: "Deploy Docker image"
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest #self-hosted
