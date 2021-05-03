@@ -215,17 +215,18 @@ if [[ $0 != $BASH_SOURCE ]] ; then
     # unset irrelevant variables
     deactivate nondestructive
 
-    # Load ROS2 workpspace
+    # Check ROS2 workspace and nanosaur workspace
     if [ ! -d /opt/ros/$ROBOT_DISTRO ] ; then
         echo "${red}ROS2 ${bold}$ROBOT_DISTRO${reset}${red} is not installed!${reset}"
         return
     fi
-    source /opt/ros/$ROBOT_DISTRO/setup.bash
-    # Load Nanosaur workspace
     if [ ! -d $ROBOT_WORKSPACE/install ] ; then
         echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$ROBOT_WORKSPACE${reset}"
         return
     fi
+    # Load ROS2 workspace
+    source /opt/ros/$ROBOT_DISTRO/setup.bash
+    # Load Nanosaur workspace
     source $ROBOT_WORKSPACE/install/setup.bash
     # Setup PS1
     _OLD_VIRTUAL_PS1="$PS1"
