@@ -33,29 +33,6 @@ jobs:
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
-      with:
-        tags: nanosaur/nanosaur:dev
-        outputs: type=docker,dest=/tmp/nanosaur.tar
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: nanosaur
-        path: /tmp/nanosaur.tar
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
-
-  docker_deploy:
-    name: "Deploy Docker image"
-    runs-on: ubuntu-latest #self-hosted
-    needs: [docker]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
     # https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
     - name: Docker meta
       id: meta
@@ -66,28 +43,23 @@ jobs:
         tags: |
           type=ref,event=branch
           type=semver,pattern={{version}}
+          type=ref,event=tag
     - name: Login to DockerHub
+      if: github.event_name != 'pull_request'
       uses: docker/login-action@v1 
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Download artifact
-      uses: actions/download-artifact@v2
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
       with:
-        name: nanosaur
-        path: /tmp
-    - name: Load Docker image
-      run: |
-        docker load --input /tmp/nanosaur.tar
-        docker image ls -a
-    - name: Push Docker image
-      run: |
-        echo ${{ steps.meta.outputs.tags }}
-        docker push nanosaur/nanosaur:dev
-    - name: Remove artifact
-      uses: geekyeggo/delete-artifact@v1
-      with:
-        name: nanosaur
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    - name: Docker inputs digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
+      run: echo ${{ steps.meta.outputs.tags }}
 
   release_stl:
     name: Upload release
@@ -119,33 +91,6 @@ jobs:
         asset_path: ./nanosaur_stl.zip
         asset_name: nanosaur_stl.zip
         asset_content_type: application/zip
-
-  docker_deploy_new:
-    name: "Deploy Docker image"
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest #self-hosted
-    needs: [export]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Login to DockerHub
-      uses: docker/login-action@v1 
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Download artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: nanosaur
-        path: /tmp
-    - name: Load Docker image
-      run: |
-        docker load --input /tmp/nanosaur.tar
-        docker image ls -a
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
   
   notify:
     name: "Notify socials"
