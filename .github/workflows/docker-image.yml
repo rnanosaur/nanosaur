@@ -67,8 +67,10 @@ jobs:
     name: Update docker description
     # if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-    needs: [docker]
+    # needs: [docker]
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Docker Hub Description
       uses: peter-evans/dockerhub-description@v2
       with:
@@ -76,6 +78,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
         repository: rnanosaur/nanosaur
         short-description: ${{ github.event.repository.description }}
+        readme-filepath: ./README.md
 
   release_stl:
     name: Upload release
