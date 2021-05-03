@@ -32,13 +32,13 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 
+# Copy wstool robot.rosinstall
+COPY robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
 RUN pip3 install -U wstool && \
     wstool init $ROS_WS/src && \
-    wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
+    wstool merge -t $ROS_WS/src robot.rosinstall && \
     wstool update -t $ROS_WS/src
-# Copy nanosaur project
-COPY . $ROS_WS/src/nanosaur
 # Install gstream libraries
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
@@ -68,16 +68,25 @@ RUN sudo apt-get install python3-wstool -y && \
     wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src $ROS_WS/src/nanosaur/robot.rosinstall && \
     wstool update -t $ROS_WS/src
-# Change workdir
-WORKDIR $ROS_WS
+# Copy nanosaur project
+# COPY . $ROS_WS/src/nanosaur
+# Copy wstool robot.rosinstall
+COPY robot.rosinstall robot.rosinstall
+# Initialize ROS2 workspace
+RUN pip3 install -U wstool && \
+    wstool init $ROS_WS/src && \
+    wstool merge -t $ROS_WS/src robot.rosinstall && \
+    wstool update -t $ROS_WS/src
 # Copy nanosaur project
 # COPY nanosaur_robot/requirements.txt $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt
 # Install python dependencies
 RUN apt-get update && \
     apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
     pip3 install wheel && \
-    pip3 install -r $ROS_WS/src/nanosaur/nanosaur_robot/requirements.txt && \
+    pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_drive/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
+# Change workdir
+WORKDIR $ROS_WS
 # build ros package source
 RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
     colcon build --symlink-install \
