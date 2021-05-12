@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest #self-hosted
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2.3.4
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2.3.4
     - name: Build project # This would actually build your project, using zip for an example artifact
       run: |
         bash nanosaur_description/scripts/nanosaur_stl.sh
@@ -70,7 +70,7 @@ jobs:
     needs: [docker]
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2.3.4
     - name: Docker Hub Description
       uses: peter-evans/dockerhub-description@v2
       with:
