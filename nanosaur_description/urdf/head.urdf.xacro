@@ -20,7 +20,7 @@
         </link>
 
         <joint name="display_left_joint" type="fixed">
-            <origin xyz="-0.017 0.0244 0.052" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <origin xyz="-0.024 0.0242 0.060" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
             <parent link="cover"/>
             <child link="display_left"/>
         </joint>
@@ -34,7 +34,7 @@
         </link>
 
         <joint name="display_right_joint" type="fixed">
-            <origin xyz="-0.017 -0.0244 0.052" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <origin xyz="-0.024 -0.0242 0.060" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
             <parent link="cover"/>
             <child link="display_right"/>
         </joint>
@@ -48,7 +48,7 @@
         </link>
 
         <joint name="camera_joint" type="fixed">
-            <origin xyz="0.010 0 0.0250" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
+            <origin xyz="0.013 0 0.0280" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
             <parent link="cover"/>
             <child link="camera_board"/>
         </joint>

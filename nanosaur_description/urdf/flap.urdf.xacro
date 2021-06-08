@@ -11,7 +11,8 @@
 
         <link name="flap_bottom">
             <visual>
-                <origin xyz="-0.0161 0 0.009" rpy="0 0 0" />
+                <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
+                <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
                 <geometry><mesh filename="${path_meshes}/flap_bottom.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
             </visual>
@@ -24,7 +25,8 @@
 
         <link name="flap_top">
             <visual>
-                <origin xyz="-0.0161 0 0.009" rpy="0 0 0" />
+                <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
+                <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
                 <geometry><mesh filename="${path_meshes}/flap_top.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
             </visual>
@@ -37,8 +39,9 @@
 
         <link name="board_expansion">
             <visual>
-                <origin xyz="-0.0017 0 0.019" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/parts/board_expansion.stl"/></geometry>
+                <!--<origin xyz="-0.0017 0 0.019" rpy="0 0 0" />-->
+                <origin xyz="-0.002 0.0005 0.017" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/nanosaur-exp-board.stl"/></geometry>
                 <material name="GunMetalGrey" />
             </visual>
         </link>

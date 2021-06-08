@@ -55,3 +55,14 @@ https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 ```
 docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur:/opt/ros_ws/src/nanosaur nanosaur/nanosaur:latest bash
 ```
+
+# License
+
+* All code is Under license [MIT](LICENSE)
+* All stl files included in **nanosaur_description/meshes** are under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+
+For more information about this project please follow [nanosaur.ai/about](https://nanosaur.ai/about/#license)
