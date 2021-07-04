@@ -169,10 +169,8 @@ main()
     # Check if is installed docker-compose
     if ! command -v docker-compose &> /dev/null ; then
         echo " - ${bold}${green}Install docker-compose${reset}"
-        sudo apt-get install -y libffi-dev
-        sudo apt-get install -y python-openssl
-        sudo apt-get install libssl-dev
-        # pip3 install --upgrade pip
+        sudo apt-get install -y libffi-dev python-openssl libssl-dev
+        sudo -H pip3 install -U pip
         sudo pip3 install -U docker-compose
     fi
 

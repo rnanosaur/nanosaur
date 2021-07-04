@@ -30,7 +30,8 @@ services:
     network_mode: "host"
     restart: always
     devices:
-     - "/dev/i2c-1:/dev/i2c-1" # I2C motors and displays
+     - "/dev/i2c-1:/dev/i2c-0" # display right [ID:3C]
+     - "/dev/i2c-2:/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
     volumes:
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
