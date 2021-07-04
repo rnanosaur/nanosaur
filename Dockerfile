@@ -23,9 +23,7 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# https://github.com/dusty-nv/jetson-containers
-#ARG BASE_IMAGE=officinerobotiche/ros:foxy-ros-base-l4t-r32.4.4-cv-4.4.0
-FROM dustynv/ros:foxy-ros-base-l4t-r32.5.0
+FROM nanosaur/nanosaur_base:1.1
 
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
@@ -33,20 +31,6 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 
-# Install gstream libraries
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends apt-utils && \
-    apt-get install -y libglew-dev glew-utils libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev libglib2.0-dev && \
-    rm -rf /var/lib/apt/lists/*
-# Install jetson-utils
-RUN cd /opt && \
-    git clone https://github.com/dusty-nv/jetson-utils.git && \
-    mkdir -p jetson-utils/build && cd jetson-utils/build && \
-    cmake ../ && \
-    make -j$(nproc) && \
-    make install && \
-    ldconfig
 # Clone and build missing packages
 RUN cd ${ROS_ROOT}/src && \
     git clone --branch dashing-devel https://github.com/ros/xacro.git && \
