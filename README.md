@@ -34,18 +34,11 @@ This following part is to develop with nanosaur
 
 ##  Build Docker
 
-Make ROS2 foxy jetson-container
-
-```
-git clone --branch patch-1 https://github.com/rbonghi/jetson-containers.git
-./jetson-containers/scripts/docker_build_ros.sh foxy
-```
-
-After foxy build, build the nanosaur docker for jetson
+Build Dockerfile from source
 
 ```
 cd nanosaur
-docker build -f Dockerfile.dev -t nanosaur/nanosaur:latest .
+docker build -f Dockerfile -t nanosaur/nanosaur:latest .
 ```
 
 ## Run docker container
@@ -53,7 +46,7 @@ docker build -f Dockerfile.dev -t nanosaur/nanosaur:latest .
 https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
 
 ```
-docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur:/opt/ros_ws/src/nanosaur nanosaur/nanosaur:latest bash
+docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-0 --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur_ws/src:/opt/ros_ws/src/ nanosaur/nanosaur:latest bash
 ```
 
 # License
