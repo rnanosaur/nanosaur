@@ -4,50 +4,11 @@
 
 NanoSaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
 
-* Website: [nanosaur.ai](https://nanosaur.ai)
-* Do you need an help? [Discord](https://discord.gg/NSrC52P5mw)
-* For technical details follow [wiki](https://github.com/rnanosaur/nanosaur/wiki)
-* Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
-
-[Nanosaur Docker hub](https://hub.docker.com/u/nanosaur)
-
-## Install nanosaur system
-```
-git clone https://github.com/rnanosaur/nanosaur.git
-sudo bash nanosaur/nanosaur_bringup/scripts/install.sh
-```
-
-After the installation please **reboot** the jetson board
-
-## Run nanosaur
-
-This script start the docker-compose
-
-```
-cd nanosaur/
-docker-compose up -d
-```
-
-# Develop
-
-This following part is to develop with nanosaur
-
-##  Build Docker
-
-Build Dockerfile from source
-
-```
-cd nanosaur
-docker build -f Dockerfile -t nanosaur/nanosaur:latest .
-```
-
-## Run docker container
-
-https://answers.ros.org/question/358453/ros2-docker-multiple-hosts/
-
-```
-docker run --runtime nvidia -it --rm  --network host --device /dev/i2c-0 --device /dev/i2c-1 -v /tmp/argus_socket:/tmp/argus_socket -v $HOME/nanosaur_ws/src:/opt/ros_ws/src/ nanosaur/nanosaur:latest bash
-```
+* :sauropod: Website: [nanosaur.ai](https://nanosaur.ai)
+* :unicorn: Do you need an help? [Discord](https://discord.gg/NSrC52P5mw)
+* :toolbox: For technical details follow [wiki](https://github.com/rnanosaur/nanosaur/wiki)
+* :whale2: Nanosaur [Docker hub](https://hub.docker.com/u/nanosaur)
+* :interrobang: Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 
 # License
 
