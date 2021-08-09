@@ -81,8 +81,10 @@ ldconfig
 
 # Load ROS2 sources
 ROS_DISTRO=foxy
+ROS_WS=/opt/ros_ws
 . /opt/ros/$ROS_DISTRO/install/setup.sh
-# 
+# Build ros_ws
+cd /$ROS_WS
 colcon build --symlink-install \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release

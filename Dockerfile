@@ -56,7 +56,7 @@ RUN pip3 install wheel && \
 # Install python dependencies
 RUN apt-get update && \
     apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
-    pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_hardware/requirements.txt && \
+    pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_base/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 
 # Build on CUDA
@@ -64,8 +64,6 @@ RUN apt-get update && \
 COPY jetson_cuda.sh /opt/jetson_cuda.sh
 RUN . /opt/jetson_cuda.sh
 
-# Change workdir
-WORKDIR $ROS_WS
 # source ros package from entrypoint
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
@@ -74,3 +72,5 @@ RUN sed --in-place --expression \
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # run ros package launch file
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]
+# Change workdir
+WORKDIR $ROS_WS
