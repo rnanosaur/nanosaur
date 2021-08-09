@@ -79,6 +79,14 @@ make -j$(nproc) && \
 make install && \
 ldconfig
 
+# Load ROS2 sources
+ROS_DISTRO=foxy
+. /opt/ros/$ROS_DISTRO/install/setup.sh
+# 
+colcon build --symlink-install \
+    --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release
+
 if $INSTALL_CUDA ; then
     echo "Remove CUDA"
     # Remove CUDA

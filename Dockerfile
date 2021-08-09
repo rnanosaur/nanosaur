@@ -25,13 +25,6 @@
 
 FROM dustynv/ros:foxy-ros-base-l4t-r32.5.0
 
-WORKDIR /opt
-# Copy jetson_utils installer
-COPY jetson_utils.sh jetson_utils.sh
-RUN . jetson_utils.sh
-
-ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
-
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
@@ -66,13 +59,13 @@ RUN apt-get update && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_hardware/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 
+# Build on CUDA
+# Copy and run jetson_utils installer
+COPY jetson_cuda.sh /opt/jetson_cuda.sh
+RUN . /opt/jetson_cuda.sh
+
 # Change workdir
 WORKDIR $ROS_WS
-# build ros package source
-RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    colcon build --symlink-install \
-    --cmake-args \
-    -DCMAKE_BUILD_TYPE=Release
 # source ros package from entrypoint
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
