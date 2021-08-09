@@ -43,6 +43,8 @@ if [ ! -f /usr/local/cuda/version.txt ]; then
 
     CUDAPKG=$(echo $CUDA | sed 's/\./-/');
 
+    apt-get update
+    
     apt-get install -y --no-install-recommends \
         cuda-libraries-$CUDAPKG \
         cuda-nvtx-$CUDAPKG \
