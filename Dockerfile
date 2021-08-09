@@ -23,21 +23,32 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-FROM nanosaur/nanosaur_base:1.3
+FROM dustynv/ros:foxy-ros-base-l4t-r32.5.0
+
+WORKDIR /opt
+# Copy jetson_utils installer
+COPY jetson_utils.sh jetson_utils.sh
+RUN . jetson_utils.sh
+
+ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
 
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
-ENV ROS_WS /opt/ros_ws
-RUN mkdir -p $ROS_WS/src
-
 # Clone and build missing packages
-RUN cd ${ROS_ROOT}/src && \
-    git clone --branch dashing-devel https://github.com/ros/xacro.git && \
+# to skip rosdep install --from-paths src --ignore-src -r -y
+RUN mkdir -p ${ROS_ROOT}/src && \
+    cd ${ROS_ROOT}/src && \
+    git clone --branch ros2 https://github.com/ros/xacro.git && \
     git clone --branch ros2 https://github.com/ros/urdf_parser_py.git && \
     git clone --branch foxy https://github.com/ros/joint_state_publisher.git && \
     cd ${ROS_ROOT} && \
-    colcon build --symlink-install --packages-select xacro urdfdom_py joint_state_publisher
+    . /opt/ros/$ROS_DISTRO/install/setup.sh && \
+    colcon build --symlink-install --merge-install --packages-select xacro urdfdom_py joint_state_publisher
+
+# Download and build nanosaur_ws
+ENV ROS_WS /opt/ros_ws
+RUN mkdir -p $ROS_WS/src
 # Copy wstool robot.rosinstall
 COPY robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
@@ -46,6 +57,7 @@ RUN pip3 install wheel && \
     wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src robot.rosinstall && \
     wstool update -t $ROS_WS/src
+
 # Copy nanosaur project
 # COPY . $ROS_WS/src/nanosaur
 # Install python dependencies
@@ -53,6 +65,7 @@ RUN apt-get update && \
     apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_hardware/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
+
 # Change workdir
 WORKDIR $ROS_WS
 # build ros package source
@@ -64,5 +77,7 @@ RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
       /ros_entrypoint.sh
+# Set default RMW implementation
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # run ros package launch file
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]
