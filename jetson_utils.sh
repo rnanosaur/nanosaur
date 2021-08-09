@@ -29,13 +29,17 @@
 CUDA=10.2
 RELEASE=r32.5
 
-apt-get update
+if [ ! -f /usr/local/cuda/version.txt ]; then
+    INSTALL_CUDA=true
+else
+    INSTALL_CUDA=false
+fi
 
 # Check if CUDA is installed
-if [ ! -f /usr/local/cuda/version.txt ]; then
+if $INSTALL_CUDA ; then
     echo "Install CUDA"
     # Install CUDA
-    apt-get install -y --no-install-recommends gnupg2 ca-certificates
+    apt-get update && apt-get install -y --no-install-recommends gnupg2 ca-certificates
     # COPY jetson-ota-public.key /etc/jetson-ota-public.key
     curl https://gitlab.com/nvidia/container-images/l4t-base/-/raw/master/jetson-ota-public.key -o /etc/jetson-ota-public.key
     apt-key add /etc/jetson-ota-public.key
@@ -44,7 +48,6 @@ if [ ! -f /usr/local/cuda/version.txt ]; then
     CUDAPKG=$(echo $CUDA | sed 's/\./-/');
 
     apt-get update
-    
     apt-get install -y --no-install-recommends \
         cuda-libraries-$CUDAPKG \
         cuda-nvtx-$CUDAPKG \
@@ -58,6 +61,7 @@ if [ ! -f /usr/local/cuda/version.txt ]; then
 fi
 
 # Install gstream libraries
+apt-get update
 apt-get install -y --no-install-recommends apt-utils \
     libglew-dev glew-utils libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev libglib2.0-dev
@@ -75,7 +79,7 @@ make -j$(nproc) && \
 make install && \
 ldconfig
 
-if [ ! -f /usr/local/cuda/version.txt ]; then
+if $INSTALL_CUDA ; then
     echo "Remove CUDA"
     # Remove CUDA
     apt-get purge -y \
