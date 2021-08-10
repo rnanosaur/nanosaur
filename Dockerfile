@@ -47,6 +47,7 @@ COPY robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
 RUN pip3 install wheel && \
     pip3 install -U wstool && \
+    pip3 install jetson-stats && \
     wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src robot.rosinstall && \
     wstool update -t $ROS_WS/src
