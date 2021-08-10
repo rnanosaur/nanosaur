@@ -70,6 +70,8 @@ RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
       /ros_entrypoint.sh
 # Set default RMW implementation
+# Fix camera run
+# https://github.com/ros2/rmw_fastrtps/issues/460
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # run ros package launch file
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]
