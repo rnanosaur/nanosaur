@@ -56,6 +56,10 @@ if $INSTALL_CUDA ; then
         cuda-license-$CUDAPKG \
         cuda-command-line-tools-$CUDAPKG
 
+    # Force override TENSORRT in a docker builder without tensorrt
+    # Fix https://github.com/dusty-nv/jetson-utils/blob/1ee0494b196b488b4b95e89fa2d72366d3cf4879/camera/gstCamera.cpp#L136
+    echo "#define NV_TENSORRT_MAJOR 7" > /usr/include/aarch64-linux-gnu/NvInfer.h
+
     # Link CUDA library
     ln -s /usr/local/cuda-$CUDA /usr/local/cuda
 fi
@@ -100,6 +104,10 @@ if $INSTALL_CUDA ; then
         cuda-license-$CUDAPKG \
         cuda-command-line-tools-$CUDAPKG
     apt-get autoremove
+
+    # restore file
+    rm /usr/include/aarch64-linux-gnu/NvInfer.h
+    touch /usr/include/aarch64-linux-gnu/NvInfer.h
 fi
 
 # Clean apt build
