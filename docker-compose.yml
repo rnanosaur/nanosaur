@@ -33,6 +33,11 @@ services:
      - "/dev/i2c-1:/dev/i2c-0" # display right [ID:3C]
      - "/dev/i2c-2:/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
     volumes:
+     # if you want change the nanosaur configuration
+     # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
+     # before uncomment this line
+     # - "$HOME/nanosaur.yml:/opt/ros_ws/nanosaur_robot/nanosaur_bringup/param/nanosaur.yml" # Extra configuration
+     # These two volumes pass jtop and CSI camera
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
   watchtower: # https://containrrr.dev/watchtower
