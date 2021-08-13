@@ -27,7 +27,7 @@
 FROM dustynv/ros:foxy-ros-base-l4t-r32.6.1
 # Configuration CUDA
 ARG CUDA=10.2
-ARG L4T=r32.6.1
+ARG L4T=r32.6
 ARG TENSORRT=8
 
 ENV ROS_DISTRO=foxy
