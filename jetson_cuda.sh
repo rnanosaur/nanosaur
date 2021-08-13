@@ -111,7 +111,7 @@ if $INSTALL_CUDA ; then
         cuda-minimal-build-$CUDAPKG \
         cuda-license-$CUDAPKG \
         cuda-command-line-tools-$CUDAPKG
-    apt-get autoremove
+    apt-get autoremove -y
 
     # restore file
     rm /usr/include/aarch64-linux-gnu/NvInfer.h
