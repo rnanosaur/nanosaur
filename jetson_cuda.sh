@@ -24,10 +24,18 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if [ $# -le 2 ] ; then
+    echo "No argument supplied"
+    echo "Please add these arguments: CUDA L4T_RELEASE TENSORRT"
+    exit 1
+fi
+
 # Install CUDA
 # https://gitlab.com/nvidia/container-images/l4t-base/-/blob/master/Dockerfile.cuda
-CUDA=10.2
-RELEASE=r32.5
+CUDA=$1
+RELEASE=$2
+TENSORRT=$3
+echo "CUDA=$CUDA L4T=$RELEASE TENSORRT=$TENSORRT"
 
 if [ ! -f /usr/local/cuda/version.txt ]; then
     INSTALL_CUDA=true
@@ -58,7 +66,7 @@ if $INSTALL_CUDA ; then
 
     # Force override TENSORRT in a docker builder without tensorrt
     # Fix https://github.com/dusty-nv/jetson-utils/blob/1ee0494b196b488b4b95e89fa2d72366d3cf4879/camera/gstCamera.cpp#L136
-    echo "#define NV_TENSORRT_MAJOR 7" > /usr/include/aarch64-linux-gnu/NvInfer.h
+    echo "#define NV_TENSORRT_MAJOR $TENSORRT" > /usr/include/aarch64-linux-gnu/NvInfer.h
 
     # Link CUDA library
     ln -s /usr/local/cuda-$CUDA /usr/local/cuda

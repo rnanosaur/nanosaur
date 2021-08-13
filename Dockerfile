@@ -23,7 +23,12 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-FROM dustynv/ros:foxy-ros-base-l4t-r32.5.0
+# Jetpack 4.6
+FROM dustynv/ros:foxy-ros-base-l4t-r32.6.1
+# Configuration CUDA
+ARG CUDA=10.2
+ARG L4T=r32.6.1
+ARG TENSORRT=8
 
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
@@ -63,7 +68,11 @@ RUN apt-get update && \
 # Build on CUDA
 # Copy and run jetson_utils installer
 COPY jetson_cuda.sh /opt/jetson_cuda.sh
-RUN . /opt/jetson_cuda.sh
+# Pass in order
+# CUDA ex. 10.2
+# L4T version ex. r32.5
+# TENSORRT ex. 7
+RUN . /opt/jetson_cuda.sh ${CUDA} ${L4T} ${TENSORRT}
 
 # source ros package from entrypoint
 RUN sed --in-place --expression \
