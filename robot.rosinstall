@@ -4,3 +4,7 @@
 - git:
     local-name: nanosaur_robot
     uri: https://github.com/rnanosaur/nanosaur_robot.git
+- git:
+    local-name: ros2_jetson_stats
+    version: foxy
+    uri: https://github.com/rbonghi/ros2_jetson_stats.git

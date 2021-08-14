@@ -118,5 +118,6 @@ if $INSTALL_CUDA ; then
     touch /usr/include/aarch64-linux-gnu/NvInfer.h
 fi
 
+echo "Clean APT build"
 # Clean apt build
 rm -rf /var/lib/apt/lists/*
