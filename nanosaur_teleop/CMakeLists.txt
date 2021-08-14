@@ -10,10 +10,10 @@ find_package(ament_cmake REQUIRED)
 ################################################################################
 # Install
 ################################################################################
-#install(
-#  DIRECTORY launch param
-#  DESTINATION share/${PROJECT_NAME}
-#)
+install(
+  DIRECTORY launch param
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ################################################################################
 # Macro for ament package

@@ -30,8 +30,6 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_ros
 
-import launch
-
 
 def generate_launch_description():
     pkg_teleop = launch_ros.substitutions.FindPackageShare(package='nanosaur_teleop').find('nanosaur_teleop')
