@@ -40,7 +40,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 [pkg_teleop_twist_joy, '/launch/teleop-launch.py']),
-            config_filepath=os.path.join(pkg_teleop, 'param', 'nanosaur.yml'),
+            launch_arguments = {'config_filepath': os.path.join(pkg_teleop, 'param', 'nanosaur.yml')}.items(),
             ),
     ])
 # EOF
