@@ -27,7 +27,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-   <name>nanosaur_drive</name>
+   <name>nanosaur_teleop</name>
    <version>0.1.0</version>
    <description>Launch files and configuration scripts to control NanoSaur Robot.</description>
    <author email="raffaello@rnext.it">Raffaello Bonghi</author>
