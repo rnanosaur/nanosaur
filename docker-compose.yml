@@ -30,9 +30,9 @@ services:
     network_mode: "host"
     restart: always
     devices:
-     - "/dev/i2c-0:/dev/i2c-0" # display right [ID:3C]
-     - "/dev/i2c-1:/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
-     # - "/dev/input/js0:/dev/input/js0" # Joystick robot
+     - "/dev/i2c-0" # display right [ID:3C]
+     - "/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
+     - "/dev/input" # Joystick robot
     volumes:
      # if you want change the nanosaur configuration
      # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
