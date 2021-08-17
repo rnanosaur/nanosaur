@@ -40,9 +40,11 @@ RUN mkdir -p ${ROS_ROOT}/src && \
     git clone --branch ros2 https://github.com/ros/xacro.git && \
     git clone --branch ros2 https://github.com/ros/urdf_parser_py.git && \
     git clone --branch foxy https://github.com/ros/joint_state_publisher.git && \
+    git clone --branch ros2 https://github.com/ros-drivers/joystick_drivers.git && \
+    git clone --branch foxy https://github.com/ros2/teleop_twist_joy.git && \
     cd ${ROS_ROOT} && \
     . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    colcon build --symlink-install --merge-install --packages-select xacro urdfdom_py joint_state_publisher
+    colcon build --symlink-install --merge-install --packages-select xacro urdfdom_py joint_state_publisher teleop_twist_joy joy sdl2_vendor
 
 # Download and build nanosaur_ws
 ENV ROS_WS /opt/ros_ws
