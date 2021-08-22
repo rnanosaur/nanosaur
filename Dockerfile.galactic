@@ -25,13 +25,13 @@
 
 # Jetpack 4.6
 # https://github.com/dusty-nv/jetson-containers
-FROM dustynv/ros:foxy-ros-base-l4t-r32.6.1
+FROM dustynv/ros:galactic-ros-base-l4t-r32.6.1
 # Configuration CUDA
 ARG CUDA=10.2
 ARG L4T=r32.6
 ARG TENSORRT=8
 
-ENV ROS_DISTRO=foxy
+ENV ROS_DISTRO=galactic
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 # Clone and build missing packages
