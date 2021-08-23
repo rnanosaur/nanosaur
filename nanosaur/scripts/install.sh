@@ -183,7 +183,7 @@ main()
     if $DESKTOP ; then
         ROS_WS_NAME="nanosaur_ws"
         ROBOT_WORKSPACE=$HOME/$ROS_WS_NAME
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/desktop.rosinstall"
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
 
         echo " - Write nanosaur configuration in ${bold}${green}$HOME/$CONFIG_FILE${reset}"
         #touch $HOME/$CONFIG_FILE

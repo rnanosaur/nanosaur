@@ -51,7 +51,7 @@ RUN mkdir -p ${ROS_ROOT}/src && \
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 # Copy wstool robot.rosinstall
-COPY robot.rosinstall robot.rosinstall
+COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
 RUN pip3 install wheel && \
     pip3 install -U wstool && \
@@ -70,7 +70,7 @@ RUN apt-get update && \
 
 # Build on CUDA
 # Copy and run jetson_utils installer
-COPY jetson_cuda.sh /opt/jetson_cuda.sh
+COPY nanosaur/scripts/jetson_cuda.sh /opt/jetson_cuda.sh
 # Pass in order
 # CUDA ex. 10.2
 # L4T version ex. r32.5
