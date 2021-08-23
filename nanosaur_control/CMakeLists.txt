@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(nanosaur_teleop)
+project(nanosaur_control)
 
 ################################################################################
 # Find ament packages and libraries for ament and system dependencies

@@ -27,9 +27,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-   <name>nanosaur_teleop</name>
+   <name>nanosaur_control</name>
    <version>0.1.0</version>
-   <description>Launch files and configuration scripts to control NanoSaur Robot.</description>
+   <description>Set of launcher to control nanosaur, twist mux, etc...</description>
    <author email="raffaello@rnext.it">Raffaello Bonghi</author>
    <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
    <license>MIT</license>
@@ -44,6 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <test_depend>ament_lint_common</test_depend>
 
    <exec_depend>teleop_twist_joy</exec_depend>
+   <exec_depend>twist_mux</exec_depend>
 
    <export>
       <build_type>ament_cmake</build_type>
