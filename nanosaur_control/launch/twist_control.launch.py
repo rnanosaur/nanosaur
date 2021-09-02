@@ -65,7 +65,7 @@ def generate_launch_description():
                 LaunchConfiguration('config_joy')]
         )
 
-    return launch.LaunchDescription([
+    launch_description = [
         DeclareLaunchArgument(
             'config_locks',
             default_value=default_config_locks,
@@ -82,9 +82,13 @@ def generate_launch_description():
             'cmd_vel_out',
             default_value='cmd_vel',
             description='cmd vel output topic'),
-        # teleoperation joystick nanosaur
-        teleop_launch,
         # Twist mux launcher
         twist_mux_node,
-    ])
+    ]
+    
+    # teleoperation joystick nanosaur
+    # only if joystick is connected
+    launch_description += [teleop_launch] if os.path.isfile("/dev/input/js0") else []
+    
+    return launch.LaunchDescription(launch_description)
 # EOF
