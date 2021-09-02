@@ -123,7 +123,7 @@ main()
     echo " - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
     echo " - ${bold}User:${reset} ${green}$USER${reset}"
     echo " - ${bold}Home:${reset} ${green}$HOME${reset}"
-    echo " - ${bold}Type:${reset} ${green}$type_install${reset}"
+    echo " - ${bold}Install on:${reset} ${green}$type_install${reset}"
     echo "---------------------------"
 
     while ! $SILENT; do
@@ -182,15 +182,22 @@ main()
             sudo pip3 install -U docker-compose
         fi
 
-        if [ -d $NANOSAUR_DOCKER ] ; then
-            if [ ! -f $HOME/docker-compose.yml ] ; then
-                echo " - Download Nanosaur docker-compose in ${bold}${yellow}$HOME/docker-compose.yml${reset}"
-                # Download the docker-compose image and run
-                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $HOME/docker-compose.yml
-            fi
-            # Run docker compose a daemon
-            sudo docker-compose -f $HOME/docker-compose.yml up -d
+        if [ ! -d $NANOSAUR_DOCKER ] ; then
+            echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DOCKER${reset}"
+            sudo mkdir -p $NANOSAUR_DOCKER
+            sudo chown $USER:$USER $NANOSAUR_DOCKER
         fi
+
+        if [ ! -f $NANOSAUR_DOCKER/docker-compose.yml ] ; then
+            echo " - ${bold}${green}Download Nanosaur docker-compose${reset}"
+            # Download the docker-compose image and run
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DOCKER/docker-compose.yml
+        fi
+
+        # Run docker compose a daemon
+        echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
+        sudo docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
+
     fi
 
     # Disable sudo me

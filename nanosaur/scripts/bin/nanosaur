@@ -38,7 +38,7 @@ PLATFORM="$(uname -m)"
 ROBOT_NAME='nanosaur'
 ROS2_PATH='/opt/ros/foxy/setup.bash'
 ROS_WS_NAME="nanosaur_ws"
-NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME/
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 NANOSAUR_DOCKER='/opt/nanosaur'
 # Load nanosaur configuration file
 if [ -f $HOME/.nanosaur.config ] ; then
@@ -81,15 +81,17 @@ usage()
     fi
 
     local name=$(basename ${0})
-    echo "Robot ROS managager. Update workspaces and status. (Works with wstool)" >&2
+    echo "Robot ROS managager. Update workspaces and status." >&2
     echo "" >&2
     echo "Commands:" >&2
-    echo "        $name info        Info about workspace" >&2
-    echo "        $name update      Update all robot workspace" >&2
+    echo "  $name info            nanosaur status" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
-        echo "        $name run         Run a docker with all device and volume loaded for nanosaur" >&2
+        echo "  $name update            Update docker and scripts" >&2
+        echo "  $name run   [CMD:bash]  Run a new docker with all device and volumes" >&2
+        echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
     else
-        echo "        $name activate    Load all variables and workspaces for nanosaur" >&2
+        echo "  $name update      Update all robot workspace" >&2
+        echo "  $name activate    Load all variables and workspaces for nanosaur" >&2
     fi
 }
 
@@ -168,7 +170,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "info" "activate" "run" "help")
+    local options=("update" "info" "activate" "run" "help" "dev")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
@@ -184,7 +186,7 @@ main()
         fi
         exit 1
     fi
-    
+
 	# Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
         echo "${red}Please don't run as root${reset}" >&2
@@ -205,7 +207,6 @@ main()
             wstool info -t "$NANOSAUR_WORKSPACE/src"
         elif [ $option = "update" ] ; then
             update $arguments
-        fi
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
@@ -213,11 +214,74 @@ main()
     else
         # NVIDIA Jetson options
         if [ $option = "info" ] ; then
-            echo "Status docker-compose"
+            local docker_cmd="ps -a"
+            if [ ! -z "$arguments" ] ; then
+                docker_cmd=$arguments
+            fi
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml $docker_cmd
+            echo "-------------------------------------------------------------------------" >&2
+            echo "- nanosaur config is located in ${bold}$NANOSAUR_DOCKER${reset}" >&2
+            if [ -f $NANOSAUR_DOCKER/.env ] ; then
+                echo "- nanosaur in ${yellow}${bold}developer${reset} mode" >&2
+            fi
         elif [ $option = "update" ] ; then
-            echo "Update docker-compose"
+            # Update docker-compose
+            if [ -d $NANOSAUR_WORKSPACE ] ; then
+                echo " - ${bold}${green}Copy Nanosaur docker-compose${reset}" >&2
+                cp $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DOCKER/docker-compose.yml
+            else
+                # Download latest version nanosaur docker-compose
+                echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
+                # Download the docker-compose image and run
+                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DOCKER/docker-compose.yml
+            fi
+            # Re-run the docker compose
+            local docker_cmd="up -d"
+            if [ ! -z "$arguments" ] ; then
+                docker_cmd=$arguments
+            fi
+            echo " - ${bold}${green}Pull and restart all containers${reset}" >&2
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml $docker_cmd
+        elif [ $option = "dev" ] ; then
+            if [ "$arguments" = "reset" ] ; then
+                echo "Restore ${green}nanosaur${reset} mode" >&2
+                if [ -f $NANOSAUR_DOCKER/.env ] ; then
+                    rm $NANOSAUR_DOCKER/.env
+                fi
+            else
+                echo "Setup ${green}nanosaur${reset} in ${bold}developer${reset} mode" >&2
+                # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
+                echo "TAG=master" > $NANOSAUR_DOCKER/.env
+            fi
+            # Relaunch docker-compose
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
         elif [ $option = "run" ] ; then
-            echo "Run docker with all settings ..." >&2
+            local docker_cmd="bash"
+            if [ ! -z "$arguments" ] ; then
+                docker_cmd=$arguments
+            fi
+            echo "${green}Run a new nanosaur docker${reset}" >&2
+            # Check if exist .env file
+            local TAG=latest
+            if [ -f $NANOSAUR_DOCKER/.env ] ; then
+                TAG=master
+                echo "- ${yellow}You are working with developer version docker${reset}" >&2
+            fi
+            local WORKSPACE_DOCKER=""
+            # Check if exist nanosaur workspace on robot folder
+            if [ -d $NANOSAUR_WORKSPACE ] && [ -f $NANOSAUR_DOCKER/.env ] ; then
+                echo "- Load volume $NANOSAUR_WORKSPACE" >&2
+                WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
+            fi
+            echo "---------------------------------" >&2
+            docker run --runtime nvidia -it --rm --network host \
+                        --device /dev/i2c-0 \
+                        --device /dev/i2c-1 \
+                        --device /dev/input \
+                        -v /tmp/argus_socket:/tmp/argus_socket \
+                        -v /run/jtop.sock:/run/jtop.sock \
+                        $WORKSPACE_DOCKER \
+                        nanosaur/nanosaur:$TAG $docker_cmd
         fi
     fi
 }

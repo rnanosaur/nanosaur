@@ -26,7 +26,7 @@
 version: "3.9"
 services:
   nanosaur: # https://nanosaur.ai
-    image: nanosaur/nanosaur
+    image: nanosaur/nanosaur:${TAG:-latest}
     network_mode: "host"
     restart: always
     devices:
