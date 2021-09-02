@@ -86,9 +86,10 @@ usage()
     echo "Commands:" >&2
     echo "  $name info            nanosaur status" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
+        echo "  $name start             Start nanosaur robot" >&2
+        echo "  $name stop              Stop nanosaur robot" >&2
         echo "  $name update            Update docker and scripts" >&2
         echo "  $name run   [CMD:bash]  Run a new docker with all device and volumes" >&2
-        echo "  $name stop              Stop nanosaur robot" >&2
         echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
     else
         echo "  $name update      Update all robot workspace" >&2
@@ -280,6 +281,8 @@ main()
                         -v /run/jtop.sock:/run/jtop.sock \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$TAG $docker_cmd
+       elif [ $option = "start" ] ; then
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
         elif [ $option = "stop" ] ; then
             docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml down
         fi
