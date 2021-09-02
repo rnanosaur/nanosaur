@@ -88,6 +88,7 @@ usage()
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update            Update docker and scripts" >&2
         echo "  $name run   [CMD:bash]  Run a new docker with all device and volumes" >&2
+        echo "  $name stop              Stop nanosaur robot" >&2
         echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
     else
         echo "  $name update      Update all robot workspace" >&2
@@ -170,7 +171,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "info" "activate" "run" "help" "dev")
+    local options=("update" "info" "activate" "run" "help" "dev" "stop")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
@@ -235,13 +236,10 @@ main()
                 # Download the docker-compose image and run
                 curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DOCKER/docker-compose.yml
             fi
-            # Re-run the docker compose
-            local docker_cmd="up -d"
-            if [ ! -z "$arguments" ] ; then
-                docker_cmd=$arguments
-            fi
             echo " - ${bold}${green}Pull and restart all containers${reset}" >&2
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml $docker_cmd
+            # Pull all new images
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml pull
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
         elif [ $option = "dev" ] ; then
             if [ "$arguments" = "reset" ] ; then
                 echo "Restore ${green}nanosaur${reset} mode" >&2
@@ -282,6 +280,8 @@ main()
                         -v /run/jtop.sock:/run/jtop.sock \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$TAG $docker_cmd
+        elif [ $option = "stop" ] ; then
+            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml down
         fi
     fi
 }
