@@ -88,7 +88,7 @@ def generate_launch_description():
     
     # teleoperation joystick nanosaur
     # only if joystick is connected
-    launch_description += [teleop_launch] if os.path.isfile("/dev/input/js0") else []
+    launch_description += [teleop_launch] if os.path.exists("/dev/input/js0") else []
     
     return launch.LaunchDescription(launch_description)
 # EOF
