@@ -31,6 +31,11 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
+# Load platform
+# - aarch64 = NVIDIA Jetson
+# - x86_64 = Desktop
+PLATFORM="$(uname -m)"
+
 # Load sudo user nane
 if [ ! -z $SUDO_USER ] ; then
     USER=$SUDO_USER
@@ -85,16 +90,12 @@ sudo_me()
 main()
 {
     local SILENT=false
-    local DESKTOP=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
             -h|--help) # Load help
                 usage
                 exit 0
-                ;;
-            --desktop)
-                DESKTOP=true
                 ;;
             -s|--silent)
                 SILENT=true
@@ -113,7 +114,10 @@ main()
         exit 1
     fi
 
-    local type_install=$( $DESKTOP && echo "desktop" || echo "robot" )
+    local type_install="desktop"
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        type_install="robot"
+    fi
     # Recap installatation
     echo "------ Configuration ------"
     echo " - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
@@ -144,34 +148,49 @@ main()
     if [ -d $SCRIPTPATH/bin ] ; then
         echo " - Copy nanosaur command in ${bold}${green}/usr/local/bin${reset}"
         sudo cp $SCRIPTPATH/bin/nanosaur /usr/local/bin/nanosaur
-    elif $DESKTOP ; then
+    else
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in /usr/local/bin"
         sudo curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o /usr/local/bin/nanosaur
         sudo chmod +x /usr/local/bin/nanosaur
     fi
 
-    if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
-        echo " - ${bold}${green}Install pip/pip3${reset}"
-        sudo apt-get install -y python3-pip
-    fi
+    # Installer for NVIDIA Jetson platform
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        NANOSAUR_DOCKER='/opt/nanosaur'
 
-    # Check if is installed jtop
-    if ! command -v jtop &> /dev/null ; then
-        echo " - ${bold}${green}Install/Update jetson-stats${reset}"
-        sudo -H pip3 install -U jetson-stats
-    fi
+        if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
+            echo " - ${bold}${green}Install pip/pip3${reset}"
+            sudo apt-get install -y python3-pip
+        fi
 
-    if ! getent group docker | grep -q "\b$USER\b" ; then
-        echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
-        sudo usermod -aG docker $USER
-    fi
+        # Check if is installed jtop
+        if ! command -v jtop &> /dev/null ; then
+            echo " - ${bold}${green}Install/Update jetson-stats${reset}"
+            sudo -H pip3 install -U jetson-stats
+        fi
 
-    # Check if is installed docker-compose
-    if ! command -v docker-compose &> /dev/null ; then
-        echo " - ${bold}${green}Install docker-compose${reset}"
-        sudo apt-get install -y libffi-dev python-openssl libssl-dev
-        sudo -H pip3 install -U pip
-        sudo pip3 install -U docker-compose
+        if ! getent group docker | grep -q "\b$USER\b" ; then
+            echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
+            sudo usermod -aG docker $USER
+        fi
+
+        # Check if is installed docker-compose
+        if ! command -v docker-compose &> /dev/null ; then
+            echo " - ${bold}${green}Install docker-compose${reset}"
+            sudo apt-get install -y libffi-dev python-openssl libssl-dev
+            sudo -H pip3 install -U pip
+            sudo pip3 install -U docker-compose
+        fi
+
+        if [ -d $NANOSAUR_DOCKER ] ; then
+            if [ ! -f $HOME/docker-compose.yml ] ; then
+                echo " - Download Nanosaur docker-compose in ${bold}${yellow}$HOME/docker-compose.yml${reset}"
+                # Download the docker-compose image and run
+                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $HOME/docker-compose.yml
+            fi
+            # Run docker compose a daemon
+            sudo docker-compose -f $HOME/docker-compose.yml up -d
+        fi
     fi
 
     # Disable sudo me
@@ -180,25 +199,17 @@ main()
     local THIS="$(pwd)"
 
     # Install basic packages on desktop
-    if $DESKTOP ; then
+    if [[ $PLATFORM = "x86_64" ]] ; then
         ROS_WS_NAME="nanosaur_ws"
-        ROBOT_WORKSPACE=$HOME/$ROS_WS_NAME
+        NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
 
-        echo " - Write nanosaur configuration in ${bold}${green}$HOME/$CONFIG_FILE${reset}"
-        #touch $HOME/$CONFIG_FILE
-        echo "#!/bin/bash" > $HOME/$CONFIG_FILE
-        # ROS main sources
-        echo "export ROS_WS_NAME=$ROS_WS_NAME" >> $HOME/$CONFIG_FILE
-        echo "export ROBOT_WORKSPACE=$ROBOT_WORKSPACE" >> $HOME/$CONFIG_FILE
-        echo "export ROSINSTALL_FILE=$ROSINSTALL_FILE" >> $HOME/$CONFIG_FILE
-
         # Make nanosaur workspace
-        if [ ! -d $ROBOT_WORKSPACE ] ; then
-            echo " - Make Nanosaur ROS2 workspace folder in ${bold}${green}$ROBOT_WORKSPACE${reset}"
-            mkdir -p $ROBOT_WORKSPACE/src
+        if [ ! -d $NANOSAUR_WORKSPACE ] ; then
+            echo " - Make Nanosaur ROS2 workspace folder in ${bold}${green}$NANOSAUR_WORKSPACE${reset}"
+            mkdir -p $NANOSAUR_WORKSPACE/src
         else
-            echo " - Nanosaur workspace folder already exist in ${bold}${yellow}$ROBOT_WORKSPACE${reset}"
+            echo " - Nanosaur workspace folder already exist in ${bold}${yellow}$NANOSAUR_WORKSPACE${reset}"
         fi
         # Install wstool
         if ! command -v wstool &> /dev/null ; then
@@ -207,8 +218,8 @@ main()
         fi
         # Initialize wstool
         # https://www.systutorials.com/docs/linux/man/1-wstool/
-        if [ ! -f $ROBOT_WORKSPACE/src/.rosinstall ] ; then
-            wstool init $ROBOT_WORKSPACE/src
+        if [ ! -f $NANOSAUR_WORKSPACE/src/.rosinstall ] ; then
+            wstool init $NANOSAUR_WORKSPACE/src
         fi
         # Build nanosaur
         nanosaur update --rosinstall
@@ -216,17 +227,6 @@ main()
 
     # Return to main path
     cd $THIS
-
-    # Download docker-compose and run the system
-    if ! $DESKTOP ; then
-        if [ ! -f $HOME/docker-compose.yml ] ; then
-            echo " - Download Nanosaur docker-compose in ${bold}${yellow}$HOME/docker-compose.yml${reset}"
-            # Download the docker-compose image and run
-            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $HOME/docker-compose.yml
-        fi
-        # Run docker compose a daemon
-        docker-compose -f $HOME/docker-compose.yml up -d
-    fi
 
     if [ -f /var/run/reboot-required ] ; then
         # After install require reboot

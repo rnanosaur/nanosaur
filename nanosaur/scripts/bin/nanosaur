@@ -30,19 +30,25 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
+# Load platform
+# - aarch64 = NVIDIA Jetson
+# - x86_64 = Desktop
+PLATFORM="$(uname -m)"
+
+ROBOT_NAME='nanosaur'
+ROS2_PATH='/opt/ros/foxy/setup.bash'
+ROS_WS_NAME="nanosaur_ws"
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME/
+NANOSAUR_DOCKER='/opt/nanosaur'
 # Load nanosaur configuration file
 if [ -f $HOME/.nanosaur.config ] ; then
     source $HOME/.nanosaur.config
+    echo "${green}Nanosaur config loaded${reset}" >&2
 fi
-
-ROBOT_DISTRO="foxy"
-ROBOT_NAME="nanosaur"
-
-if [ -z ${ROS_WS_NAME+x} ]; then
-    ROS_WS_NAME="nanosaur_ws"
-fi
-if [ -z ${ROBOT_WORKSPACE+x} ]; then
-    ROBOT_WORKSPACE=/$HOME/$ROS_WS_NAME/
+# Load rosinstall configuration
+ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
+if [[ $PLATFORM = "aarch64" ]] ; then
+    ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/robot.rosinstall"
 fi
 
 # Modules check sudo
@@ -70,32 +76,35 @@ sudo_me()
 
 usage()
 {
-	if [ "$1" != "" ]; then
-		echo "${red}$1${reset}"
-	fi
-	
+    if [ "$1" != "" ]; then
+        echo "${red}$1${reset}" >&2
+    fi
+
     local name=$(basename ${0})
-    echo "Robot ROS managager. Update workspaces and status. (Works with wstool)"
-    echo ""
-    echo "Commands:"
-    echo "        $name update      Update all ROS workspace"
-    echo "        $name info        Info about workspace"
-    echo "        $name activate    Load all variables and workspaces for nanosaur"
+    echo "Robot ROS managager. Update workspaces and status. (Works with wstool)" >&2
+    echo "" >&2
+    echo "Commands:" >&2
+    echo "        $name info        Info about workspace" >&2
+    echo "        $name update      Update all robot workspace" >&2
+    if [[ $PLATFORM = "aarch64" ]]; then
+        echo "        $name run         Run a docker with all device and volume loaded for nanosaur" >&2
+    else
+        echo "        $name activate    Load all variables and workspaces for nanosaur" >&2
+    fi
 }
 
 update_usage()
 {
 	if [ "$1" != "" ]; then
-		echo "${red}$1${reset}"
+		echo "${red}$1${reset}" >&2
 	fi
 	local name=$(basename ${0})
-    echo "updater. Update workspace, repositories and dependencies"
-    echo "${bold}$name update${reset} [options]"
-    echo "options,"
-    echo "   -h|--help        | This help"
-    echo "   --rosinstall     | Update rosinstall workspace"
+    echo "updater. Update workspace, repositories and dependencies" >&2
+    echo "${bold}$name update${reset} [options]" >&2
+    echo "options," >&2
+    echo "   -h|--help        | This help" >&2
+    echo "   --rosinstall     | Update rosinstall workspace" >&2
 }
-
 
 update()
 {
@@ -112,27 +121,23 @@ update()
                 rosinstall=true
                 ;;
             *)
-                update_usage "[ERROR] Unknown option: $1"
+                update_usage "[ERROR] Unknown option: $1" >&2
                 exit 1
                 ;;
         esac
             shift 1
     done
 
-    # Request sudo password
-    #sudo -v
-    #sudo_me true
-
     # Run update function
     local THIS="$(pwd)"
 
     if $rosinstall ; then
         # Load ROS2 workspace
-        source /opt/ros/$ROBOT_DISTRO/setup.bash
+        source $ROS2_PATH
         # Merge workspace
-        wstool merge -t $ROBOT_WORKSPACE/src $ROSINSTALL_FILE
+        wstool merge -t $NANOSAUR_WORKSPACE/src $ROSINSTALL_FILE
         # Update workspace
-        wstool update -t $ROBOT_WORKSPACE/src
+        wstool update -t $NANOSAUR_WORKSPACE/src
         # Status update wstool
         if [ $? -ne 0 ] ; then
             # Try to make again
@@ -143,18 +148,18 @@ update()
         # Install all dependencies
         # http://wiki.ros.org/rosdep
         echo " ${bold}*${reset} Install all ${bold}dependencies${reset}"
-        rosdep install --from-paths $ROBOT_WORKSPACE/src --ignore-src -r -y
+        rosdep install --from-paths $NANOSAUR_WORKSPACE/src --ignore-src -r -y
+    else
+        # Update workspace
+        wstool update -t $NANOSAUR_WORKSPACE/src
     fi
     # Go to catkin path
-    cd $ROBOT_WORKSPACE
+    cd $NANOSAUR_WORKSPACE
     # Catkin make all workspace
-    echo " ${bold}*${reset} ${green}colcon build${reset} $ROBOT_WORKSPACE"
+    echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)"
     colcon build
     # Return to main path
     cd $THIS
-
-    # Disable sudo me
-    #sudo_me false
 }
 
 main()
@@ -163,7 +168,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "info" "activate")
+    local options=("update" "info" "activate" "run" "help")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
@@ -175,81 +180,116 @@ main()
         if [ -z $option ] ; then
             usage
         else
-            usage "[ERROR] Unknown option: $option"
+            usage "[ERROR] Unknown option: $option" >&2
         fi
         exit 1
     fi
     
 	# Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
-        echo "${red}Please don't run as root${reset}"
+        echo "${red}Please don't run as root${reset}" >&2
         exit 1
     fi
     
     # Load all arguments except the first one
     local arguments=${@:2}
     # Options
-    if [ $option = "update" ] ; then
-        update $arguments
-    elif [ $option = "info" ] ; then
-        # Update workspace
-        # https://www.systutorials.com/docs/linux/man/1-wstool/
-        wstool info -t "$ROBOT_WORKSPACE/src"
-    elif [ $option = "activate" ] ; then
-        echo "${yellow}Please run:${reset}"
-        echo "source nanosaur"
+    if [ $option = "help" ] ; then
+        usage
+    fi
+    # Desktop options
+    if [ $PLATFORM = "x86_64" ] ; then
+        if [ $option = "info" ] ; then
+            # Update workspace
+            # https://www.systutorials.com/docs/linux/man/1-wstool/
+            wstool info -t "$NANOSAUR_WORKSPACE/src"
+        elif [ $option = "update" ] ; then
+            update $arguments
+        fi
+        elif [ $option = "activate" ] ; then
+            echo "${yellow}Please run:${reset}" >&2
+            echo "source nanosaur" >&2
+        fi
+    else
+        # NVIDIA Jetson options
+        if [ $option = "info" ] ; then
+            echo "Status docker-compose"
+        elif [ $option = "update" ] ; then
+            echo "Update docker-compose"
+        elif [ $option = "run" ] ; then
+            echo "Run docker with all settings ..." >&2
+        fi
     fi
 }
 
+
 # Detect if is sourced or not
 # https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced
-if [[ $0 != $BASH_SOURCE ]] ; then
-
-    deactivate()
-    {
-        # Restore .bashrc
-        source /home/$USER/.bashrc
-        # Restore old virtual PS1
-        if ! [ -z "${_OLD_VIRTUAL_PS1+_}" ] ; then
-            PS1="$_OLD_VIRTUAL_PS1"
-            export PS1
-            unset _OLD_VIRTUAL_PS1
-        fi
-    }
-    # unset irrelevant variables
-    deactivate nondestructive
-
-    # Check ROS2 workspace and nanosaur workspace
-    if [ ! -d /opt/ros/$ROBOT_DISTRO ] ; then
-        echo "${red}ROS2 ${bold}$ROBOT_DISTRO${reset}${red} is not installed!${reset}"
-        return
-    fi
-    if [ ! -d $ROBOT_WORKSPACE/install ] ; then
-        echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$ROBOT_WORKSPACE${reset}"
-        return
-    fi
-    # Load ROS2 workspace
-    source /opt/ros/$ROBOT_DISTRO/setup.bash
-    # Load Nanosaur workspace
-    source $ROBOT_WORKSPACE/install/setup.bash
-    # Setup PS1
-    _OLD_VIRTUAL_PS1="$PS1"
-    if [ "x" != x ] ; then
-        PS1="$PS1"
-    else
-        PS1="${bold}($ROBOT_NAME)${reset} $PS1"
-    fi
-    export PS1
-
-    # This should detect bash and zsh, which have a hash command that must
-    # be called to get it to forget past commands.  Without forgetting
-    # past commands the $PATH changes we made may not be respected
-    if [ -n "${BASH-}" ] || [ -n "${ZSH_VERSION-}" ] ; then
-        hash -r 2>/dev/null
-    fi
-else
+if [ "${BASH_SOURCE-}" = "$0" ] ; then
     main $@
     exit 0
 fi
 
+# Check if is running on Desktop platform
+if [ $PLATFORM != "x86_64" ] ; then
+    echo "${red}You must source this script only from a Desktop machine${reset}" >&2
+    return
+fi
+
+deactivate () {
+
+    # https://stackoverflow.com/questions/8760505/is-it-possible-to-unsource-in-bash
+    # Restore .bashrc
+    if [ ! "${1-}" = "nondestructive" ] ; then
+        exec bash
+    fi
+
+    # The hash command must be called to get it to forget past
+    # commands. Without forgetting past commands the $PATH changes
+    # we made may not be respected
+    hash -r 2>/dev/null
+
+    if ! [ -z "${_OLD_VIRTUAL_PS1+_}" ] ; then
+        PS1="$_OLD_VIRTUAL_PS1"
+        export PS1
+        unset _OLD_VIRTUAL_PS1
+    fi
+
+    unset VIRTUAL_ENV
+    if [ ! "${1-}" = "nondestructive" ] ; then
+    # Self destruct!
+        unset -f deactivate
+    fi
+}
+
+# unset irrelevant variables
+deactivate nondestructive
+
+# Check ROS2 workspace and nanosaur workspace
+if [ ! -d $(dirname $ROS2_PATH) ] ; then
+    echo "${red}ROS2 is not installed in $(dirname $ROS2_PATH)${reset}" >&2
+    return
+fi
+# Load ROS2 workspace
+source $ROS2_PATH
+
+if [ ! -d $NANOSAUR_WORKSPACE/install ] ; then
+    echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$NANOSAUR_WORKSPACE${reset}" >&2
+else
+    # Load Nanosaur workspace
+    source $NANOSAUR_WORKSPACE/install/setup.bash
+fi
+
+# Setup PS1
+if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ] ; then
+    _OLD_VIRTUAL_PS1="${PS1-}"
+    # Rewrite PS1
+    PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
+    export PS1
+fi
+
+# The hash command must be called to get it to forget past
+# commands. Without forgetting past commands the $PATH changes
+# we made may not be respected
+hash -r 2>/dev/null
 # EOF
