@@ -77,7 +77,9 @@ COPY nanosaur/scripts/jetson_cuda.sh /opt/jetson_cuda.sh
 # CUDA ex. 10.2
 # L4T version ex. r32.5
 # TENSORRT ex. 7
-RUN . /opt/jetson_cuda.sh ${CUDA} ${L4T} ${TENSORRT}
+# ROS_DISTRO ex. foxy
+# ROS_WS ex. /opt/ros_ws
+RUN . /opt/jetson_cuda.sh ${CUDA} ${L4T} ${TENSORRT} ${ROS_DISTRO} ${ROS_WS}
 
 # source ros package from entrypoint
 RUN sed --in-place --expression \

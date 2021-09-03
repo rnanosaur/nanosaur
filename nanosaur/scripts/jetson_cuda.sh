@@ -35,7 +35,9 @@ fi
 CUDA=$1
 RELEASE=$2
 TENSORRT=$3
-echo "CUDA=$CUDA L4T=$RELEASE TENSORRT=$TENSORRT"
+ROS_DISTRO=$4
+ROS_WS=$5
+echo "CUDA=$CUDA L4T=$RELEASE TENSORRT=$TENSORRT ROS_DISTRO=$ROS_DISTRO ROS_WS=$ROS_WS"
 
 if [ ! -f /usr/local/cuda/version.txt ]; then
     INSTALL_CUDA=true
@@ -92,8 +94,6 @@ make install && \
 ldconfig
 
 # Load ROS2 sources
-ROS_DISTRO=foxy
-ROS_WS=/opt/ros_ws
 . /opt/ros/$ROS_DISTRO/install/setup.sh
 # Build ros_ws
 cd /$ROS_WS
