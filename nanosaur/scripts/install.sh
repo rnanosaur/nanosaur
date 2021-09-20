@@ -184,8 +184,12 @@ main()
 
         if [ ! -d $NANOSAUR_DOCKER ] ; then
             echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DOCKER${reset}"
+            # Build nanosaur folder structure
+            # - /opt/nanosaur
+            # -      /param [ ros2 parameter folder ]
             sudo mkdir -p $NANOSAUR_DOCKER
             sudo chown $USER:$USER $NANOSAUR_DOCKER
+            mkdir -p "$NANOSAUR_DOCKER/param"
         fi
 
         if [ ! -f $NANOSAUR_DOCKER/docker-compose.yml ] ; then

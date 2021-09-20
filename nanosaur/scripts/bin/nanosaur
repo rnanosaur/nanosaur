@@ -24,27 +24,30 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+ROBOT_NAME='nanosaur'
+ROS2_PATH='/opt/ros/foxy/setup.bash'
+ROS_WS_NAME="nanosaur_ws"
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
+NANOSAUR_DOCKER='/opt/nanosaur'
+TAG_DEVELOPMENT='master'
+# Load nanosaur configuration file
+if [ -f $HOME/.nanosaur.config ] ; then
+    source $HOME/.nanosaur.config
+    echo "${green}Nanosaur config loaded${reset}" >&2
+fi
+
 bold=`tput bold`
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
+NANOSAUR_VERSION="1.4"
 # Load platform
 # - aarch64 = NVIDIA Jetson
 # - x86_64 = Desktop
 PLATFORM="$(uname -m)"
 
-ROBOT_NAME='nanosaur'
-ROS2_PATH='/opt/ros/foxy/setup.bash'
-ROS_WS_NAME="nanosaur_ws"
-NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
-NANOSAUR_DOCKER='/opt/nanosaur'
-# Load nanosaur configuration file
-if [ -f $HOME/.nanosaur.config ] ; then
-    source $HOME/.nanosaur.config
-    echo "${green}Nanosaur config loaded${reset}" >&2
-fi
 # Load rosinstall configuration
 ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
 if [[ $PLATFORM = "aarch64" ]] ; then
@@ -82,8 +85,12 @@ usage()
 
     local name=$(basename ${0})
     echo "Robot ROS managager. Update workspaces and status." >&2
+    if [[ $PLATFORM = "aarch64" ]]; then
+        echo "Default nanosaur folder is in ${bold}/opt/nanosaur${reset}" >&2
+    fi
     echo "" >&2
     echo "Commands:" >&2
+    echo "  $name version         nanosaur version" >&2
     echo "  $name info            nanosaur status" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name start             Start nanosaur robot" >&2
@@ -172,7 +179,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "info" "activate" "run" "help" "dev" "start" "stop")
+    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "stop")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
@@ -200,6 +207,8 @@ main()
     # Options
     if [ $option = "help" ] ; then
         usage
+    elif [ $option = "version" ] ; then
+        echo "Nanosaur script version ${bold}v$NANOSAUR_VERSION${reset}" >&2
     fi
     # Desktop options
     if [ $PLATFORM = "x86_64" ] ; then
@@ -250,7 +259,7 @@ main()
             else
                 echo "Setup ${green}nanosaur${reset} in ${bold}developer${reset} mode" >&2
                 # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
-                echo "TAG=master" > $NANOSAUR_DOCKER/.env
+                echo "TAG=$TAG_DEVELOPMENT" > $NANOSAUR_DOCKER/.env
             fi
             # Relaunch docker-compose
             docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
@@ -263,8 +272,8 @@ main()
             # Check if exist .env file
             local TAG=latest
             if [ -f $NANOSAUR_DOCKER/.env ] ; then
-                TAG=master
-                echo "- ${yellow}You are working with developer version docker${reset}" >&2
+                TAG=$TAG_DEVELOPMENT
+                echo "- ${yellow}You are working with developer version docker${reset} - TAG=$TAG_DEVELOPMENT" >&2
             fi
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
@@ -281,7 +290,7 @@ main()
                         -v /run/jtop.sock:/run/jtop.sock \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$TAG $docker_cmd
-       elif [ $option = "start" ] ; then
+        elif [ $option = "start" ] ; then
             docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
         elif [ $option = "stop" ] ; then
             docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml down
