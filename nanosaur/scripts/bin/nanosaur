@@ -28,7 +28,7 @@ ROBOT_NAME='nanosaur'
 ROS2_PATH='/opt/ros/foxy/setup.bash'
 ROS_WS_NAME="nanosaur_ws"
 NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
-NANOSAUR_DOCKER='/opt/nanosaur'
+NANOSAUR_DATA='/opt/nanosaur'
 TAG_DEVELOPMENT='master'
 # Load nanosaur configuration file
 if [ -f $HOME/.nanosaur.config ] ; then
@@ -42,7 +42,7 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
-NANOSAUR_VERSION="1.4"
+NANOSAUR_VERSION="1.4.1"
 # Load platform
 # - aarch64 = NVIDIA Jetson
 # - x86_64 = Desktop
@@ -173,6 +173,15 @@ update()
     cd $THIS
 }
 
+update_nanosaur_script()
+{
+    if [ ! -d $NANOSAUR_WORKSPACE ] ; then
+        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA
+        chmod +x $NANOSAUR_DATA/nanosaur
+    fi
+}
+
 main()
 {
     local option=$1
@@ -217,6 +226,9 @@ main()
             # https://www.systutorials.com/docs/linux/man/1-wstool/
             wstool info -t "$NANOSAUR_WORKSPACE/src"
         elif [ $option = "update" ] ; then
+            # Update this script
+            update_nanosaur_script
+            # Update nanosaur
             update $arguments
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
@@ -229,40 +241,43 @@ main()
             if [ ! -z "$arguments" ] ; then
                 docker_cmd=$arguments
             fi
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml $docker_cmd
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml $docker_cmd
             echo "-------------------------------------------------------------------------" >&2
-            echo "- nanosaur config is located in ${bold}$NANOSAUR_DOCKER${reset}" >&2
-            if [ -f $NANOSAUR_DOCKER/.env ] ; then
+            echo "- nanosaur config is located in ${bold}$NANOSAUR_DATA${reset}" >&2
+            if [ -f $NANOSAUR_DATA/.env ] ; then
                 echo "- nanosaur in ${yellow}${bold}developer${reset} mode" >&2
             fi
         elif [ $option = "update" ] ; then
+            # Switch off nanosaur
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
+            # Update this script
+            update_nanosaur_script
             # Update docker-compose
             if [ -d $NANOSAUR_WORKSPACE ] ; then
                 echo " - ${bold}${green}Copy Nanosaur docker-compose${reset}" >&2
-                cp $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DOCKER/docker-compose.yml
+                cp $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
             else
                 # Download latest version nanosaur docker-compose
                 echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
                 # Download the docker-compose image and run
-                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DOCKER/docker-compose.yml
+                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
             fi
             echo " - ${bold}${green}Pull and restart all containers${reset}" >&2
             # Pull all new images
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml pull
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
         elif [ $option = "dev" ] ; then
             if [ "$arguments" = "reset" ] ; then
                 echo "Restore ${green}nanosaur${reset} mode" >&2
-                if [ -f $NANOSAUR_DOCKER/.env ] ; then
-                    rm $NANOSAUR_DOCKER/.env
+                if [ -f $NANOSAUR_DATA/.env ] ; then
+                    rm $NANOSAUR_DATA/.env
                 fi
             else
                 echo "Setup ${green}nanosaur${reset} in ${bold}developer${reset} mode" >&2
                 # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
-                echo "TAG=$TAG_DEVELOPMENT" > $NANOSAUR_DOCKER/.env
+                echo "TAG=$TAG_DEVELOPMENT" > $NANOSAUR_DATA/.env
             fi
             # Relaunch docker-compose
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
         elif [ $option = "run" ] ; then
             local docker_cmd="bash"
             if [ ! -z "$arguments" ] ; then
@@ -271,13 +286,13 @@ main()
             echo "${green}Run a new nanosaur docker${reset}" >&2
             # Check if exist .env file
             local TAG=latest
-            if [ -f $NANOSAUR_DOCKER/.env ] ; then
+            if [ -f $NANOSAUR_DATA/.env ] ; then
                 TAG=$TAG_DEVELOPMENT
                 echo "- ${yellow}You are working with developer version docker${reset} - TAG=$TAG_DEVELOPMENT" >&2
             fi
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
-            if [ -d $NANOSAUR_WORKSPACE ] && [ -f $NANOSAUR_DOCKER/.env ] ; then
+            if [ -d $NANOSAUR_WORKSPACE ] && [ -f $NANOSAUR_DATA/.env ] ; then
                 echo "- Load volume $NANOSAUR_WORKSPACE" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
             fi
@@ -291,9 +306,9 @@ main()
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$TAG $docker_cmd
         elif [ $option = "start" ] ; then
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
         elif [ $option = "stop" ] ; then
-            docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml down
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
         fi
     fi
 }

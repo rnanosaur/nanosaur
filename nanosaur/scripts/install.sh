@@ -44,6 +44,7 @@ fi
 
 # Nanosaur configuration variables
 CONFIG_FILE=".nanosaur.config"
+NANOSAUR_DATA='/opt/nanosaur'
 
 
 usage()
@@ -140,23 +141,39 @@ main()
     sudo -v
     sudo_me true
 
+    if [ ! -d $NANOSAUR_DATA ] ; then
+        echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DATA${reset}"
+        # Build nanosaur folder structure
+        # - /opt/nanosaur
+        # -      /param [ ros2 parameter folder ]
+        sudo mkdir -p $NANOSAUR_DATA
+        sudo chown $USER:$USER $NANOSAUR_DATA
+        mkdir -p "$NANOSAUR_DATA/param"
+    fi
+
     # https://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
     # Absolute path to this script, e.g. /home/user/bin/foo.sh
     SCRIPT=$(readlink -f "$0")
     # Absolute path this script is in, thus /home/user/bin
     SCRIPTPATH=$(dirname "$SCRIPT")
     if [ -d $SCRIPTPATH/bin ] ; then
-        echo " - Copy nanosaur command in ${bold}${green}/usr/local/bin${reset}"
-        sudo cp $SCRIPTPATH/bin/nanosaur /usr/local/bin/nanosaur
+        if [ ! -L $NANOSAUR_DATA/nanosaur ] ; then
+            echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
+            ln -s $SCRIPTPATH/bin/nanosaur $NANOSAUR_DATA/nanosaur
+        fi
     else
-        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in /usr/local/bin"
-        sudo curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o /usr/local/bin/nanosaur
-        sudo chmod +x /usr/local/bin/nanosaur
+        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA
+        chmod +x $NANOSAUR_DATA/nanosaur
+    fi
+    # link nanosaur script to nanosaur path
+    if [ ! -f /usr/local/bin/nanosaur ] ; then
+        echo " - Link nanosaur command in ${bold}${green}/usr/local/bin${reset}"
+        sudo ln -s $NANOSAUR_DATA/nanosaur /usr/local/bin/nanosaur
     fi
 
     # Installer for NVIDIA Jetson platform
     if [[ $PLATFORM = "aarch64" ]] ; then
-        NANOSAUR_DOCKER='/opt/nanosaur'
 
         if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
             echo " - ${bold}${green}Install pip/pip3${reset}"
@@ -182,25 +199,15 @@ main()
             sudo pip3 install -U docker-compose
         fi
 
-        if [ ! -d $NANOSAUR_DOCKER ] ; then
-            echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DOCKER${reset}"
-            # Build nanosaur folder structure
-            # - /opt/nanosaur
-            # -      /param [ ros2 parameter folder ]
-            sudo mkdir -p $NANOSAUR_DOCKER
-            sudo chown $USER:$USER $NANOSAUR_DOCKER
-            mkdir -p "$NANOSAUR_DOCKER/param"
-        fi
-
-        if [ ! -f $NANOSAUR_DOCKER/docker-compose.yml ] ; then
+        if [ ! -f $NANOSAUR_DATA/docker-compose.yml ] ; then
             echo " - ${bold}${green}Download Nanosaur docker-compose${reset}"
             # Download the docker-compose image and run
-            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DOCKER/docker-compose.yml
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
         fi
 
         # Run docker compose a daemon
         echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
-        sudo docker-compose -f $NANOSAUR_DOCKER/docker-compose.yml up -d
+        sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
 
     fi
 
