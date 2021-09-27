@@ -69,11 +69,6 @@ if $INSTALL_CUDA ; then
     # Force override TENSORRT in a docker builder without tensorrt
     # Fix https://github.com/dusty-nv/jetson-utils/blob/1ee0494b196b488b4b95e89fa2d72366d3cf4879/camera/gstCamera.cpp#L136
     echo "#define NV_TENSORRT_MAJOR $TENSORRT" > /usr/include/aarch64-linux-gnu/NvInfer.h
-    
-    cd /opt
-    # Clone nanosaur_contrib to build in a x86/QEMU enviroment
-    git clone https://github.com/rnanosaur/nanosaur_contrib.git
-    cp /opt/nanosaur_contrib/aarch64-linux-gnu/tegra/libnvbuf_utils.so /usr/lib/aarch64-linux-gnu/tegra/libnvbuf_utils.so
 
     # Link CUDA library
     ln -s /usr/local/cuda-$CUDA /usr/local/cuda
@@ -88,6 +83,9 @@ apt-get install -y --no-install-recommends apt-utils \
 # Install jetson-utils
 cd /opt
 git clone https://github.com/dusty-nv/jetson-utils.git
+# Error with /usr/lib/aarch64-linux-gnu/tegra/libnvbuf_utils.so
+# Does not exist on x86/QEMU architecture
+git checkout 43c04d6330c3410d9c5f63e311c9653dbbe4e192
 
 mkdir -p jetson-utils/build
 
@@ -121,10 +119,6 @@ if $INSTALL_CUDA ; then
     # restore file
     rm /usr/include/aarch64-linux-gnu/NvInfer.h
     touch /usr/include/aarch64-linux-gnu/NvInfer.h
-
-    # Remove libnvbuf_utils.so
-    rm -R /opt/nanosaur_contrib
-    rm /usr/lib/aarch64-linux-gnu/tegra/libnvbuf_utils.so
 fi
 
 echo "Clean APT build"
