@@ -1,21 +1,28 @@
 - git:
-    local-name: ros2
+    local-name: xacro
+    version: ros2
     uri: https://github.com/ros/xacro.git
 - git:
-    local-name: ros2
+    local-name: urdf_parser_py
+    version: ros2
     uri: https://github.com/ros/urdf_parser_py.git
 - git:
-    local-name: foxy
+    local-name: joint_state_publisher
+    version: foxy
     uri: https://github.com/ros/joint_state_publisher.git
 - git:
-    local-name: ros2
+    local-name: joystick_drivers
+    version: ros2
     uri: https://github.com/ros-drivers/joystick_drivers.git
 - git:
-    local-name: foxy
+    local-name: teleop_twist_joy
+    version: foxy
     uri: https://github.com/ros2/teleop_twist_joy.git
 - git:
-    local-name: foxy
+    local-name: diagnostics
+    version: foxy
     uri: https://github.com/ros/diagnostics.git
 - git:
-    local-name: foxy-devel
+    local-name: twist_mux
+    version: foxy-devel
     uri: https://github.com/ros-teleop/twist_mux.git
