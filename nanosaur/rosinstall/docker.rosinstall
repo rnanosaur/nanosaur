@@ -1,0 +1,21 @@
+- git:
+    local-name: ros2
+    uri: https://github.com/ros/xacro.git
+- git:
+    local-name: ros2
+    uri: https://github.com/ros/urdf_parser_py.git
+- git:
+    local-name: foxy
+    uri: https://github.com/ros/joint_state_publisher.git
+- git:
+    local-name: ros2
+    uri: https://github.com/ros-drivers/joystick_drivers.git
+- git:
+    local-name: foxy
+    uri: https://github.com/ros2/teleop_twist_joy.git
+- git:
+    local-name: foxy
+    uri: https://github.com/ros/diagnostics.git
+- git:
+    local-name: foxy-devel
+    uri: https://github.com/ros-teleop/twist_mux.git

@@ -34,17 +34,17 @@ ARG TENSORRT=8
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
-# Clone and build missing packages
+# Copy wstool docker.rosinstall
 # to skip rosdep install --from-paths src --ignore-src -r -y
+COPY nanosaur/rosinstall/docker.rosinstall docker.rosinstall
+# Initialize ROS2 workspace
 RUN mkdir -p ${ROS_ROOT}/src && \
-    cd ${ROS_ROOT}/src && \
-    git clone --branch ros2 https://github.com/ros/xacro.git && \
-    git clone --branch ros2 https://github.com/ros/urdf_parser_py.git && \
-    git clone --branch foxy https://github.com/ros/joint_state_publisher.git && \
-    git clone --branch ros2 https://github.com/ros-drivers/joystick_drivers.git && \
-    git clone --branch foxy https://github.com/ros2/teleop_twist_joy.git && \
-    git clone --branch foxy https://github.com/ros/diagnostics.git && \
-    git clone --branch foxy-devel https://github.com/ros-teleop/twist_mux.git && \
+    pip3 install wheel && \
+    pip3 install -U wstool && \
+    pip3 install jetson-stats && \
+    wstool init ${ROS_ROOT}/src && \
+    wstool merge -t ${ROS_ROOT}/src docker.rosinstall && \
+    wstool update -t ${ROS_ROOT}/src && \
     cd ${ROS_ROOT} && \
     . /opt/ros/$ROS_DISTRO/install/setup.sh && \
     colcon build --symlink-install --merge-install --packages-select xacro urdfdom_py joint_state_publisher teleop_twist_joy joy sdl2_vendor diagnostic_updater twist_mux
@@ -55,10 +55,7 @@ RUN mkdir -p $ROS_WS/src
 # Copy wstool robot.rosinstall
 COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace
-RUN pip3 install wheel && \
-    pip3 install -U wstool && \
-    pip3 install jetson-stats && \
-    wstool init $ROS_WS/src && \
+RUN wstool init $ROS_WS/src && \
     wstool merge -t $ROS_WS/src robot.rosinstall && \
     wstool update -t $ROS_WS/src
 
