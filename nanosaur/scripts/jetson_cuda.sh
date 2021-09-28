@@ -85,12 +85,12 @@ cd /opt
 git clone https://github.com/dusty-nv/jetson-utils.git
 # Error with /usr/lib/aarch64-linux-gnu/tegra/libnvbuf_utils.so
 # Does not exist on x86/QEMU architecture
+cd jetson-utils
 git checkout 43c04d6330c3410d9c5f63e311c9653dbbe4e192
 
-mkdir -p jetson-utils/build
-
-cd jetson-utils/build
-
+# Build jetson-utils
+mkdir -p build
+cd build
 cmake ../ && \
 make -j$(nproc) && \
 make install && \
