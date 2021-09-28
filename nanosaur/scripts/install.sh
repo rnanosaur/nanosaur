@@ -180,6 +180,12 @@ main()
             sudo apt-get install -y python3-pip
         fi
 
+        # Check if is installed nano
+        if ! command -v nano &> /dev/null ; then
+            echo " - ${bold}${green}Install nano${reset}"
+            sudo apt-get install -y nano
+        fi
+
         # Check if is installed jtop
         if ! command -v jtop &> /dev/null ; then
             echo " - ${bold}${green}Install/Update jetson-stats${reset}"
