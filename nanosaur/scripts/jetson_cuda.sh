@@ -91,9 +91,11 @@ git checkout 43c04d6330c3410d9c5f63e311c9653dbbe4e192
 # Build jetson-utils
 mkdir -p build
 cd build
-cmake ../ && \
-make -j$(nproc) && \
-make install && \
+
+cmake ../
+make -j$(nproc) || { echo "jetson-utils build failure!"; exit 1; }
+
+make install
 ldconfig
 
 # Load ROS2 sources
@@ -102,7 +104,7 @@ ldconfig
 cd /$ROS_WS
 colcon build --symlink-install \
     --cmake-args \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Release || { echo "ros2 build failure!"; exit 1; }
 
 if $INSTALL_CUDA ; then
     echo "Remove CUDA"
