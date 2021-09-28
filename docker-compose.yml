@@ -41,7 +41,7 @@ services:
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
-    image: nanosaur/webgui:latest
+    image: nanosaur/webgui:main
     network_mode: "host"
     restart: always
   # Watchtower - Check if new images are available
