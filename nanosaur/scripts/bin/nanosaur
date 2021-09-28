@@ -189,7 +189,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "stop" "config")
+    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "restart" "stop" "config")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
