@@ -84,7 +84,7 @@ usage()
     fi
 
     local name=$(basename ${0})
-    echo "Robot ROS managager. Update workspaces and status." >&2
+    echo "Robot ROS managager ${bold}v$NANOSAUR_VERSION${reset}. Update workspaces and status." >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "Default nanosaur folder is in ${bold}$NANOSAUR_DATA${reset}" >&2
     fi
@@ -93,12 +93,12 @@ usage()
     echo "  $name version           nanosaur version" >&2
     echo "  $name info              nanosaur status" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
-        echo "  $name start             Start nanosaur robot" >&2
-        echo "  $name stop              Stop nanosaur robot" >&2
         echo "  $name update            Update docker and scripts" >&2
         echo "  $name run   [CMD:bash]  Run a new docker with all device and volumes" >&2
         echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
         echo "  $name config            Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
+        echo " "  >&2
+        echo "  $name [start/restart/stop]  Control nanosaur docker" >&2
     else
         echo "  $name update      Update all robot workspace" >&2
         echo "  $name activate    Load all variables and workspaces for nanosaur" >&2
@@ -312,6 +312,8 @@ main()
             nano $NANOSAUR_DATA/param/nanosaur.yml
         elif [ $option = "start" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
+        elif [ $option = "restart" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml restart
         elif [ $option = "stop" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
         fi

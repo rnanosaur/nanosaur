@@ -36,7 +36,7 @@ services:
     volumes:
      # if you want change the nanosaur configuration
      # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
-     - "/opt/nanosaur/param:/opt/ros_ws/src/nanosaur_robot/nanosaur_bringup/param" # Extra configuration folder
+     - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
      # These two volumes pass jtop and CSI camera
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
