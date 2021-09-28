@@ -255,8 +255,10 @@ main()
             update_nanosaur_script
             # Update docker-compose
             if [ -d $NANOSAUR_WORKSPACE ] ; then
-                echo " - ${bold}${green}Copy Nanosaur docker-compose${reset}" >&2
-                cp $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+                if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
+                    echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
+                    ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+                fi
             else
                 # Download latest version nanosaur docker-compose
                 echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2

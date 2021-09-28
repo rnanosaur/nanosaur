@@ -45,7 +45,8 @@ fi
 # Nanosaur configuration variables
 CONFIG_FILE=".nanosaur.config"
 NANOSAUR_DATA='/opt/nanosaur'
-
+ROS_WS_NAME="nanosaur_ws"
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 
 usage()
 {
@@ -151,15 +152,11 @@ main()
         mkdir -p "$NANOSAUR_DATA/param"
     fi
 
-    # https://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
-    # Absolute path to this script, e.g. /home/user/bin/foo.sh
-    SCRIPT=$(readlink -f "$0")
-    # Absolute path this script is in, thus /home/user/bin
-    SCRIPTPATH=$(dirname "$SCRIPT")
-    if [ -d $SCRIPTPATH/bin ] ; then
+    # Check if exist the nanosaur workspace
+    if [ -d $NANOSAUR_WORKSPACE ] ; then
         if [ ! -L $NANOSAUR_DATA/nanosaur ] ; then
             echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
-            ln -s $SCRIPTPATH/bin/nanosaur $NANOSAUR_DATA/nanosaur
+            ln -s $NANOSAUR_WORKSPACE/src/nanosaur/scripts/bin $NANOSAUR_DATA/nanosaur
         fi
     else
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
@@ -205,8 +202,14 @@ main()
             sudo pip3 install -U docker-compose
         fi
 
-        if [ ! -f $NANOSAUR_DATA/docker-compose.yml ] ; then
-            echo " - ${bold}${green}Download Nanosaur docker-compose${reset}"
+        if [ -d $NANOSAUR_WORKSPACE ] ; then
+            if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
+                echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
+                ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+            fi
+        else
+            # Download latest version nanosaur docker-compose
+            echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
             # Download the docker-compose image and run
             curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
         fi
@@ -224,8 +227,6 @@ main()
 
     # Install basic packages on desktop
     if [[ $PLATFORM = "x86_64" ]] ; then
-        ROS_WS_NAME="nanosaur_ws"
-        NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
 
         # Make nanosaur workspace
