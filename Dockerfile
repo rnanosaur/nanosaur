@@ -82,6 +82,10 @@ RUN . /opt/jetson_cuda.sh ${CUDA} ${L4T} ${TENSORRT} ${ROS_DISTRO} ${ROS_WS}
 RUN sed --in-place --expression \
       '$isource "$ROS_WS/install/setup.bash"' \
       /ros_entrypoint.sh
+
+# https://docs.docker.com/engine/reference/builder/#stopsignal
+# https://hynek.me/articles/docker-signals/
+STOPSIGNAL SIGINT
 # Set default RMW implementation
 # Fix camera run
 # https://github.com/ros2/rmw_fastrtps/issues/460
