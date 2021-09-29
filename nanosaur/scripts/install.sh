@@ -160,7 +160,7 @@ main()
         fi
     else
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
-        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
     fi
     # link nanosaur script to nanosaur path
@@ -172,7 +172,7 @@ main()
     # Installer for NVIDIA Jetson platform
     if [[ $PLATFORM = "aarch64" ]] ; then
 
-        if [ command -v pip &> /dev/null ] || [ command -v pip3 &> /dev/null ] ; then
+        if ! command -v pip3 &> /dev/null ; then
             echo " - ${bold}${green}Install pip/pip3${reset}"
             sudo apt-get install -y python3-pip
         fi
