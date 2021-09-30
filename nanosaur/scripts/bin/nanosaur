@@ -178,7 +178,7 @@ update_nanosaur_script()
 {
     if [ ! -d $NANOSAUR_WORKSPACE ] ; then
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
-        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
     fi
 }
