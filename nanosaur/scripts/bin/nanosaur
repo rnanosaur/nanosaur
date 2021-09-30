@@ -98,7 +98,7 @@ usage()
         echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
         echo "  $name config            Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
-        echo "  $name [start/restart/stop]  Control nanosaur docker" >&2
+        echo "  $name [start/restart/stop/down]  Control nanosaur docker" >&2
     else
         echo "  $name update      Update all robot workspace" >&2
         echo "  $name activate    Load all variables and workspaces for nanosaur" >&2
@@ -189,7 +189,7 @@ main()
     # Catkin main package
 
     # Check if option is in list
-    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "restart" "stop" "config")
+    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "restart" "stop" "down" "config")
     local error=true
     for item in ${options[@]} ; do
         if [ "$item" == "$option" ]; then
@@ -313,10 +313,13 @@ main()
         elif [ $option = "start" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
         elif [ $option = "restart" ] ; then
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml restart
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml restart $arguments
         elif [ $option = "stop" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml stop $arguments
+        elif [ $option = "down" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
         fi
+
     fi
 }
 
