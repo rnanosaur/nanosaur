@@ -37,7 +37,6 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    pkg_control = launch_ros.substitutions.FindPackageShare(package='nanosaur_control').find('nanosaur_control')
     
     default_config_locks = os.path.join(get_package_share_directory('twist_mux'),
                                         'config', 'twist_mux_locks.yaml')
@@ -45,20 +44,12 @@ def generate_launch_description():
                                          'config', 'twist_mux_topics.yaml')
     default_config_joystick = os.path.join(get_package_share_directory('twist_mux'),
                                            'config', 'joystick.yaml')
-    
-    # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
-    teleop_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [pkg_control, '/launch/teleop.launch.py']),
-            launch_arguments = {'joy_vel': 'joy_vel',
-                                'config_filepath': os.path.join(pkg_control, 'param', 'ps3.nanosaur.yml')}.items(),
-        )
 
     twist_mux_node = launch_ros.actions.Node(
             package='twist_mux',
             executable='twist_mux',
             output='screen',
-            remappings={('/cmd_vel_out', LaunchConfiguration('cmd_vel_out'))},
+            remappings={('cmd_vel_out', LaunchConfiguration('cmd_vel_out'))},
             parameters=[
                 LaunchConfiguration('config_locks'),
                 LaunchConfiguration('config_topics'),
@@ -85,10 +76,6 @@ def generate_launch_description():
         # Twist mux launcher
         twist_mux_node,
     ]
-    
-    # teleoperation joystick nanosaur
-    # only if joystick is connected
-    launch_description += [teleop_launch] if os.path.exists("/dev/input/js0") else []
     
     return launch.LaunchDescription(launch_description)
 # EOF
