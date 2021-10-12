@@ -8,3 +8,6 @@
     local-name: ros2_jetson_stats
     version: foxy
     uri: https://github.com/rbonghi/ros2_jetson_stats.git
+- git:
+    local-name: ros2_system_manager
+    uri: https://github.com/rbonghi/ros2_system_manager.git

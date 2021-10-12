@@ -92,6 +92,7 @@ sudo_me()
 main()
 {
     local SILENT=false
+    local DEBUG=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
@@ -101,6 +102,9 @@ main()
                 ;;
             -s|--silent)
                 SILENT=true
+                ;;
+            -d|--debug)
+                DEBUG=true
                 ;;
             *)
                 usage "[ERROR] Unknown option: $1"
@@ -126,6 +130,9 @@ main()
     echo " - ${bold}User:${reset} ${green}$USER${reset}"
     echo " - ${bold}Home:${reset} ${green}$HOME${reset}"
     echo " - ${bold}Install on:${reset} ${green}$type_install${reset}"
+    if $DEBUG ; then
+        echo " - ${bold}Debug:${reset} ${red}$DEBUG${reset}"
+    fi
     echo "---------------------------"
 
     while ! $SILENT; do
@@ -186,7 +193,22 @@ main()
         # Check if is installed jtop
         if ! command -v jtop &> /dev/null ; then
             echo " - ${bold}${green}Install/Update jetson-stats${reset}"
-            sudo -H pip3 install -U jetson-stats
+            if $DEBUG ; then
+                git clone https://github.com/rbonghi/jetson_stats.git $HOME/jetson_stats
+            else
+                sudo -H pip3 install -U jetson-stats
+            fi
+        fi
+
+        # Check if is installed ros2_system_manager
+        if [ ! -f /usr/lib/ros2_system_manager/system_manager_server ] ; then
+            echo " - ${bold}${green}Install/Update ros2_system_manager${reset}"
+            if $DEBUG ; then
+                mkdir -p $NANOSAUR_WORKSPACE/src/ros2_system_manager
+                git clone https://github.com/rbonghi/ros2_system_manager.git $NANOSAUR_WORKSPACE/src/ros2_system_manager
+            else
+                sudo -H pip3 install -U ros2-system-manager
+            fi
         fi
 
         if ! getent group docker | grep -q "\b$USER\b" ; then

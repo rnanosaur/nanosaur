@@ -39,6 +39,7 @@ services:
      - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
      # These two volumes pass jtop and CSI camera
      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
+     - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
