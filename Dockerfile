@@ -36,14 +36,14 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 # Copy wstool docker.rosinstall
 # to skip rosdep install --from-paths src --ignore-src -r -y
-COPY nanosaur/rosinstall/$ROS_DISTRO_docker.rosinstall $ROS_DISTRO_docker.rosinstall
+COPY nanosaur/rosinstall/${ROS_DISTRO}docker.rosinstall ${ROS_DISTRO}_docker.rosinstall
 # Initialize ROS2 workspace
 RUN mkdir -p ${ROS_ROOT}/src && \
     pip3 install wheel && \
     pip3 install -U wstool && \
     pip3 install jetson-stats && \
     wstool init ${ROS_ROOT}/src && \
-    wstool merge -t ${ROS_ROOT}/src $ROS_DISTRO_docker.rosinstall && \
+    wstool merge -t ${ROS_ROOT}/src ${ROS_DISTRO}_docker.rosinstall && \
     wstool update -t ${ROS_ROOT}/src && \
     cd ${ROS_ROOT} && \
     . /opt/ros/$ROS_DISTRO/install/setup.sh && \
@@ -53,10 +53,10 @@ RUN mkdir -p ${ROS_ROOT}/src && \
 ENV ROS_WS /opt/ros_ws
 RUN mkdir -p $ROS_WS/src
 # Copy wstool robot.rosinstall
-COPY nanosaur/rosinstall/$ROS_DISTRO_robot.rosinstall $ROS_DISTRO_robot.rosinstall
+COPY nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall ${ROS_DISTRO}_robot.rosinstall
 # Initialize ROS2 workspace
 RUN wstool init $ROS_WS/src && \
-    wstool merge -t $ROS_WS/src $ROS_DISTRO_robot.rosinstall && \
+    wstool merge -t $ROS_WS/src ${ROS_DISTRO}_robot.rosinstall && \
     wstool update -t $ROS_WS/src
 
 # Copy nanosaur project
