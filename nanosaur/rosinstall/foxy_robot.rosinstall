@@ -1,5 +1,6 @@
 - git:
     local-name: nanosaur
+    version: foxy
     uri: https://github.com/rnanosaur/nanosaur.git
 - git:
     local-name: nanosaur_robot
