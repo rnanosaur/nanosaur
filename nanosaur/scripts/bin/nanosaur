@@ -24,13 +24,19 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Default variable
+NANOSAUR_VERSION='1.5.0'
 ROBOT_NAME='nanosaur'
-ROS2_PATH='/opt/ros/foxy/setup.bash'
-ROS_WS_NAME="nanosaur_ws"
-NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 NANOSAUR_DATA='/opt/nanosaur'
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
+DEFAULT_DISTRO='foxy'
+
+# Variable stored in configuration file
+ROS2_PATH='/opt/ros/foxy/setup.bash'
+ROS_WS_NAME='nanosaur_ws'
 DOCKER_TAG='latest'
 DOCKER_NETWORK='host'
+ROS_DISTRO=$DEFAULT_DISTRO
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
@@ -42,35 +48,26 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
-# Default data
-ROS_DISTRO='foxy'
-
-NANOSAUR_VERSION="1.5.0"
 # Load platform
 # - aarch64 = NVIDIA Jetson
 # - x86_64 = Desktop
 PLATFORM="$(uname -m)"
 
-# Load rosinstall configuration
-ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
-if [[ $PLATFORM = "aarch64" ]] ; then
-    ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/robot.rosinstall"
-fi
-
 config_info()
 {
     echo "${bold}Configuration:${reset}"
-    echo " - ${yellow}${bold}ROS2 config:${reset} $NANOSAUR_DATA" >&2
+    echo " - ${yellow}${bold}ROS2 config folder:${reset} $NANOSAUR_DATA" >&2
     echo " - ${yellow}${bold}Tag:${reset} $DOCKER_TAG" >&2
     echo " - ${yellow}${bold}Network:${reset} $DOCKER_NETWORK" >&2
+    echo " - ${yellow}${bold}ROS distro:${reset} $ROS_DISTRO" >&2
 }
 
 config_save()
 {
-    config_info
     # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
     echo "DOCKER_TAG=$DOCKER_TAG" > $NANOSAUR_DATA/.env
     echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
+    echo "ROS_DISTRO=$ROS_DISTRO" >> $NANOSAUR_DATA/.env
 }
 
 # Modules check sudo
@@ -163,6 +160,16 @@ update()
     # Run update function
     local THIS="$(pwd)"
 
+    local branch='master'
+    if [ $DOCKER_TAG != 'latest' ] ; then
+        branch=$DOCKER_TAG
+    fi
+    # Load rosinstall configuration
+    ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall"
+    fi
+
     if $rosinstall ; then
         # Load ROS2 workspace
         source $ROS2_PATH
@@ -195,9 +202,13 @@ update()
 
 update_nanosaur_script()
 {
+    local branch='master'
+    if [ $DOCKER_TAG != 'latest' ] ; then
+        branch=$DOCKER_TAG
+    fi
     if [ ! -d $NANOSAUR_WORKSPACE ] ; then
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
-        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA/nanosaur
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
     fi
 }
@@ -264,32 +275,37 @@ main()
                 # Download latest version nanosaur docker-compose
                 echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
                 # Download the docker-compose image and run
-                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
+                local branch='master'
+                if [ $DOCKER_TAG != 'latest' ] ; then
+                    branch=$DOCKER_TAG
+                fi
+                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
             fi
-            echo " - ${bold}${green}Pull and restart all containers${reset}" >&2
+            echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
             # Pull all new images
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
         elif [ $option = "distro" ] ; then
-            if [ "$arguments" = "reset" ] ; then
-                echo "Restore ${green}nanosaur${reset} mode" >&2
+            if [ -z "$arguments" ] ; then
+                echo "${red}Please write a ROS2 distro${reset}" >&2
+                exit 1
+            elif [ "$arguments" = "reset" ] ; then
                 DOCKER_TAG="latest"
+                ROS_DISTRO=$DEFAULT_DISTRO
+                echo "Restore distribution: ${bold}$DOCKER_TAG${reset}" >&2
             else
-                DOCKER_TAG=$ROS_DISTRO
-                if [ ! -z "$arguments" ] ; then
-                    DOCKER_TAG=$arguments
-                fi
-                echo "Distro ${green}nanosaur${reset}: ${bold}$DOCKER_TAG${reset}" >&2
+                DOCKER_TAG=$arguments
+                ROS_DISTRO=$arguments
+                echo "Distribution: ${bold}$DOCKER_TAG${reset}" >&2
             fi
             # Saving parameters
             config_save
         elif [ $option = "network" ] ; then
-            if [ "$arguments" = "bridge" ] ; then
-                echo "Restore ${green}nanosaur${reset} mode" >&2
-                DOCKER_NETWORK="bridge"
-            else
+            if [ -z "$arguments" ] ; then
                 DOCKER_NETWORK="host"
-                echo "Network ${green}nanosaur${reset}: ${bold}$DOCKER_NETWORK${reset}" >&2
+            else
+                DOCKER_NETWORK=$arguments
             fi
+            echo "Network ${green}nanosaur${reset}: ${bold}$DOCKER_NETWORK${reset}" >&2
             # Saving parameters
             config_save
         elif [ $option = "run" ] ; then
