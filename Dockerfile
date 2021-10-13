@@ -36,7 +36,7 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 # Copy wstool docker.rosinstall
 # to skip rosdep install --from-paths src --ignore-src -r -y
-COPY nanosaur/rosinstall/${ROS_DISTRO}docker.rosinstall ${ROS_DISTRO}_docker.rosinstall
+COPY nanosaur/rosinstall/${ROS_DISTRO}_docker.rosinstall ${ROS_DISTRO}_docker.rosinstall
 # Initialize ROS2 workspace
 RUN mkdir -p ${ROS_ROOT}/src && \
     pip3 install wheel && \
