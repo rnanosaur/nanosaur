@@ -319,7 +319,7 @@ main()
             # Check volume
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
-            if [ -d $NANOSAUR_WORKSPACE ] && [ -f $NANOSAUR_DATA/.env ] ; then
+            if [ -d $NANOSAUR_WORKSPACE ] ; then
                 echo " - Load volume $NANOSAUR_WORKSPACE" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
             fi
