@@ -26,8 +26,8 @@
 version: "3.9"
 services:
   core: # https://nanosaur.ai
-    image: nanosaur/nanosaur:${TAG:-latest}
-    network_mode: "host"
+    image: nanosaur/nanosaur:${DOCKER_TAG:-latest}
+    network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     devices:
      - "/dev/i2c-0" # display right [ID:3C]
@@ -43,7 +43,7 @@ services:
      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
-    network_mode: "host"
+    network_mode: ${DOCKER_NETWORK:-host}
     restart: always
   # Watchtower - Check if new images are available
   watchtower: # https://containrrr.dev/watchtower

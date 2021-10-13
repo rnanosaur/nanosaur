@@ -29,11 +29,11 @@ ROS2_PATH='/opt/ros/foxy/setup.bash'
 ROS_WS_NAME="nanosaur_ws"
 NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 NANOSAUR_DATA='/opt/nanosaur'
-TAG_DEVELOPMENT='master'
+DOCKER_TAG='latest'
+DOCKER_NETWORK='host'
 # Load nanosaur configuration file
-if [ -f $HOME/.nanosaur.config ] ; then
-    source $HOME/.nanosaur.config
-    echo "${green}Nanosaur config loaded${reset}" >&2
+if [ -f $NANOSAUR_DATA/.env ] ; then
+    source $NANOSAUR_DATA/.env
 fi
 
 bold=`tput bold`
@@ -42,7 +42,10 @@ green=`tput setaf 2`
 yellow=`tput setaf 3`
 reset=`tput sgr0`
 
-NANOSAUR_VERSION="1.4.3"
+# Default data
+ROS_DISTRO='foxy'
+
+NANOSAUR_VERSION="1.5.0"
 # Load platform
 # - aarch64 = NVIDIA Jetson
 # - x86_64 = Desktop
@@ -53,6 +56,22 @@ ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nan
 if [[ $PLATFORM = "aarch64" ]] ; then
     ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/robot.rosinstall"
 fi
+
+config_info()
+{
+    echo "${bold}Configuration:${reset}"
+    echo " - ${yellow}${bold}ROS2 config:${reset} $NANOSAUR_DATA" >&2
+    echo " - ${yellow}${bold}Tag:${reset} $DOCKER_TAG" >&2
+    echo " - ${yellow}${bold}Network:${reset} $DOCKER_NETWORK" >&2
+}
+
+config_save()
+{
+    config_info
+    # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
+    echo "DOCKER_TAG=$DOCKER_TAG" > $NANOSAUR_DATA/.env
+    echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
+}
 
 # Modules check sudo
 # https://serverfault.com/questions/266039/temporarily-increasing-sudos-timeout-for-the-duration-of-an-install-script
@@ -90,13 +109,14 @@ usage()
     fi
     echo "" >&2
     echo "Commands:" >&2
-    echo "  $name version           nanosaur version" >&2
-    echo "  $name info              nanosaur status" >&2
+    echo "  $name version              nanosaur version" >&2
+    echo "  $name info                 nanosaur status" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
-        echo "  $name update            Update docker and scripts" >&2
-        echo "  $name run   [CMD:bash]  Run a new docker with all device and volumes" >&2
-        echo "  $name dev   [reset]     Enable developer mode. Use reset to restore" >&2
-        echo "  $name config            Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
+        echo "  $name update                Update docker and scripts" >&2
+        echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
+        echo "  $name distro [version:foxy] Select distribution. Use ${bold}reset${reset} to restore" >&2
+        echo "  $name network [host/bridge] Select network configuration" >&2
+        echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
         echo "  $name [start/restart/stop/up/down]  Control nanosaur docker" >&2
     else
@@ -186,34 +206,17 @@ update_nanosaur_script()
 main()
 {
     local option=$1
-    # Catkin main package
-
-    # Check if option is in list
-    local options=("update" "version" "info" "activate" "run" "help" "dev" "start" "restart" "stop" "up" "down" "config")
-    local error=true
-    for item in ${options[@]} ; do
-        if [ "$item" == "$option" ]; then
-            error=false
-            break
-        fi
-    done
-    if $error ; then
-        if [ -z $option ] ; then
-            usage
-        else
-            usage "[ERROR] Unknown option: $option" >&2
-        fi
-        exit 1
+    if [ -z "$option" ] ; then
+        usage
+        exit 0
     fi
-
+    # Load all arguments except the first one
+    local arguments=${@:2}
 	# Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
         echo "${red}Please don't run as root${reset}" >&2
         exit 1
     fi
-    
-    # Load all arguments except the first one
-    local arguments=${@:2}
     # Options
     if [ $option = "help" ] ; then
         usage
@@ -234,6 +237,9 @@ main()
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
+        else
+            usage "[ERROR] Unknown option: $option" >&2
+            exit 1
         fi
     else
         # NVIDIA Jetson options
@@ -244,10 +250,7 @@ main()
             fi
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml $docker_cmd
             echo "-------------------------------------------------------------------------" >&2
-            echo "- nanosaur config is located in ${bold}$NANOSAUR_DATA${reset}" >&2
-            if [ -f $NANOSAUR_DATA/.env ] ; then
-                echo "- nanosaur in ${yellow}${bold}developer${reset} mode" >&2
-            fi
+            config_info
         elif [ $option = "update" ] ; then
             # Switch off nanosaur
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
@@ -268,35 +271,42 @@ main()
             echo " - ${bold}${green}Pull and restart all containers${reset}" >&2
             # Pull all new images
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
-        elif [ $option = "dev" ] ; then
+        elif [ $option = "distro" ] ; then
             if [ "$arguments" = "reset" ] ; then
                 echo "Restore ${green}nanosaur${reset} mode" >&2
-                if [ -f $NANOSAUR_DATA/.env ] ; then
-                    rm $NANOSAUR_DATA/.env
-                fi
+                DOCKER_TAG="latest"
             else
-                echo "Setup ${green}nanosaur${reset} in ${bold}developer${reset} mode" >&2
-                # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
-                echo "TAG=$TAG_DEVELOPMENT" > $NANOSAUR_DATA/.env
+                DOCKER_TAG=$ROS_DISTRO
+                if [ ! -z "$arguments" ] ; then
+                    DOCKER_TAG=$arguments
+                fi
+                echo "Distro ${green}nanosaur${reset}: ${bold}$DOCKER_TAG${reset}" >&2
             fi
-            # Relaunch docker-compose
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
+            # Saving parameters
+            config_save
+        elif [ $option = "network" ] ; then
+            if [ "$arguments" = "bridge" ] ; then
+                echo "Restore ${green}nanosaur${reset} mode" >&2
+                DOCKER_NETWORK="bridge"
+            else
+                DOCKER_NETWORK="host"
+                echo "Network ${green}nanosaur${reset}: ${bold}$DOCKER_NETWORK${reset}" >&2
+            fi
+            # Saving parameters
+            config_save
         elif [ $option = "run" ] ; then
             local docker_cmd="bash"
             if [ ! -z "$arguments" ] ; then
                 docker_cmd=$arguments
             fi
             echo "${green}Run a new nanosaur docker${reset}" >&2
-            # Check if exist .env file
-            local TAG=latest
-            if [ -f $NANOSAUR_DATA/.env ] ; then
-                TAG=$TAG_DEVELOPMENT
-                echo "- ${yellow}You are working with developer version docker${reset} - TAG=$TAG_DEVELOPMENT" >&2
-            fi
+            # Print configuration
+            config_info
+            # Check volume
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
             if [ -d $NANOSAUR_WORKSPACE ] && [ -f $NANOSAUR_DATA/.env ] ; then
-                echo "- Load volume $NANOSAUR_WORKSPACE" >&2
+                echo " - Load volume $NANOSAUR_WORKSPACE" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
             fi
             echo "---------------------------------" >&2
@@ -308,7 +318,7 @@ main()
                         -v /run/jtop.sock:/run/jtop.sock \
                         -v /run/ros2sm.sock:/run/ros2sm.sock \
                         $WORKSPACE_DOCKER \
-                        nanosaur/nanosaur:$TAG $docker_cmd
+                        nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
         elif [ $option = "config" ] ; then
             nano $NANOSAUR_DATA/param/nanosaur.yml
         elif [ $option = "up" ] ; then
@@ -321,8 +331,10 @@ main()
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml stop $arguments
         elif [ $option = "down" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down $arguments
+        else
+            usage "[ERROR] Unknown option: $option" >&2
+            exit 1
         fi
-
     fi
 }
 
