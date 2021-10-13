@@ -166,11 +166,9 @@ update()
     if $rosinstall ; then
         # Load ROS2 workspace
         source $ROS2_PATH
-        # Merge workspace
-        wstool merge -t $NANOSAUR_WORKSPACE/src $ROSINSTALL_FILE
-        # Update workspace
-        wstool update -t $NANOSAUR_WORKSPACE/src
-        # Status update wstool
+        # Import workspace
+        vcs import $NANOSAUR_WORKSPACE/src < $ROSINSTALL_FILE
+        # Status update
         if [ $? -ne 0 ] ; then
             # Try to make again
             echo "${red}Please check workspace status ${reset}"
@@ -183,7 +181,8 @@ update()
         rosdep install --from-paths $NANOSAUR_WORKSPACE/src --ignore-src -r -y
     else
         # Update workspace
-        wstool update -t $NANOSAUR_WORKSPACE/src
+        # http://wiki.ros.org/vcstool
+        vcs pull $NANOSAUR_WORKSPACE/src
     fi
     # Go to catkin path
     cd $NANOSAUR_WORKSPACE
@@ -227,8 +226,7 @@ main()
     if [ $PLATFORM = "x86_64" ] ; then
         if [ $option = "info" ] ; then
             # Update workspace
-            # https://www.systutorials.com/docs/linux/man/1-wstool/
-            wstool info -t "$NANOSAUR_WORKSPACE/src"
+            vcs status "$NANOSAUR_WORKSPACE/src"
         elif [ $option = "update" ] ; then
             # Update this script
             update_nanosaur_script

@@ -249,8 +249,6 @@ main()
 
     # Install basic packages on desktop
     if [[ $PLATFORM = "x86_64" ]] ; then
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/rosinstall/desktop.rosinstall"
-
         # Make nanosaur workspace
         if [ ! -d $NANOSAUR_WORKSPACE ] ; then
             echo " - Make Nanosaur ROS2 workspace folder in ${bold}${green}$NANOSAUR_WORKSPACE${reset}"
@@ -258,17 +256,12 @@ main()
         else
             echo " - Nanosaur workspace folder already exist in ${bold}${yellow}$NANOSAUR_WORKSPACE${reset}"
         fi
-        # Install wstool
-        if ! command -v wstool &> /dev/null ; then
+        # Install vcstool
+        if ! command -v vcstool &> /dev/null ; then
             echo " - ${bold}${green}Install wstool${reset}"
-            sudo apt install python3-wstool -y
+            sudo apt install python3-vcstool -y
         fi
-        # Initialize wstool
-        # https://www.systutorials.com/docs/linux/man/1-wstool/
-        if [ ! -f $NANOSAUR_WORKSPACE/src/.rosinstall ] ; then
-            wstool init $NANOSAUR_WORKSPACE/src
-        fi
-        # Build nanosaur
+        # Initialize nanosaur workspace
         nanosaur update --rosinstall
     fi
 

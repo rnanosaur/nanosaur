@@ -38,32 +38,27 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 # to skip rosdep install --from-paths src --ignore-src -r -y
 COPY nanosaur/rosinstall/${ROS_DISTRO}_docker.rosinstall ${ROS_DISTRO}_docker.rosinstall
 # Initialize ROS2 workspace
-RUN mkdir -p ${ROS_ROOT}/src && \
+RUN apt-get update && \
+    apt-get install python3-vcstool python3-pip -y && \
     pip3 install wheel && \
-    pip3 install -U wstool && \
-    pip3 install jetson-stats && \
-    wstool init ${ROS_ROOT}/src && \
-    wstool merge -t ${ROS_ROOT}/src $ROS_DISTRO_docker.rosinstall && \
-    wstool update -t ${ROS_ROOT}/src && \
+    pip3 install -U jetson-stats&& \
+    mkdir -p ${ROS_ROOT}/src && \
+    vcs import ${ROS_ROOT}/src < ${ROS_DISTRO}_docker.rosinstall && \
     cd ${ROS_ROOT} && \
-    . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    colcon build --symlink-install --merge-install --packages-select xacro urdfdom_py joint_state_publisher teleop_twist_joy joy sdl2_vendor diagnostic_updater twist_mux
+    . ${ROS_ROOT}/install/setup.sh && \
+    colcon build --symlink-install --merge-install \
+    --packages-select xacro urdfdom_py joint_state_publisher teleop_twist_joy joy sdl2_vendor diagnostic_updater twist_mux && \
+    rm -rf /var/lib/apt/lists/*
 
 # Download and build nanosaur_ws
 ENV ROS_WS /opt/ros_ws
-RUN mkdir -p $ROS_WS/src
 # Copy wstool robot.rosinstall
 COPY nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall ${ROS_DISTRO}_robot.rosinstall
-# Initialize ROS2 workspace
-RUN wstool init $ROS_WS/src && \
-    wstool merge -t $ROS_WS/src $ROS_DISTRO_robot.rosinstall && \
-    wstool update -t $ROS_WS/src
-
-# Copy nanosaur project
-# COPY . $ROS_WS/src/nanosaur
-# Install python dependencies
-RUN apt-get update && \
-    apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
+# Initialize ROS2 workspace and install python dependencies
+RUN mkdir -p $ROS_WS/src && \
+    vcs import $ROS_WS/src < ${ROS_DISTRO}_robot.rosinstall && \
+    apt-get update && \
+    apt-get install libjpeg-dev zlib1g-dev -y && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_base/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 
