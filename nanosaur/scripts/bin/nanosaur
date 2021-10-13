@@ -306,6 +306,7 @@ main()
                         --device /dev/input \
                         -v /tmp/argus_socket:/tmp/argus_socket \
                         -v /run/jtop.sock:/run/jtop.sock \
+                        -v /run/ros2sm.sock:/run/ros2sm.sock \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$TAG $docker_cmd
         elif [ $option = "config" ] ; then
