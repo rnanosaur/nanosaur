@@ -190,10 +190,20 @@ update()
     fi
 
     if [ -d $NANOSAUR_WORKSPACE/src ] ; then
-        echo " - ${bold}${green}Import all workspaces${reset}"
         # Import workspace
-        curl $(get_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
-        vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_DATA/nanosaur.rosinstall
+        if [ -d $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall ] ; then
+            echo " - ${bold}${green}Check status all workspaces${reset}"
+            local rosinstall_name="desktop.rosinstall"
+            if [[ $PLATFORM = "aarch64" ]] ; then
+                rosinstall_name="${ROS_DISTRO}_robot.rosinstall"
+            fi
+            vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
+        else
+            echo " - ${bold}${green}Download and update Nanosaur rosinstall${reset}" >&2
+            curl $(get_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
+            vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_DATA/nanosaur.rosinstall
+            rm $NANOSAUR_DATA/nanosaur.rosinstall
+        fi
         # Status update
         if [ $? -ne 0 ] ; then
             # Try to make again
