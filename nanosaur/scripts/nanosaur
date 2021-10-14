@@ -24,11 +24,7 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Default variable
-NANOSAUR_VERSION='1.5.0'
-ROBOT_NAME='nanosaur'
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 DEFAULT_DISTRO='foxy'
 
 # Variable stored in configuration file
@@ -41,6 +37,11 @@ ROS_DISTRO=$DEFAULT_DISTRO
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
 fi
+
+# Default variable
+NANOSAUR_VERSION='1.5.0'
+ROBOT_NAME='nanosaur'
+NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 
 bold=`tput bold`
 red=`tput setaf 1`
@@ -55,11 +56,10 @@ PLATFORM="$(uname -m)"
 
 config_info()
 {
-    echo "${bold}Configuration:${reset}"
-    echo " - ${yellow}${bold}ROS2 config folder:${reset} $NANOSAUR_DATA" >&2
-    echo " - ${yellow}${bold}Tag:${reset} $DOCKER_TAG" >&2
-    echo " - ${yellow}${bold}Network:${reset} $DOCKER_NETWORK" >&2
-    echo " - ${yellow}${bold}ROS distro:${reset} $ROS_DISTRO" >&2
+    echo " - ${bold}ROS2 config folder:${reset} ${green}$NANOSAUR_DATA${reset}" >&2
+    echo " - ${bold}Tag:${reset} ${green}$DOCKER_TAG${reset}" >&2
+    echo " - ${bold}Network:${reset} ${green}$DOCKER_NETWORK${reset}" >&2
+    echo " - ${bold}ROS distro:${reset} ${green}$ROS_DISTRO${reset}" >&2
 }
 
 config_save()
@@ -68,6 +68,20 @@ config_save()
     echo "DOCKER_TAG=$DOCKER_TAG" > $NANOSAUR_DATA/.env
     echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
     echo "ROS_DISTRO=$ROS_DISTRO" >> $NANOSAUR_DATA/.env
+}
+
+get_rosinstall()
+{
+    local branch='master'
+    if [ $DOCKER_TAG != 'latest' ] ; then
+        branch=$DOCKER_TAG
+    fi
+    # Load rosinstall configuration
+    local ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall"
+    fi
+    echo $ROSINSTALL_FILE
 }
 
 # Modules check sudo
@@ -106,8 +120,9 @@ usage()
     fi
     echo "" >&2
     echo "Commands:" >&2
-    echo "  $name version              nanosaur version" >&2
-    echo "  $name info                 nanosaur status" >&2
+    echo "  $name version               Version" >&2
+    echo "  $name info                  Status" >&2
+    echo "  $name install  [dev]        Install nanosaur environment. ${bold}dev${reset} enable developer mode" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update                Update docker and scripts" >&2
         echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
@@ -129,16 +144,20 @@ update_usage()
 	fi
 	local name=$(basename ${0})
     echo "updater. Update workspace, repositories and dependencies" >&2
-    echo "${bold}$name update${reset} [options]" >&2
+    echo "$name update [options]" >&2
     echo "options," >&2
-    echo "   -h|--help        | This help" >&2
-    echo "   --rosinstall     | Update rosinstall workspace" >&2
+    echo "   -h|--help      | This help" >&2
+    if [[ $PLATFORM = "x86_64" ]] ; then
+        echo "   rosinstall     | Update rosinstall workspace" >&2
+        echo "   build          | build workspace" >&2
+    fi
 }
 
 update()
 {
     local custom=false
     local rosinstall=false
+    local build=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
@@ -146,8 +165,11 @@ update()
                 update_usage
                 exit 0
                 ;;
-            --rosinstall)
+            rosinstall)
                 rosinstall=true
+                ;;
+            build)
+                build=true
                 ;;
             *)
                 update_usage "[ERROR] Unknown option: $1" >&2
@@ -157,24 +179,21 @@ update()
             shift 1
     done
 
-    # Run update function
-    local THIS="$(pwd)"
-
     local branch='master'
     if [ $DOCKER_TAG != 'latest' ] ; then
         branch=$DOCKER_TAG
     fi
-    # Load rosinstall configuration
-    ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
-    if [[ $PLATFORM = "aarch64" ]] ; then
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall"
+    if [ ! -d $NANOSAUR_WORKSPACE ] ; then
+        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
+        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/nanosaur -o $NANOSAUR_DATA/nanosaur
+        chmod +x $NANOSAUR_DATA/nanosaur
     fi
 
-    if $rosinstall ; then
-        # Load ROS2 workspace
-        source $ROS2_PATH
+    if [ -d $NANOSAUR_WORKSPACE/src ] ; then
+        echo " - ${bold}${green}Import all workspaces${reset}"
         # Import workspace
-        vcs import $NANOSAUR_WORKSPACE/src < $ROSINSTALL_FILE
+        curl $(get_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
+        vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_DATA/nanosaur.rosinstall
         # Status update
         if [ $? -ne 0 ] ; then
             # Try to make again
@@ -182,39 +201,259 @@ update()
             # sudo_me false
             exit 1
         fi
+    fi
+
+    if $rosinstall ; then
         # Install all dependencies
         # http://wiki.ros.org/rosdep
         echo " ${bold}*${reset} Install all ${bold}dependencies${reset}"
         rosdep install --from-paths $NANOSAUR_WORKSPACE/src --ignore-src -r -y
-    else
-        # Update workspace
-        # http://wiki.ros.org/vcstool
-        vcs pull $NANOSAUR_WORKSPACE/src
     fi
-    # Go to catkin path
-    cd $NANOSAUR_WORKSPACE
-    # Catkin make all workspace
-    echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)"
-    colcon build
-    # Return to main path
-    cd $THIS
+
+    if $build ; then
+        # Run update function
+        local THIS="$(pwd)"
+        # Load ROS2 workspace
+        source $ROS2_PATH
+        # Go to catkin path
+        cd $NANOSAUR_WORKSPACE
+        # Catkin make all workspace
+        echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)"
+        colcon build
+        # Return to main path
+        cd $THIS
+    fi
+
+    # Installer for NVIDIA Jetson platform
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        # Switch off nanosaur
+        docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
+        # Update docker-compose
+        if [ -d $NANOSAUR_WORKSPACE ] ; then
+            if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
+                echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
+                ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+            fi
+        else
+            # Download latest version nanosaur docker-compose
+            echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
+            # Download the docker-compose image and run
+            local branch='master'
+            if [ $DOCKER_TAG != 'latest' ] ; then
+                branch=$DOCKER_TAG
+            fi
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
+        fi
+        echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
+        # Pull all new images
+        docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
+    fi
 }
 
-update_nanosaur_script()
+install_usage()
 {
-    local branch='master'
-    if [ $DOCKER_TAG != 'latest' ] ; then
-        branch=$DOCKER_TAG
+	if [ "$1" != "" ]; then
+		echo "${red}$1${reset}"
+	fi
+	
+    echo "${bold}${green}nanosaur installer.${reset} This script install all dependencies. Use this script to setup your host."
+    echo "Usage:"
+    echo "nanosaur install [options]"
+    echo "options,"
+    echo "   -h|--help            | This help"
+    echo "   -y                   | Run this script silent"
+    echo "   dev                  | Install nanosaur in developer mode (install in ${bold}$NANOSAUR_WORKSPACE${reset} workspace)"
+}
+
+installer()
+{
+    local developer=false
+    local SILENT=false
+	# Decode all information from startup
+    while [ -n "$1" ]; do
+        case "$1" in
+            -h|--help) # Load help
+                install_usage
+                exit 0
+                ;;
+            -y)
+                SILENT=true
+                ;;
+            dev)
+                developer=true
+                ;;
+            *)
+                install_usage "[ERROR] Unknown option: $1" >&2
+                exit 1
+                ;;
+        esac
+            shift 1
+    done
+
+    local type_install="desktop"
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        type_install="robot"
     fi
-    if [ ! -d $NANOSAUR_WORKSPACE ] ; then
-        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
-        curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/bin/nanosaur -o $NANOSAUR_DATA/nanosaur
+    local type_developer=""
+    # Recap installatation
+    echo "------ Configuration ------"
+    if $developer ; then
+        echo " - ${bold}Developer:${reset} ${yellow}$developer${reset}"
+    fi
+    echo " - ${bold}Install on:${reset} ${green}$type_install${reset}"
+    echo " - ${bold}User:${reset} ${green}$USER${reset} - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
+    config_info
+    echo "---------------------------"
+
+    while ! $SILENT; do
+        read -p "Do you wish to install nanosaur config? [Y/n] " yn
+            case $yn in
+                [Yy]* ) # Break and install jetson_stats 
+                        break;;
+                [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    # curl https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/nanosaur -o $HOME/nanosaur && \
+    # chmod +x $HOME/nanosaur && nanosaur install
+
+    # Request sudo password
+    sudo -v
+    sudo_me true
+
+    if [ ! -d $NANOSAUR_DATA ] ; then
+        echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DATA${reset}"
+        # Build nanosaur folder structure
+        # - /opt/nanosaur
+        # -      /param [ ros2 parameter folder ]
+        sudo mkdir -p $NANOSAUR_DATA
+        sudo chown $USER:$USER $NANOSAUR_DATA
+        mkdir -p "$NANOSAUR_DATA/param"
+    fi
+
+    if $developer ; then
+
+        if ! command -v vcs &> /dev/null ; then
+            echo " - Install vcs tool"
+            sudo apt update && sudo apt install curl gnupg2 lsb-release -y
+            sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+            sudo apt update && sudo apt-get install python3-vcstool -y
+        fi
+
+        if [ ! -d $NANOSAUR_WORKSPACE ] ; then
+            echo " - ${bold}${green}Make nanosaur workspace folder in $NANOSAUR_WORKSPACE${reset}"
+            mkdir -p $NANOSAUR_WORKSPACE/src 
+        fi
+        # Download all workspaces
+        if [[ $PLATFORM = "x86_64" ]] ; then
+            update rosinstall build
+        else
+            update
+        fi
+    fi
+
+    # Check if exist the nanosaur workspace
+    if [ -d $NANOSAUR_WORKSPACE ] ; then
+        if [ ! -L $NANOSAUR_DATA/nanosaur ] ; then
+            echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
+            ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/nanosaur $NANOSAUR_DATA/nanosaur
+        fi
+    else
+        echo " - ${bold}${green}Move nanosaur command${reset} in $NANOSAUR_DATA"
+        mv $HOME/nanosaur $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
+    fi
+
+    # link nanosaur script to nanosaur path
+    if [ ! -L /usr/local/bin/nanosaur ] ; then
+        echo " - Link nanosaur command in ${bold}${green}/usr/local/bin${reset}"
+        sudo ln -s $NANOSAUR_DATA/nanosaur /usr/local/bin/nanosaur
+    fi
+
+    # Installer for NVIDIA Jetson platform
+    if [[ $PLATFORM = "aarch64" ]] ; then
+
+        if ! command -v pip3 &> /dev/null ; then
+            echo " - ${bold}${green}Install pip/pip3${reset}"
+            sudo apt-get install -y python3-pip
+        fi
+
+        # Check if is installed nano
+        if ! command -v nano &> /dev/null ; then
+            echo " - ${bold}${green}Install nano${reset}"
+            sudo apt-get install -y nano
+        fi
+
+        # Check if is installed jtop
+        if ! command -v jtop &> /dev/null ; then
+            echo " - ${bold}${green}Install/Update jetson-stats${reset}"
+            if $developer ; then
+                git clone https://github.com/rbonghi/jetson_stats.git $HOME/jetson_stats
+            else
+                sudo -H pip3 install -U jetson-stats
+            fi
+        fi
+
+        # Check if is installed ros2_system_manager
+        if [ ! -f /usr/lib/ros2_system_manager/system_manager_server ] ; then
+            echo " - ${bold}${green}Install/Update ros2_system_manager${reset}"
+            if ! $developer ; then
+                sudo -H pip3 install -U ros2-system-manager
+            fi
+        fi
+
+        if ! getent group docker | grep -q "\b$USER\b" ; then
+            echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
+            sudo usermod -aG docker $USER
+        fi
+
+        # Check if is installed docker-compose
+        if ! command -v docker-compose &> /dev/null ; then
+            echo " - ${bold}${green}Install docker-compose${reset}"
+            sudo apt-get install -y libffi-dev python-openssl libssl-dev
+            sudo -H pip3 install -U pip
+            sudo pip3 install -U docker-compose
+        fi
+
+        if [ -d $NANOSAUR_WORKSPACE ] ; then
+            if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
+                echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
+                ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+            fi
+        else
+            # Download latest version nanosaur docker-compose
+            echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
+            # Download the docker-compose image and run
+            local branch='master'
+            if [ $DOCKER_TAG != 'latest' ] ; then
+                branch=$DOCKER_TAG
+            fi
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
+        fi
+
+        # Create nanosaur docker
+        echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
+        sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up --no-start
+    fi
+
+    # Disable sudo me
+    sudo_me false
+
+    if [ -f /var/run/reboot-required ] ; then
+        # After install require reboot
+        echo "${red}*** System Restart Required ***${reset}"
     fi
 }
 
 main()
 {
+	# Check if run in sudo
+    if [[ `id -u` -eq 0 ]] ; then 
+        echo "${red}Please don't run as root${reset}" >&2
+        exit 1
+    fi
     local option=$1
     if [ -z "$option" ] ; then
         usage
@@ -222,27 +461,28 @@ main()
     fi
     # Load all arguments except the first one
     local arguments=${@:2}
-	# Check if run in sudo
-    if [[ `id -u` -eq 0 ]] ; then 
-        echo "${red}Please don't run as root${reset}" >&2
-        exit 1
-    fi
     # Options
     if [ $option = "help" ] ; then
         usage
+        exit 0
     elif [ $option = "version" ] ; then
         echo "Nanosaur script version ${bold}v$NANOSAUR_VERSION${reset}" >&2
+        exit 0
+    elif [ $option = "install" ] ; then
+        installer $arguments
+        exit 0
+    elif [ $option = "update" ] ; then
+        # Update nanosaur
+        update $arguments
+        exit 0
     fi
     # Desktop options
     if [ $PLATFORM = "x86_64" ] ; then
         if [ $option = "info" ] ; then
             # Update workspace
             vcs status "$NANOSAUR_WORKSPACE/src"
-        elif [ $option = "update" ] ; then
-            # Update this script
-            update_nanosaur_script
-            # Update nanosaur
-            update $arguments
+            echo "${bold}Configuration:${reset}"
+            config_info
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
@@ -259,31 +499,8 @@ main()
             fi
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml $docker_cmd
             echo "-------------------------------------------------------------------------" >&2
+            echo "${bold}Configuration:${reset}"
             config_info
-        elif [ $option = "update" ] ; then
-            # Switch off nanosaur
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
-            # Update this script
-            update_nanosaur_script
-            # Update docker-compose
-            if [ -d $NANOSAUR_WORKSPACE ] ; then
-                if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
-                    echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
-                    ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
-                fi
-            else
-                # Download latest version nanosaur docker-compose
-                echo " - ${bold}${green}Download Nanosaur docker-compose${reset}" >&2
-                # Download the docker-compose image and run
-                local branch='master'
-                if [ $DOCKER_TAG != 'latest' ] ; then
-                    branch=$DOCKER_TAG
-                fi
-                curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
-            fi
-            echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
-            # Pull all new images
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
         elif [ $option = "distro" ] ; then
             if [ -z "$arguments" ] ; then
                 echo "${red}Please write a ROS2 distro${reset}" >&2
@@ -315,6 +532,7 @@ main()
             fi
             echo "${green}Run a new nanosaur docker${reset}" >&2
             # Print configuration
+            echo "${bold}Configuration:${reset}"
             config_info
             # Check volume
             local WORKSPACE_DOCKER=""
