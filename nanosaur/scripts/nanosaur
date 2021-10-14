@@ -435,7 +435,7 @@ installer()
 
         # Create nanosaur docker
         echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
-        sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up --no-start
+        sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
     fi
 
     # Disable sudo me
