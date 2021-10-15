@@ -130,7 +130,7 @@ usage()
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
-        echo "  $name [start/restart/stop/up/down]  Control nanosaur docker" >&2
+        echo "  $name [start/restart/stop/up/down/logs]  Control nanosaur docker" >&2
     else
         echo "  $name update      Update all robot workspace" >&2
         echo "  $name activate    Load all variables and workspaces for nanosaur" >&2
