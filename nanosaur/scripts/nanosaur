@@ -503,11 +503,7 @@ main()
     else
         # NVIDIA Jetson options
         if [ $option = "info" ] ; then
-            local docker_cmd="ps -a"
-            if [ ! -z "$arguments" ] ; then
-                docker_cmd=$arguments
-            fi
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml $docker_cmd
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps -a
             echo "-------------------------------------------------------------------------" >&2
             echo "${bold}Configuration:${reset}"
             config_info
@@ -548,7 +544,7 @@ main()
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
             if [ -d $NANOSAUR_WORKSPACE ] ; then
-                echo " - Load volume $NANOSAUR_WORKSPACE" >&2
+                echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_WORKSPACE${reset}" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
             fi
             echo "---------------------------------" >&2
@@ -563,6 +559,8 @@ main()
                         nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
         elif [ $option = "config" ] ; then
             nano $NANOSAUR_DATA/param/nanosaur.yml
+        elif [ $option = "logs" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml logs $arguments
         elif [ $option = "up" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml up $arguments
         elif [ $option = "start" ] ; then
