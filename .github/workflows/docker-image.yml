@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest #self-hosted
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v2.3.5
     # https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
     - name: Docker meta
       id: meta
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v2.3.5
     - name: Build project # This would actually build your project, using zip for an example artifact
       run: |
         bash nanosaur_description/scripts/nanosaur_stl.sh
@@ -69,7 +69,7 @@ jobs:
     needs: [docker]
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v2.3.5
     - name: Docker Hub Description
       uses: peter-evans/dockerhub-description@v2
       with:
