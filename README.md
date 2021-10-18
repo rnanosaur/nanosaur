@@ -1,9 +1,10 @@
 # 🦕 nanosaur
 
-[![Docker Builder CI](https://github.com/rnanosaur/nanosaur/workflows/Docker%20Builder%20CI/badge.svg)](https://github.com/rnanosaur/nanosaur/actions?query=workflow%3A%22Docker+Builder+CI%22) [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur)
+ [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) ![Discord](https://img.shields.io/discord/797461428646707211) ![GitHub Repo stars](https://img.shields.io/github/stars/rnanosaur/nanosaur?style=social) ![Twitter Follow](https://img.shields.io/twitter/follow/raffaello86?style=social)
 
 | latest | foxy |
 |:------:|:----:|
+| [![Docker Builder CI](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml/badge.svg?branch=master)](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml) | [![Docker Builder CI](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml/badge.svg?branch=foxy)](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml) |
 | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/latest)](https://hub.docker.com/r/nanosaur/nanosaur) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/foxy)](https://hub.docker.com/r/nanosaur/nanosaur) |
 
 NanoSaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
