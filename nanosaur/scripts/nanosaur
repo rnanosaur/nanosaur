@@ -179,12 +179,19 @@ update()
             shift 1
     done
 
+
+    if $rosinstall ; then
+        # Request sudo password
+        sudo -v
+        sudo_me true
+    fi
+
     local branch='master'
     if [ $DOCKER_TAG != 'latest' ] ; then
         branch=$DOCKER_TAG
     fi
     if [ ! -d $NANOSAUR_WORKSPACE ] ; then
-        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA"
+        echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA" >&2
         curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
     fi
@@ -192,7 +199,7 @@ update()
     if [ -d $NANOSAUR_WORKSPACE/src ] ; then
         # Import workspace
         if [ -d $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall ] ; then
-            echo " - ${bold}${green}Check status all workspaces${reset}"
+            echo " - ${bold}${green}Check status all workspaces${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
             if [[ $PLATFORM = "aarch64" ]] ; then
                 rosinstall_name="${ROS_DISTRO}_robot.rosinstall"
@@ -207,16 +214,21 @@ update()
         # Status update
         if [ $? -ne 0 ] ; then
             # Try to make again
-            echo "${red}Please check workspace status ${reset}"
+            echo "${red}Please check workspace status ${reset}" >&2
             # sudo_me false
             exit 1
         fi
     fi
 
     if $rosinstall ; then
+        # Load ROS2 workspace
+        source $ROS2_PATH
+        echo " - ${bold}${green}Update rosdep${reset}" >&2
+        # Update rosdep
+        rosdep update
         # Install all dependencies
         # http://wiki.ros.org/rosdep
-        echo " ${bold}*${reset} Install all ${bold}dependencies${reset}"
+        echo " ${bold}*${reset} Install all ${bold}dependencies${reset}" >&2
         rosdep install --from-paths $NANOSAUR_WORKSPACE/src --ignore-src -r -y
     fi
 
@@ -228,7 +240,7 @@ update()
         # Go to catkin path
         cd $NANOSAUR_WORKSPACE
         # Catkin make all workspace
-        echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)"
+        echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)" >&2
         colcon build
         # Return to main path
         cd $THIS
@@ -257,6 +269,11 @@ update()
         echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
         # Pull all new images
         docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
+    fi
+
+    if $rosinstall ; then
+        # Disable sudo me
+        sudo_me false
     fi
 }
 
@@ -366,6 +383,9 @@ installer()
 
     # Check if exist the nanosaur workspace
     if [ -d $NANOSAUR_WORKSPACE ] ; then
+        if [ -f $NANOSAUR_DATA/nanosaur ] ; then
+            rm $NANOSAUR_DATA/nanosaur 
+        fi
         if [ ! -L $NANOSAUR_DATA/nanosaur ] ; then
             echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
             ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/nanosaur $NANOSAUR_DATA/nanosaur
