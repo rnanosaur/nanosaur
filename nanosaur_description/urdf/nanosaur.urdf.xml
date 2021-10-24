@@ -2,7 +2,7 @@
 <robot name="nanosaur" xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
-    <!-- NanoSaur parts -->
+    <!-- nanosaur parts -->
     <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/head.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />

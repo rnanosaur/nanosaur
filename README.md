@@ -7,8 +7,11 @@
 | [![Docker Builder CI](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml/badge.svg?branch=master)](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml) | [![Docker Builder CI](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml/badge.svg?branch=foxy)](https://github.com/rnanosaur/nanosaur/actions/workflows/docker-image.yml) |
 | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/latest)](https://hub.docker.com/r/nanosaur/nanosaur) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/foxy)](https://hub.docker.com/r/nanosaur/nanosaur) |
 
-NanoSaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
+nanosaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
 
+[![nanosaur teaser](https://nanosaur.ai/assets/images/nanosaur-teaser.gif)](https://nanosaur.ai)
+
+Meet nanosaur:
 * 🦕 Website: [nanosaur.ai](https://nanosaur.ai)
 * 🦄 Do you need an help? [Discord](https://discord.gg/YvxjxEFPkb)
 * 🧰 For technical details follow [wiki](https://github.com/rnanosaur/nanosaur/wiki)

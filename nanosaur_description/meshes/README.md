@@ -4,7 +4,7 @@
 
 ----
 
-NanoSaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
+nanosaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson Nano
 
 * Website: [nanosaur.ai](https://nanosaur.ai)
 * Do you need an help? [Discord](https://discord.gg/NSrC52P5mw)

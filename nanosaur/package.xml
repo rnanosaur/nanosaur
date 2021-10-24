@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <package format="3">
   <name>nanosaur</name>
   <version>0.1.0</version>
-  <description>NanoSaur support meta package</description>
+  <description>nanosaur support meta package</description>
 
   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
   <license>MIT</license>
