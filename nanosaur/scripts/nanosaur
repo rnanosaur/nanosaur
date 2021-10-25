@@ -25,10 +25,10 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-DEFAULT_DISTRO='foxy'
+DEFAULT_DISTRO='galactic'
 
 # Variable stored in configuration file
-ROS2_PATH='/opt/ros/foxy/setup.bash'
+ROS2_PATH='/opt/ros/galactic/setup.bash'
 ROS_WS_NAME='nanosaur_ws'
 DOCKER_TAG='latest'
 DOCKER_NETWORK='host'
@@ -126,7 +126,7 @@ usage()
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update                Update docker and scripts" >&2
         echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
-        echo "  $name distro [version:foxy] Select distribution. Use ${bold}reset${reset} to restore" >&2
+        echo "  $name distro [version:galactic] Select distribution. Use ${bold}reset${reset} to restore" >&2
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
