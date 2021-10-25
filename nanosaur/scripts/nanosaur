@@ -79,7 +79,7 @@ get_rosinstall()
     # Load rosinstall configuration
     local ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
     if [[ $PLATFORM = "aarch64" ]] ; then
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall"
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
     echo $ROSINSTALL_FILE
 }
@@ -126,7 +126,7 @@ usage()
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update                Update docker and scripts" >&2
         echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
-        echo "  $name distro [version:galactic] Select distribution. Use ${bold}reset${reset} to restore" >&2
+        echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
@@ -202,7 +202,7 @@ update()
             echo " - ${bold}${green}Check status all workspaces${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
             if [[ $PLATFORM = "aarch64" ]] ; then
-                rosinstall_name="${ROS_DISTRO}_robot.rosinstall"
+                rosinstall_name="robot.rosinstall"
             fi
             vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
         else

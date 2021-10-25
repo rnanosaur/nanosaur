@@ -36,14 +36,14 @@ ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 # Copy wstool docker.rosinstall
 # to skip rosdep install --from-paths src --ignore-src -r -y
-COPY nanosaur/rosinstall/${ROS_DISTRO}_docker.rosinstall ${ROS_DISTRO}_docker.rosinstall
+COPY nanosaur/rosinstall/docker.rosinstall docker.rosinstall
 # Initialize ROS2 workspace
 RUN apt-get update && \
     apt-get install python3-vcstool python3-pip -y && \
     pip3 install wheel && \
     pip3 install -U jetson-stats&& \
     mkdir -p ${ROS_ROOT}/src && \
-    vcs import ${ROS_ROOT}/src < ${ROS_DISTRO}_docker.rosinstall && \
+    vcs import ${ROS_ROOT}/src < docker.rosinstall && \
     cd ${ROS_ROOT} && \
     . ${ROS_ROOT}/install/setup.sh && \
     colcon build --symlink-install --merge-install \
@@ -53,10 +53,10 @@ RUN apt-get update && \
 # Download and build nanosaur_ws
 ENV ROS_WS /opt/ros_ws
 # Copy wstool robot.rosinstall
-COPY nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall ${ROS_DISTRO}_robot.rosinstall
+COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace and install python dependencies
 RUN mkdir -p $ROS_WS/src && \
-    vcs import $ROS_WS/src < ${ROS_DISTRO}_robot.rosinstall && \
+    vcs import $ROS_WS/src < robot.rosinstall && \
     apt-get update && \
     apt-get install libjpeg-dev zlib1g-dev -y && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_base/requirements.txt && \
