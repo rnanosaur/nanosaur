@@ -79,7 +79,7 @@ get_rosinstall()
     # Load rosinstall configuration
     local ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
     if [[ $PLATFORM = "aarch64" ]] ; then
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/${ROS_DISTRO}_robot.rosinstall"
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
     echo $ROSINSTALL_FILE
 }
@@ -202,7 +202,7 @@ update()
             echo " - ${bold}${green}Check status all workspaces${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
             if [[ $PLATFORM = "aarch64" ]] ; then
-                rosinstall_name="${ROS_DISTRO}_robot.rosinstall"
+                rosinstall_name="robot.rosinstall"
             fi
             vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
         else
