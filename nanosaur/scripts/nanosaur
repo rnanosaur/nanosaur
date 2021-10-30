@@ -39,7 +39,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
-NANOSAUR_VERSION='1.5.0'
+NANOSAUR_VERSION='1.5.1'
 ROBOT_NAME='nanosaur'
 NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 
@@ -47,6 +47,7 @@ bold=`tput bold`
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
+blue=`tput setaf 4`
 reset=`tput sgr0`
 
 # Load platform
@@ -60,6 +61,9 @@ config_info()
     echo " - ${bold}Tag:${reset} ${green}$DOCKER_TAG${reset}" >&2
     echo " - ${bold}Network:${reset} ${green}$DOCKER_NETWORK${reset}" >&2
     echo " - ${bold}ROS distro:${reset} ${green}$ROS_DISTRO${reset}" >&2
+    if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+        echo " - ${bold}ROS_DOMAIN_ID:${reset} ${green}$ROS_DOMAIN_ID${reset}" >&2
+    fi
 }
 
 config_save()
@@ -68,6 +72,9 @@ config_save()
     echo "DOCKER_TAG=$DOCKER_TAG" > $NANOSAUR_DATA/.env
     echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
     echo "ROS_DISTRO=$ROS_DISTRO" >> $NANOSAUR_DATA/.env
+    if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+        echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
+    fi
 }
 
 get_rosinstall()
@@ -122,18 +129,20 @@ usage()
     echo "Commands:" >&2
     echo "  $name version               Version" >&2
     echo "  $name info                  Status" >&2
+    echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
+    echo "  $name domain                Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
     echo "  $name install  [dev]        Install nanosaur environment. ${bold}dev${reset} enable developer mode" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update                Update docker and scripts" >&2
         echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
-        echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
+        echo "  $name wakeup                start nanosaur systems (eq. nanosaur up -d)" >&2
         echo "  $name [start/restart/stop/up/down/logs]  Control nanosaur docker" >&2
     else
-        echo "  $name update      Update all robot workspace" >&2
-        echo "  $name activate    Load all variables and workspaces for nanosaur" >&2
+        echo "  $name update                Update all robot workspace" >&2
+        echo "  $name activate              Load all variables and workspaces for nanosaur" >&2
     fi
 }
 
@@ -359,7 +368,7 @@ installer()
         mkdir -p "$NANOSAUR_DATA/param"
     fi
 
-    if $developer ; then
+    if $developer || [[ $PLATFORM = "x86_64" ]] ; then
 
         if ! command -v vcs &> /dev/null ; then
             echo " - Install vcs tool"
@@ -505,6 +514,28 @@ main()
         # Update nanosaur
         update $arguments
         exit 0
+    elif [ $option = "domain" ] ; then
+        # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+        if [ ! -z "$arguments" ] ; then
+            # Check if is a number
+            local re='^[0-9]+$'
+            if ! [[ $arguments =~ $re ]] ; then
+                echo "${red}error: Not a number${reset}" >&2
+                exit 1
+            fi
+            # Set ROS_DOMAIN_ID
+            ROS_DOMAIN_ID=$arguments
+            config_save
+        fi
+        # Read ROS_DOMAIN_ID variable
+        local domain=0
+        if [ -z ${ROS_DOMAIN_ID+x} ] ; then
+            echo "${yellow}Unset variable${reset}"
+        else
+            domain=$ROS_DOMAIN_ID
+        fi
+        echo "ROS_DOMAIN_ID=$domain"
+        exit 0
     fi
     # Desktop options
     if [ $PLATFORM = "x86_64" ] ; then
@@ -516,6 +547,11 @@ main()
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
+        elif [ $option = "distro" ] ; then
+            if [ -z "$arguments" ] ; then
+                echo "ROS_DISTRO=$DEFAULT_DISTRO"
+                exit 0
+            fi
         else
             usage "[ERROR] Unknown option: $option" >&2
             exit 1
@@ -529,8 +565,8 @@ main()
             config_info
         elif [ $option = "distro" ] ; then
             if [ -z "$arguments" ] ; then
-                echo "${red}Please write a ROS2 distro${reset}" >&2
-                exit 1
+                echo "ROS_DISTRO=$DEFAULT_DISTRO"
+                exit 0
             elif [ "$arguments" = "reset" ] ; then
                 DOCKER_TAG="latest"
                 ROS_DISTRO=$DEFAULT_DISTRO
@@ -563,6 +599,10 @@ main()
             # Check volume
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
+            local domain=""
+            if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+                domain="-e ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
+            fi
             if [ -d $NANOSAUR_WORKSPACE ] ; then
                 echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_WORKSPACE${reset}" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
@@ -575,6 +615,7 @@ main()
                         -v /tmp/argus_socket:/tmp/argus_socket \
                         -v /run/jtop.sock:/run/jtop.sock \
                         -v /run/ros2sm.sock:/run/ros2sm.sock \
+                        $domain \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
         elif [ $option = "config" ] ; then
@@ -591,6 +632,8 @@ main()
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml stop $arguments
         elif [ $option = "down" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down $arguments
+        elif [ $option = "wakeup" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
         else
             usage "[ERROR] Unknown option: $option" >&2
             exit 1
@@ -618,6 +661,10 @@ deactivate () {
     # Restore .bashrc
     if [ ! "${1-}" = "nondestructive" ] ; then
         exec bash
+        # Load ROS_DOMAIN_ID
+        if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+            unset ROS_DOMAIN_ID
+        fi
     fi
 
     # The hash command must be called to get it to forget past
@@ -648,6 +695,10 @@ if [ ! -d $(dirname $ROS2_PATH) ] ; then
 fi
 # Load ROS2 workspace
 source $ROS2_PATH
+# Load ROS_DOMAIN_ID
+if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+    export ROS_DOMAIN_ID=$ROS_DOMAIN_ID
+fi
 
 if [ ! -d $NANOSAUR_WORKSPACE/install ] ; then
     echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$NANOSAUR_WORKSPACE${reset}" >&2
@@ -661,6 +712,11 @@ if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ] ; then
     _OLD_VIRTUAL_PS1="${PS1-}"
     # Rewrite PS1
     PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
+    if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+        if [ $ROS_DOMAIN_ID -ne 0 ]; then
+            PS1="${bold}${blue}id=$ROS_DOMAIN_ID${reset} ${PS1-}"
+        fi
+    fi
     export PS1
 fi
 
