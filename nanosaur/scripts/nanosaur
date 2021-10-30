@@ -598,6 +598,10 @@ main()
             # Check volume
             local WORKSPACE_DOCKER=""
             # Check if exist nanosaur workspace on robot folder
+            local domain=""
+            if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+                domain="-e ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
+            fi
             if [ -d $NANOSAUR_WORKSPACE ] ; then
                 echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_WORKSPACE${reset}" >&2
                 WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
@@ -610,6 +614,7 @@ main()
                         -v /tmp/argus_socket:/tmp/argus_socket \
                         -v /run/jtop.sock:/run/jtop.sock \
                         -v /run/ros2sm.sock:/run/ros2sm.sock \
+                        $domain \
                         $WORKSPACE_DOCKER \
                         nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
         elif [ $option = "config" ] ; then
