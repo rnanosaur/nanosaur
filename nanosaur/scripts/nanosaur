@@ -697,7 +697,11 @@ fi
 if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ] ; then
     _OLD_VIRTUAL_PS1="${PS1-}"
     # Rewrite PS1
-    PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
+    if [ -z ${ROS_DOMAIN_ID+x} ] ; then
+        PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
+    else
+        PS1="${bold}($ROBOT_NAME id=$ROS_DOMAIN_ID)${reset} ${PS1-}"
+    fi
     export PS1
 fi
 
