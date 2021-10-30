@@ -128,12 +128,12 @@ usage()
     echo "Commands:" >&2
     echo "  $name version               Version" >&2
     echo "  $name info                  Status" >&2
+    echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
     echo "  $name domain                Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
     echo "  $name install  [dev]        Install nanosaur environment. ${bold}dev${reset} enable developer mode" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "  $name update                Update docker and scripts" >&2
         echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
-        echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
@@ -546,6 +546,11 @@ main()
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
+        elif [ $option = "distro" ] ; then
+            if [ -z "$arguments" ] ; then
+                echo "ROS_DISTRO=$DEFAULT_DISTRO"
+                exit 0
+            fi
         else
             usage "[ERROR] Unknown option: $option" >&2
             exit 1
@@ -559,8 +564,8 @@ main()
             config_info
         elif [ $option = "distro" ] ; then
             if [ -z "$arguments" ] ; then
-                echo "${red}Please write a ROS2 distro${reset}" >&2
-                exit 1
+                echo "ROS_DISTRO=$DEFAULT_DISTRO"
+                exit 0
             elif [ "$arguments" = "reset" ] ; then
                 DOCKER_TAG="latest"
                 ROS_DISTRO=$DEFAULT_DISTRO
