@@ -30,21 +30,25 @@ services:
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     devices:
-     - "/dev/i2c-0" # display right [ID:3C]
-     - "/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
-     - "/dev/input" # Joystick robot
+      - "/dev/i2c-0" # display right [ID:3C]
+      - "/dev/i2c-1" # I2C motors [ID:60] display left [ID:3C]
+      - "/dev/input" # Joystick robot
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
     volumes:
-     # if you want change the nanosaur configuration
-     # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
-     - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
-     # These two volumes pass jtop and CSI camera
-     - "/run/jtop.sock:/run/jtop.sock" # jtop socket
-     - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
-     - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
+      # if you want change the nanosaur configuration
+      # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
+      - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
+      # These two volumes pass jtop and CSI camera
+      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
+      - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
+      - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
   # Watchtower - Check if new images are available
   watchtower: # https://containrrr.dev/watchtower
     image: containrrr/watchtower
