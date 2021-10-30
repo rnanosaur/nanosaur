@@ -47,6 +47,7 @@ bold=`tput bold`
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
+blue=`tput setaf 4`
 reset=`tput sgr0`
 
 # Load platform
@@ -710,10 +711,11 @@ fi
 if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ] ; then
     _OLD_VIRTUAL_PS1="${PS1-}"
     # Rewrite PS1
-    if [ -z ${ROS_DOMAIN_ID+x} ] ; then
-        PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
-    else
-        PS1="${bold}($ROBOT_NAME id=$ROS_DOMAIN_ID)${reset} ${PS1-}"
+    PS1="${bold}($ROBOT_NAME)${reset} ${PS1-}"
+    if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+        if [ $ROS_DOMAIN_ID -ne 0 ]; then
+            PS1="${bold}${blue}id=$ROS_DOMAIN_ID${reset} ${PS1-}"
+        fi
     fi
     export PS1
 fi
