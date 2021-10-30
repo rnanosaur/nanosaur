@@ -660,6 +660,10 @@ deactivate () {
     # Restore .bashrc
     if [ ! "${1-}" = "nondestructive" ] ; then
         exec bash
+        # Load ROS_DOMAIN_ID
+        if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+            unset ROS_DOMAIN_ID
+        fi
     fi
 
     # The hash command must be called to get it to forget past
@@ -690,6 +694,10 @@ if [ ! -d $(dirname $ROS2_PATH) ] ; then
 fi
 # Load ROS2 workspace
 source $ROS2_PATH
+# Load ROS_DOMAIN_ID
+if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+    export ROS_DOMAIN_ID=$ROS_DOMAIN_ID
+fi
 
 if [ ! -d $NANOSAUR_WORKSPACE/install ] ; then
     echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$NANOSAUR_WORKSPACE${reset}" >&2
