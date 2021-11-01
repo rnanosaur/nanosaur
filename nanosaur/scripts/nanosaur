@@ -127,7 +127,6 @@ usage()
     fi
     echo "" >&2
     echo "Commands:" >&2
-    echo "  $name version               Version" >&2
     echo "  $name info                  Status" >&2
     echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
     echo "  $name domain                Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
@@ -399,16 +398,29 @@ installer()
             echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
             ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/nanosaur $NANOSAUR_DATA/nanosaur
         fi
+        if [ ! -L $NANOSAUR_DATA/completition.bash ] ; then
+            echo " - Link nanosaur completition in ${bold}${green}$NANOSAUR_DATA${reset}"
+            ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/completition.bash $NANOSAUR_DATA/completition.bash
+        fi
     else
         echo " - ${bold}${green}Move nanosaur command${reset} in $NANOSAUR_DATA"
         mv $HOME/nanosaur $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
+
+        echo " - ${bold}${green}Copy nanosaur bash completition${reset} in $NANOSAUR_DATA"
+        curl -sSL https://raw.githubusercontent.com/rnanosaur/nanosaur/master/nanosaur/scripts/completition.bash  -o $NANOSAUR_DATA/completition.bash
     fi
 
     # link nanosaur script to nanosaur path
     if [ ! -L /usr/local/bin/nanosaur ] ; then
         echo " - Link nanosaur command in ${bold}${green}/usr/local/bin${reset}"
         sudo ln -s $NANOSAUR_DATA/nanosaur /usr/local/bin/nanosaur
+    fi
+
+    # link nanosaur bash completition
+    if [ ! -L /etc/bash_completion.d/nanosaur ] ; then
+        echo " - Link nanosaur bash completition in ${bold}${green}/etc/bash_completion.d/${reset}"
+        sudo ln -s $NANOSAUR_DATA/completition.bash /etc/bash_completion.d/nanosaur
     fi
 
     # Installer for NVIDIA Jetson platform
@@ -428,19 +440,13 @@ installer()
         # Check if is installed jtop
         if ! command -v jtop &> /dev/null ; then
             echo " - ${bold}${green}Install/Update jetson-stats${reset}"
-            if $developer ; then
-                git clone https://github.com/rbonghi/jetson_stats.git $HOME/jetson_stats
-            else
-                sudo -H pip3 install -U jetson-stats
-            fi
+            sudo -H pip3 install -U jetson-stats
         fi
 
         # Check if is installed ros2_system_manager
         if [ ! -f /usr/lib/ros2_system_manager/system_manager_server ] ; then
             echo " - ${bold}${green}Install/Update ros2_system_manager${reset}"
-            if ! $developer ; then
-                sudo -H pip3 install -U ros2-system-manager
-            fi
+            sudo -H pip3 install -U ros2-system-manager
         fi
 
         if ! getent group docker | grep -q "\b$USER\b" ; then
@@ -503,9 +509,6 @@ main()
     # Options
     if [ $option = "help" ] ; then
         usage
-        exit 0
-    elif [ $option = "version" ] ; then
-        echo "Nanosaur script version ${bold}v$NANOSAUR_VERSION${reset}" >&2
         exit 0
     elif [ $option = "install" ] ; then
         installer $arguments
