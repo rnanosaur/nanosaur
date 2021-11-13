@@ -46,6 +46,8 @@ RUN mkdir -p $ROS_WS/src && \
 # Change workdir
 WORKDIR $ROS_WS
 
+# ROS2 system manager docker build
+ENV DOCKER_CONTAINER Yes
 # Build Isaac ROS
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build --symlink-install --packages-skip nanosaur_camera \
