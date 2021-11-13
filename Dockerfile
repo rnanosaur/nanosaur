@@ -23,32 +23,11 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Jetpack 4.6
-# https://github.com/dusty-nv/jetson-containers
-FROM dustynv/ros:foxy-ros-base-l4t-r32.6.1
-# Configuration CUDA
-ARG CUDA=10.2
-ARG L4T=r32.6
-ARG TENSORRT=8
+# https://hub.docker.com/_/ros
+FROM ros:foxy-ros-base
 
 ENV ROS_DISTRO=foxy
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
-
-# Copy wstool docker.rosinstall
-# to skip rosdep install --from-paths src --ignore-src -r -y
-COPY nanosaur/rosinstall/docker.rosinstall docker.rosinstall
-# Initialize ROS2 workspace
-RUN apt-get update && \
-    apt-get install python3-vcstool python3-pip -y && \
-    pip3 install wheel && \
-    pip3 install -U jetson-stats&& \
-    mkdir -p ${ROS_ROOT}/src && \
-    vcs import ${ROS_ROOT}/src < docker.rosinstall && \
-    cd ${ROS_ROOT} && \
-    . ${ROS_ROOT}/install/setup.sh && \
-    colcon build --symlink-install --merge-install \
-    --packages-select xacro urdfdom_py joint_state_publisher teleop_twist_joy joy sdl2_vendor diagnostic_updater twist_mux && \
-    rm -rf /var/lib/apt/lists/*
 
 # Download and build nanosaur_ws
 ENV ROS_WS /opt/ros_ws
@@ -58,20 +37,20 @@ COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 RUN mkdir -p $ROS_WS/src && \
     vcs import $ROS_WS/src < robot.rosinstall && \
     apt-get update && \
-    apt-get install libjpeg-dev zlib1g-dev -y && \
+    apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
+    pip3 install -U jetson-stats && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_base/requirements.txt && \
+    rosdep install --from-paths $ROS_WS/src --ignore-src -r -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Build on CUDA
-# Copy and run jetson_utils installer
-COPY nanosaur/scripts/jetson_cuda.sh /opt/jetson_cuda.sh
-# Pass in order
-# CUDA ex. 10.2
-# L4T version ex. r32.5
-# TENSORRT ex. 7
-# ROS_DISTRO ex. foxy
-# ROS_WS ex. /opt/ros_ws
-RUN . /opt/jetson_cuda.sh ${CUDA} ${L4T} ${TENSORRT} ${ROS_DISTRO} ${ROS_WS}
+# Change workdir
+WORKDIR $ROS_WS
+
+# Build Isaac ROS
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+    colcon build --symlink-install --packages-skip nanosaur_camera \
+    --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release
 
 # source ros package from entrypoint
 RUN sed --in-place --expression \
@@ -87,5 +66,3 @@ STOPSIGNAL SIGINT
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # run ros package launch file
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]
-# Change workdir
-WORKDIR $ROS_WS

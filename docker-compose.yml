@@ -36,13 +36,22 @@ services:
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
     volumes:
+      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
+      - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
       # if you want change the nanosaur configuration
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
       - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
-      # These two volumes pass jtop and CSI camera
-      - "/run/jtop.sock:/run/jtop.sock" # jtop socket
-      - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
+  perception:
+    image: nanosaur/perception:main
+    network_mode: ${DOCKER_NETWORK:-host}
+    restart: always
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
       - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
+      # if you want change the nanosaur configuration
+      # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
+      - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_perception/share/nanosaur_perception/param" # Extra configuration folder
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
     network_mode: ${DOCKER_NETWORK:-host}
