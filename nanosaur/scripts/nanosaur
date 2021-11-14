@@ -213,6 +213,7 @@ update()
                 rosinstall_name="robot.rosinstall"
             fi
             vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
+            vcs pull $NANOSAUR_WORKSPACE/src
         else
             echo " - ${bold}${green}Download and update Nanosaur rosinstall${reset}" >&2
             curl $(get_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
