@@ -42,7 +42,7 @@ services:
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
       - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
   perception:
-    image: nanosaur/perception:main
+    image: nanosaur/perception:${DOCKER_TAG:-latest}
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     environment:
