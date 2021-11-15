@@ -27,12 +27,39 @@
 # https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
 _dothis_completions()
 {
-    if [ "${#COMP_WORDS[@]}" != "2" ]; then
-        return
-    fi
-
     # Detect platform
     local PLATFORM="$(uname -m)"
+    local NANOSAUR_DATA='/opt/nanosaur'
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    words=("${COMP_WORDS[@]}")
+    cword=$COMP_CWORD
+
+    case "$prev" in
+        install)
+            COMPREPLY=( $(compgen -W "--help -y dev" -- ${cur}) )
+            return 0
+        ;;
+        update)
+            if [[ $PLATFORM = "x86_64" ]]; then
+                COMPREPLY=( $(compgen -W "rosinstall build -h" -- ${cur}) )
+            else
+                COMPREPLY=()
+            fi
+            return 0
+        ;;
+        run|up|start|stop|restart|logs|down)
+            local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
+            COMPREPLY=( $(compgen -W "$services" -- ${cur}) )
+            return 0
+        ;;
+        help|info|distro|domain|network|config|wakeup|activate)
+            COMPREPLY=()
+            return 0
+        ;;
+    esac
 
     COMPREPLY=($(compgen -W "help info distro domain install update" "${COMP_WORDS[1]}"))
     # Add extra configurations
@@ -41,8 +68,9 @@ _dothis_completions()
         # Docker
         COMPREPLY+=($(compgen -W "wakeup up start stop restart logs down" "${COMP_WORDS[1]}"))
     else
-        COMPREPLY+=($(compgen -W "activate" "${COMP_WORDS[1]}"))
+        COMPREPLY+=($(compgen -W "activate" "${cur}"))
     fi
+    return 0
 }
 
 complete -F _dothis_completions nanosaur
