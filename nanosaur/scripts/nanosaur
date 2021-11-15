@@ -39,7 +39,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
-NANOSAUR_VERSION='1.5.1'
+NANOSAUR_VERSION='1.6.0'
 ROBOT_NAME='nanosaur'
 NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
 
@@ -121,7 +121,7 @@ usage()
     fi
 
     local name=$(basename ${0})
-    echo "Robot ROS managager ${bold}v$NANOSAUR_VERSION${reset}. Update workspaces and status." >&2
+    echo "nanosaur managager ${bold}v$NANOSAUR_VERSION${reset}. Update workspaces and status." >&2
     if [[ $PLATFORM = "aarch64" ]]; then
         echo "Default nanosaur folder is in ${bold}$NANOSAUR_DATA${reset}" >&2
     fi
@@ -137,8 +137,8 @@ usage()
         echo "  $name network [host/bridge] Select network configuration" >&2
         echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
-        echo "  $name wakeup                start nanosaur systems (eq. nanosaur up -d)" >&2
-        echo "  $name [start/restart/stop/up/down/logs]  Control nanosaur docker" >&2
+        echo "  $name wakeup/down           start/stop nanosaur systems (eq. nanosaur up -d)" >&2
+        echo "  $name [start/restart/stop/up/logs/top/exec]  Control nanosaur docker" >&2
     else
         echo "  $name update                Update all robot workspace" >&2
         echo "  $name activate              Load all variables and workspaces for nanosaur" >&2
@@ -636,6 +636,10 @@ main()
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml stop $arguments
         elif [ $option = "down" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml down $arguments
+        elif [ $option = "top" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml top $arguments
+        elif [ $option = "exec" ] ; then
+            docker-compose -f $NANOSAUR_DATA/docker-compose.yml exec $arguments
         elif [ $option = "wakeup" ] ; then
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
         else

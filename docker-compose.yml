@@ -58,11 +58,3 @@ services:
     restart: always
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-  # Watchtower - Check if new images are available
-  watchtower: # https://containrrr.dev/watchtower
-    image: containrrr/watchtower
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 86400 # Check every day
