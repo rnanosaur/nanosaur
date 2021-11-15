@@ -202,6 +202,9 @@ update()
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA" >&2
         curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
+
+        echo " - ${bold}${green}Pull nanosaur bash completition${reset} in $NANOSAUR_DATA" >&2
+        curl -sSL https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/completition.bash  -o $NANOSAUR_DATA/completition.bash
     fi
 
     if [ -d $NANOSAUR_WORKSPACE/src ] ; then
@@ -477,6 +480,16 @@ installer()
                 branch=$DOCKER_TAG
             fi
             curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
+        fi
+
+        # Make sure the nvidia docker runtime will be used for builds
+        DEFAULT_RUNTIME=$(docker info | grep "Default Runtime: nvidia" ; true)
+        if [[ -z "$DEFAULT_RUNTIME" ]]; then
+            echo "${green} - Download docker daemon.json${reset}"
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/daemon.json -o $NANOSAUR_DATA/daemon.json
+            echo "${green} - Set runtime nvidia on /etc/docker/daemon.json${reset}"
+            sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bkp
+            sudo cp $NANOSAUR_DATA/daemon.json /etc/docker/daemon.json
         fi
 
         # Create nanosaur docker
