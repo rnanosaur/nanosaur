@@ -43,12 +43,22 @@ services:
       - "/run/jtop.sock:/run/jtop.sock" # jtop socket
       - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
       - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
+    security_opt:
+      # Temporary fix bug on nvidia-container-runtime
+      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
+      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
+      - seccomp:unconfined
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    security_opt:
+      # Temporary fix bug on nvidia-container-runtime
+      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
+      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
+      - seccomp:unconfined
   # Watchtower - Check if new images are available
   watchtower: # https://containrrr.dev/watchtower
     image: containrrr/watchtower
@@ -57,3 +67,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
     command: --interval 86400 # Check every day
+    security_opt:
+      # Temporary fix bug on nvidia-container-runtime
+      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
+      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
+      - seccomp:unconfined

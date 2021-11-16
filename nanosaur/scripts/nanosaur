@@ -478,6 +478,18 @@ installer()
             curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/docker-compose.yml -o $NANOSAUR_DATA/docker-compose.yml
         fi
 
+        # Make sure the nvidia docker runtime will be used for builds
+        DEFAULT_RUNTIME=$(docker info | grep "Default Runtime: nvidia" ; true)
+        if [[ -z "$DEFAULT_RUNTIME" ]]; then
+            echo "${green} - Download docker daemon.json${reset}"
+            curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/daemon.json -o $NANOSAUR_DATA/daemon.json
+            echo "${green} - Set runtime nvidia on /etc/docker/daemon.json${reset}"
+            sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bkp
+            sudo cp $NANOSAUR_DATA/daemon.json /etc/docker/daemon.json
+            echo "${green} - Restart docker service${reset}"
+            sudo systemctl restart docker.service
+        fi
+
         # Create nanosaur docker
         echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
         sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
