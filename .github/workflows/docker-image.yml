@@ -82,6 +82,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [export]
     steps:
+    - name: Extract tag name
+      id: extract_tag
+      shell: bash
+      run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
     - name: Extract artifact
       uses: actions/download-artifact@v2
       with:
@@ -91,7 +95,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ github.ref }}
-        name: Release ${{ github.ref }}
+        name: Release ${{ steps.extract_tag.outputs.tag }}
         generate_release_notes: true
         draft: false
         prerelease: false
@@ -101,11 +105,16 @@ jobs:
   notify:
     name: "Notify socials"
     needs: [release_stl, update_docker_description]
-    runs-on: ubuntu-latest #self-hosted
+    runs-on: ubuntu-latest
     steps:
+      # https://github.community/t/how-to-get-just-the-tag-name/16241/11
+    - name: Extract tag name
+      id: extract_tag
+      shell: bash
+      run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
+        args: 'The project **{{ EVENT_PAYLOAD.repository.full_name }}** has been deployed v${{ steps.extract_tag.outputs.tag }}.'

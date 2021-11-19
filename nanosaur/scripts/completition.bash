@@ -50,12 +50,12 @@ _dothis_completions()
             fi
             return 0
         ;;
-        run|up|start|stop|restart|logs|down|top|exec)
+        dev|up|start|stop|restart|logs|down|top|exec)
             local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
             COMPREPLY=( $(compgen -W "$services" -- ${cur}) )
             return 0
         ;;
-        help|info|distro|domain|network|config|wakeup|activate)
+        help|info|distro|domain|network|config|wakeup|activate|run)
             COMPREPLY=()
             return 0
         ;;

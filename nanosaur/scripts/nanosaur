@@ -29,7 +29,8 @@ DEFAULT_DISTRO='foxy'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
-ROS_WS_NAME='nanosaur_ws'
+ROS_CORE_WS_NAME='nanosaur_ws'
+ROS_PERC_WS_NAME='nanosaur_perception'
 DOCKER_TAG='latest'
 DOCKER_NETWORK='host'
 ROS_DISTRO=$DEFAULT_DISTRO
@@ -41,7 +42,9 @@ fi
 # Default variable
 NANOSAUR_VERSION='1.6.0'
 ROBOT_NAME='nanosaur'
-NANOSAUR_WORKSPACE=$HOME/$ROS_WS_NAME
+NANOSAUR_CORE_WS=$HOME/$ROS_CORE_WS_NAME
+NANOSAUR_PERCEPTION_WS=$HOME/$ROS_PERC_WS_NAME
+ISAAC_ROS_WS=$HOME/isaac_ros_ws
 
 bold=`tput bold`
 red=`tput setaf 1`
@@ -77,7 +80,7 @@ config_save()
     fi
 }
 
-get_rosinstall()
+get_nanosaur_rosinstall()
 {
     local branch='master'
     if [ $DOCKER_TAG != 'latest' ] ; then
@@ -89,6 +92,16 @@ get_rosinstall()
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
     echo $ROSINSTALL_FILE
+}
+
+get_perception_rosinstall()
+{
+    local branch='main'
+    if [ $DOCKER_TAG != 'latest' ] ; then
+        branch=$DOCKER_TAG
+    fi
+    # Load rosinstall configuration
+    echo "https://raw.githubusercontent.com/rnanosaur/nanosaur_perception/$branch/nanosaur_perception/rosinstall/perception.rosinstall"
 }
 
 # Modules check sudo
@@ -127,21 +140,22 @@ usage()
     fi
     echo "" >&2
     echo "Commands:" >&2
-    echo "  $name info                  Status" >&2
-    echo "  $name distro [version:$DEFAULT_DISTRO] Select distribution. Use ${bold}reset${reset} to restore" >&2
-    echo "  $name domain                Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
-    echo "  $name install  [dev]        Install nanosaur environment. ${bold}dev${reset} enable developer mode" >&2
+    echo "  $name info                     Status" >&2
+    echo "  $name distro [version:$DEFAULT_DISTRO]    Select distribution. Use ${bold}reset${reset} to restore" >&2
+    echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    echo "  $name install  [dev]           Install nanosaur environment. ${bold}dev${reset} enable developer mode" >&2
     if [[ $PLATFORM = "aarch64" ]]; then
-        echo "  $name update                Update docker and scripts" >&2
-        echo "  $name run    [CMD:bash]     Run a new docker with all device and volumes" >&2
-        echo "  $name network [host/bridge] Select network configuration" >&2
-        echo "  $name config                Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
+        echo "  $name update                   Update docker and scripts" >&2
+        echo "  $name run    [CMD:bash]        Run a new Docker" >&2
+        echo "  $name dev [SERVICE] [CMD:bash] Run a developer docker with all device and volumes" >&2
+        echo "  $name network [host/bridge]    Select network configuration" >&2
+        echo "  $name config                   Open/create nanosaur.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
         echo " "  >&2
-        echo "  $name wakeup/down           start/stop nanosaur systems (eq. nanosaur up -d)" >&2
+        echo "  $name wakeup/down              start/stop nanosaur systems (eq. nanosaur up -d)" >&2
         echo "  $name [start/restart/stop/up/logs/top/exec]  Control nanosaur docker" >&2
     else
-        echo "  $name update                Update all robot workspace" >&2
-        echo "  $name activate              Load all variables and workspaces for nanosaur" >&2
+        echo "  $name update                   Update all robot workspace" >&2
+        echo "  $name activate                 Load all variables and workspaces for nanosaur" >&2
     fi
 }
 
@@ -198,7 +212,7 @@ update()
     if [ $DOCKER_TAG != 'latest' ] ; then
         branch=$DOCKER_TAG
     fi
-    if [ ! -d $NANOSAUR_WORKSPACE ] ; then
+    if [ ! -d $NANOSAUR_CORE_WS ] ; then
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA" >&2
         curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/nanosaur -o $NANOSAUR_DATA/nanosaur
         chmod +x $NANOSAUR_DATA/nanosaur
@@ -207,21 +221,43 @@ update()
         curl -sSL https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/completition.bash  -o $NANOSAUR_DATA/completition.bash
     fi
 
-    if [ -d $NANOSAUR_WORKSPACE/src ] ; then
+    if [ -d $NANOSAUR_CORE_WS/src ] ; then
         # Import workspace
-        if [ -d $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall ] ; then
+        if [ -d $NANOSAUR_CORE_WS/src/nanosaur/nanosaur/rosinstall ] ; then
             echo " - ${bold}${green}Check status all workspaces${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
             if [[ $PLATFORM = "aarch64" ]] ; then
                 rosinstall_name="robot.rosinstall"
             fi
-            vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
-            vcs pull $NANOSAUR_WORKSPACE/src
+            vcs import $NANOSAUR_CORE_WS/src < $NANOSAUR_CORE_WS/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
+            vcs pull $NANOSAUR_CORE_WS/src
         else
             echo " - ${bold}${green}Download and update Nanosaur rosinstall${reset}" >&2
-            curl $(get_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
-            vcs import $NANOSAUR_WORKSPACE/src < $NANOSAUR_DATA/nanosaur.rosinstall
+            curl $(get_nanosaur_rosinstall) -o $NANOSAUR_DATA/nanosaur.rosinstall
+            vcs import $NANOSAUR_CORE_WS/src < $NANOSAUR_DATA/nanosaur.rosinstall
             rm $NANOSAUR_DATA/nanosaur.rosinstall
+        fi
+        # Status update
+        if [ $? -ne 0 ] ; then
+            # Try to make again
+            echo "${red}Please check workspace status ${reset}" >&2
+            # sudo_me false
+            exit 1
+        fi
+    fi
+
+    # Installer for NVIDIA Jetson platform
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        # Import workspace
+        if [ -d $NANOSAUR_PERCEPTION_WS/src/nanosaur_perception/nanosaur_perception/rosinstall ] ; then
+            echo " - ${bold}${green}Check status all perception workspaces${reset}" >&2
+            vcs import $NANOSAUR_PERCEPTION_WS/src < $NANOSAUR_PERCEPTION_WS/src/nanosaur_perception/nanosaur_perception/rosinstall/perception.rosinstall
+            vcs pull $NANOSAUR_PERCEPTION_WS/src
+        else
+            echo " - ${bold}${green}Download and update Nanosaur rosinstall${reset}" >&2
+            curl $(get_perception_rosinstall) -o $NANOSAUR_DATA/perception.rosinstall
+            vcs import $NANOSAUR_PERCEPTION_WS/src < $NANOSAUR_DATA/perception.rosinstall
+            rm $NANOSAUR_DATA/perception.rosinstall
         fi
         # Status update
         if [ $? -ne 0 ] ; then
@@ -241,7 +277,7 @@ update()
         # Install all dependencies
         # http://wiki.ros.org/rosdep
         echo " ${bold}*${reset} Install all ${bold}dependencies${reset}" >&2
-        rosdep install --from-paths $NANOSAUR_WORKSPACE/src --ignore-src -r -y
+        rosdep install --from-paths $NANOSAUR_CORE_WS/src --ignore-src -r -y
     fi
 
     if $build ; then
@@ -250,9 +286,9 @@ update()
         # Load ROS2 workspace
         source $ROS2_PATH
         # Go to catkin path
-        cd $NANOSAUR_WORKSPACE
+        cd $NANOSAUR_CORE_WS
         # Catkin make all workspace
-        echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_WORKSPACE)" >&2
+        echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_CORE_WS)" >&2
         colcon build
         # Return to main path
         cd $THIS
@@ -263,10 +299,10 @@ update()
         # Switch off nanosaur
         docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
         # Update docker-compose
-        if [ -d $NANOSAUR_WORKSPACE ] ; then
+        if [ -d $NANOSAUR_CORE_WS ] ; then
             if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
                 echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
-                ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+                ln -s  $NANOSAUR_CORE_WS/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
             fi
         else
             # Download latest version nanosaur docker-compose
@@ -301,7 +337,7 @@ install_usage()
     echo "options,"
     echo "   -h|--help            | This help"
     echo "   -y                   | Run this script silent"
-    echo "   dev                  | Install nanosaur in developer mode (install in ${bold}$NANOSAUR_WORKSPACE${reset} workspace)"
+    echo "   dev                  | Install nanosaur in developer mode (install in ${bold}$NANOSAUR_CORE_WS${reset} workspace)"
 }
 
 installer()
@@ -381,9 +417,16 @@ installer()
             sudo apt update && sudo apt-get install python3-vcstool -y
         fi
 
-        if [ ! -d $NANOSAUR_WORKSPACE ] ; then
-            echo " - ${bold}${green}Make nanosaur workspace folder in $NANOSAUR_WORKSPACE${reset}"
-            mkdir -p $NANOSAUR_WORKSPACE/src 
+        if [ ! -d $NANOSAUR_CORE_WS ] ; then
+            echo " - ${bold}${green}Make nanosaur workspace folder in $NANOSAUR_CORE_WS${reset}"
+            mkdir -p $NANOSAUR_CORE_WS/src 
+        fi
+
+        if [[ $PLATFORM = "aarch64" ]] ; then
+            if [ ! -d $NANOSAUR_PERCEPTION_WS ] ; then
+                echo " - ${bold}${green}Make nanosaur_perception workspace folder in $NANOSAUR_PERCEPTION_WS${reset}"
+                mkdir -p $NANOSAUR_PERCEPTION_WS/src 
+            fi
         fi
         # Download all workspaces
         if [[ $PLATFORM = "x86_64" ]] ; then
@@ -394,17 +437,17 @@ installer()
     fi
 
     # Check if exist the nanosaur workspace
-    if [ -d $NANOSAUR_WORKSPACE ] ; then
+    if [ -d $NANOSAUR_CORE_WS ] ; then
         if [ -f $NANOSAUR_DATA/nanosaur ] ; then
             rm $NANOSAUR_DATA/nanosaur 
         fi
         if [ ! -L $NANOSAUR_DATA/nanosaur ] ; then
             echo " - Link nanosaur command in ${bold}${green}$NANOSAUR_DATA${reset}"
-            ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/nanosaur $NANOSAUR_DATA/nanosaur
+            ln -s $NANOSAUR_CORE_WS/src/nanosaur/nanosaur/scripts/nanosaur $NANOSAUR_DATA/nanosaur
         fi
         if [ ! -L $NANOSAUR_DATA/completition.bash ] ; then
             echo " - Link nanosaur completition in ${bold}${green}$NANOSAUR_DATA${reset}"
-            ln -s $NANOSAUR_WORKSPACE/src/nanosaur/nanosaur/scripts/completition.bash $NANOSAUR_DATA/completition.bash
+            ln -s $NANOSAUR_CORE_WS/src/nanosaur/nanosaur/scripts/completition.bash $NANOSAUR_DATA/completition.bash
         fi
     else
         echo " - ${bold}${green}Move nanosaur command${reset} in $NANOSAUR_DATA"
@@ -466,10 +509,10 @@ installer()
             sudo pip3 install -U docker-compose
         fi
 
-        if [ -d $NANOSAUR_WORKSPACE ] ; then
+        if [ -d $NANOSAUR_CORE_WS ] ; then
             if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
                 echo " - ${bold}${green}Link Nanosaur docker-compose${reset}" >&2
-                ln -s  $NANOSAUR_WORKSPACE/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
+                ln -s  $NANOSAUR_CORE_WS/src/nanosaur/docker-compose.yml $NANOSAUR_DATA/docker-compose.yml
             fi
         else
             # Download latest version nanosaur docker-compose
@@ -490,6 +533,8 @@ installer()
             echo "${green} - Set runtime nvidia on /etc/docker/daemon.json${reset}"
             sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bkp
             sudo cp $NANOSAUR_DATA/daemon.json /etc/docker/daemon.json
+            echo "${green} - Restart docker service${reset}"
+            sudo systemctl restart docker.service
         fi
 
         # Create nanosaur docker
@@ -558,7 +603,7 @@ main()
     if [ $PLATFORM = "x86_64" ] ; then
         if [ $option = "info" ] ; then
             # Update workspace
-            vcs status "$NANOSAUR_WORKSPACE/src"
+            vcs status "$NANOSAUR_CORE_WS/src"
             echo "${bold}Configuration:${reset}"
             config_info
         elif [ $option = "activate" ] ; then
@@ -604,6 +649,64 @@ main()
             echo "Network ${green}nanosaur${reset}: ${bold}$DOCKER_NETWORK${reset}" >&2
             # Saving parameters
             config_save
+        elif [ $option = "dev" ] ; then
+            local N1=$2
+            local arguments=${@:3}
+            if [ -z $N1 ] ; then
+                echo "${red}Please select an image to load: ${bold}[core, perception]${reset}" >&2
+                exit 0
+            fi
+            local docker_cmd="bash"
+            if [ ! -z "$arguments" ] ; then
+                docker_cmd=$arguments
+            fi
+            echo "${green}Run a new nanosaur docker${reset}" >&2
+            # Print configuration
+            echo "${bold}Configuration:${reset}"
+            config_info
+            echo "---------------------------------" >&2
+            # Check volume
+            local WORKSPACE_DOCKER=""
+            # Check if exist nanosaur workspace on robot folder
+            local domain=""
+            if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
+                domain="-e ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
+            fi
+            if [ $N1 = "core" ] ; then
+                if [ -d $NANOSAUR_CORE_WS ] ; then
+                    echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_CORE_WS${reset}" >&2
+                    WORKSPACE_DOCKER="-v $NANOSAUR_CORE_WS/src:/opt/ros_ws/src/"
+                fi
+                # Run docker
+                docker run --runtime nvidia -it --rm --network host \
+                            --device /dev/i2c-0 \
+                            --device /dev/i2c-1 \
+                            --device /dev/input \
+                            -v /run/jtop.sock:/run/jtop.sock \
+                            -v /run/ros2sm.sock:/run/ros2sm.sock \
+                            $domain \
+                            $WORKSPACE_DOCKER \
+                            nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
+            elif [ $N1 = "perception" ] ; then
+                if [ -d $NANOSAUR_PERCEPTION_WS ] ; then
+                    echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_PERCEPTION_WS${reset}" >&2
+                    WORKSPACE_DOCKER="-v $NANOSAUR_PERCEPTION_WS/src:/opt/ros_ws/src/"
+                fi
+                local ISAAC_WS_DOCKER=""
+                if [ -d $ISAAC_ROS_WS ] ; then
+                    echo " - ${bold}Load volume:${reset} ${yellow}$ISAAC_ROS_WS${reset}" >&2
+                    ISAAC_WS_DOCKER="-v $ISAAC_ROS_WS/src:/opt/isaac_ros_ws/src/"
+                fi
+                # Run docker
+                docker run --runtime nvidia -it --rm --network host \
+                            -v /tmp/argus_socket:/tmp/argus_socket \
+                            $domain \
+                            $WORKSPACE_DOCKER \
+                            $ISAAC_WS_DOCKER \
+                            nanosaur/perception:$DOCKER_TAG $docker_cmd
+            else
+                echo "${red}Wrong docker image ${bold}$N1${reset}" >&2
+            fi
         elif [ $option = "run" ] ; then
             local docker_cmd="bash"
             if [ ! -z "$arguments" ] ; then
@@ -613,28 +716,17 @@ main()
             # Print configuration
             echo "${bold}Configuration:${reset}"
             config_info
-            # Check volume
-            local WORKSPACE_DOCKER=""
+            echo "---------------------------------" >&2
             # Check if exist nanosaur workspace on robot folder
             local domain=""
             if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
                 domain="-e ROS_DOMAIN_ID=$ROS_DOMAIN_ID"
             fi
-            if [ -d $NANOSAUR_WORKSPACE ] ; then
-                echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_WORKSPACE${reset}" >&2
-                WORKSPACE_DOCKER="-v $NANOSAUR_WORKSPACE/src:/opt/ros_ws/src/"
-            fi
-            echo "---------------------------------" >&2
-            docker run --runtime nvidia -it --rm --network host \
-                        --device /dev/i2c-0 \
-                        --device /dev/i2c-1 \
-                        --device /dev/input \
-                        -v /tmp/argus_socket:/tmp/argus_socket \
-                        -v /run/jtop.sock:/run/jtop.sock \
-                        -v /run/ros2sm.sock:/run/ros2sm.sock \
+            # Run docker
+            docker run --runtime nvidia -it --rm \
+                        --network host \
                         $domain \
-                        $WORKSPACE_DOCKER \
-                        nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
+                        nanosaur/perception:$DOCKER_TAG $docker_cmd
         elif [ $option = "config" ] ; then
             nano $NANOSAUR_DATA/param/nanosaur.yml
         elif [ $option = "logs" ] ; then
@@ -721,11 +813,11 @@ if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
     export ROS_DOMAIN_ID=$ROS_DOMAIN_ID
 fi
 
-if [ ! -d $NANOSAUR_WORKSPACE/install ] ; then
-    echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$NANOSAUR_WORKSPACE${reset}" >&2
+if [ ! -d $NANOSAUR_CORE_WS/install ] ; then
+    echo "${yellow}Nanosaur workspace is missing or not builded check ${bold}$NANOSAUR_CORE_WS${reset}" >&2
 else
     # Load Nanosaur workspace
-    source $NANOSAUR_WORKSPACE/install/setup.bash
+    source $NANOSAUR_CORE_WS/install/setup.bash
 fi
 
 # Setup PS1
