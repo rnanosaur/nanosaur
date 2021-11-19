@@ -4,7 +4,7 @@
 
 nanosaur is a little tracked robot ROS2 enabled, made for an NVIDIA Jetson
 
-![nanosaur](https://nanosaur.ai/assets/images/intro.jpg)
+[![nanosaur](https://nanosaur.ai/assets/images/intro.jpg)](https://nanosaur.ai)
 
 Meet nanosaur:
 * 🦕 Website: [nanosaur.ai](https://nanosaur.ai)
@@ -16,7 +16,7 @@ Meet nanosaur:
 
 # CI & CD
 
-**Latest** = ROS2 foxy at latest tag released
+**Latest** = ROS2 **_foxy_** at latest tag released
 
 | 🏗️ CI            | latest* | foxy | galactic |
 |:-------------:|:-------:|:----:|:--------:|
