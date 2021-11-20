@@ -254,7 +254,7 @@ update()
             vcs import $NANOSAUR_PERCEPTION_WS/src < $NANOSAUR_PERCEPTION_WS/src/nanosaur_perception/nanosaur_perception/rosinstall/perception.rosinstall
             vcs pull $NANOSAUR_PERCEPTION_WS/src
         else
-            echo " - ${bold}${green}Download and update Nanosaur rosinstall${reset}" >&2
+            echo " - ${bold}${green}Download and update perception rosinstall${reset}" >&2
             curl $(get_perception_rosinstall) -o $NANOSAUR_DATA/perception.rosinstall
             vcs import $NANOSAUR_PERCEPTION_WS/src < $NANOSAUR_DATA/perception.rosinstall
             rm $NANOSAUR_DATA/perception.rosinstall
