@@ -40,6 +40,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
+NANOSAUR_L4T="32.6.1"
 NANOSAUR_VERSION='1.6.0'
 ROBOT_NAME='nanosaur'
 NANOSAUR_CORE_WS=$HOME/$ROS_CORE_WS_NAME
@@ -348,6 +349,7 @@ install_usage()
     echo "options,"
     echo "   -h|--help            | This help"
     echo "   -y                   | Run this script silent"
+    echo "   --force              | Force to install nanosaur anyway"
     echo "   dev                  | Install nanosaur in developer mode (install in ${bold}$NANOSAUR_CORE_WS${reset} workspace)"
 }
 
@@ -355,12 +357,16 @@ installer()
 {
     local developer=false
     local SILENT=false
+    local FORCE=true
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
             -h|--help) # Load help
                 install_usage
                 exit 0
+                ;;
+            --force)
+                FORCE=true
                 ;;
             -y)
                 SILENT=true
@@ -375,6 +381,23 @@ installer()
         esac
             shift 1
     done
+
+    if [[ $PLATFORM = "aarch64" ]] ; then
+        # Read version
+        local JETSON_L4T_STRING=$(dpkg-query --showformat='${Version}' --show nvidia-l4t-core)
+        # extract version
+        local JETSON_L4T_ARRAY=$(echo $JETSON_L4T_STRING | cut -f 1 -d '-')
+        # Load release and revision
+        local JETSON_L4T_RELEASE=$(echo $JETSON_L4T_ARRAY | cut -f 1 -d '.')
+        local JETSON_L4T_REVISION=${JETSON_L4T_ARRAY#"$JETSON_L4T_RELEASE."}
+
+        if [[ $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION != $NANOSAUR_L4T ]] ; then
+            echo "${bold}${red}You cannot install nanosaur on this Jetpack with L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION need L4T $NANOSAUR_L4T ${reset}"
+            if ! $FORCE ; then
+                exit 0
+            fi
+        fi
+    fi
 
     local type_install="desktop"
     if [[ $PLATFORM = "aarch64" ]] ; then
