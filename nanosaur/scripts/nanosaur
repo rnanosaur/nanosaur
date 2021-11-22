@@ -153,6 +153,7 @@ usage()
         echo " "  >&2
         echo "  $name wakeup/down              start/stop nanosaur systems (eq. nanosaur up -d)" >&2
         echo "  $name [start/restart/stop/up/logs/top/exec]  Control nanosaur docker" >&2
+        echo "  $name clean                    clean all dangling images" >&2
     else
         echo "  $name update                   Update all robot workspace" >&2
         echo "  $name activate                 Load all variables and workspaces for nanosaur" >&2
@@ -172,6 +173,8 @@ update_usage()
     if [[ $PLATFORM = "x86_64" ]] ; then
         echo "   rosinstall     | Update rosinstall workspace" >&2
         echo "   build          | build workspace" >&2
+    else
+        echo "   --clean        | Upload and clean after" >&2
     fi
 }
 
@@ -180,6 +183,7 @@ update()
     local custom=false
     local rosinstall=false
     local build=false
+    local CLEAN=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
@@ -192,6 +196,9 @@ update()
                 ;;
             build)
                 build=true
+                ;;
+            --clean)
+                CLEAN=true
                 ;;
             *)
                 update_usage "[ERROR] Unknown option: $1" >&2
@@ -317,6 +324,10 @@ update()
         echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
         # Pull all new images
         docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
+        # Clean images after pull
+        if $CLEAN ; then
+            docker image prune -f
+        fi
     fi
 
     if $rosinstall ; then
@@ -727,6 +738,10 @@ main()
                         --network host \
                         $domain \
                         nanosaur/perception:$DOCKER_TAG $docker_cmd
+        elif [ $option = "clean" ] ; then
+            echo "${green}Clean all dangling images${reset}" >&2
+            # prune all images
+            docker image prune $arguments
         elif [ $option = "config" ] ; then
             nano $NANOSAUR_DATA/param/nanosaur.yml
         elif [ $option = "logs" ] ; then

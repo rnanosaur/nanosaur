@@ -44,7 +44,15 @@ _dothis_completions()
         ;;
         update)
             if [[ $PLATFORM = "x86_64" ]]; then
-                COMPREPLY=( $(compgen -W "rosinstall build -h" -- ${cur}) )
+                COMPREPLY=($(compgen -W "rosinstall build -h" -- ${cur}))
+            else
+                COMPREPLY=($(compgen -W "--clean -h" -- ${cur}))
+            fi
+            return 0
+        ;;
+        clean)
+            if [[ $PLATFORM = "aarch64" ]]; then
+                COMPREPLY=($(compgen -W "-f" -- ${cur}))
             else
                 COMPREPLY=()
             fi
@@ -64,7 +72,7 @@ _dothis_completions()
     COMPREPLY=($(compgen -W "help info distro domain install update" "${COMP_WORDS[1]}"))
     # Add extra configurations
     if [[ $PLATFORM = "aarch64" ]]; then
-        COMPREPLY+=($(compgen -W "run network config" "${COMP_WORDS[1]}"))
+        COMPREPLY+=($(compgen -W "run network config dev clean" "${COMP_WORDS[1]}"))
         # Docker
         COMPREPLY+=($(compgen -W "wakeup up start stop restart logs down" "${COMP_WORDS[1]}"))
     else
