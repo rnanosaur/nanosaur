@@ -4,16 +4,22 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
     <!-- nanosaur parts -->
     <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_pi.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_fisheye.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_zedmini.urdf.xacro" />
+    <!-- camera definitions -->
+    <xacro:arg name="cover_type" default="zedmini" /> <!--options: pi, fisheye, realsense, zedmini -->
+    <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
     <!-- Global properties -->
     <xacro:property name="M_PI" value="3.14159"/>
     <xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>
-
+    <!-- nanosaur properties -->
     <xacro:property name="sprocket_radius" value="0.0105"/>
-
     <xacro:property name="motor_board_angle" value="35"/>
-
+    <xacro:property name="cover_type_name" value="$(arg cover_type)"/>
+    <!-- nanosaur definition -->
     <link name="base_link" />
 
     <joint name="base_front_joint" type="fixed">
@@ -104,7 +110,20 @@
 
     <xacro:track type="left" parent="base_link" radius="${sprocket_radius}"/>
     <xacro:track type="right" parent="base_link" radius="${sprocket_radius}"/>
-    <xacro:head />
     <xacro:flap />
+
+    <!-- Nanosaur heads -->
+    <xacro:if value="${cover_type_name == 'pi'}">
+        <xacro:nanosaur_head_pi />
+    </xacro:if>
+    <xacro:if value="${cover_type_name == 'fisheye'}">
+        <xacro:nanosaur_head_fisheye />
+    </xacro:if>
+    <xacro:if value="${cover_type_name == 'realsense'}">
+        <xacro:nanosaur_head_realsense name="camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)" />
+    </xacro:if>
+    <xacro:if value="${cover_type_name == 'zedmini'}">
+        <xacro:nanosaur_head_zedmini name="zed" />
+    </xacro:if>
 
 </robot>

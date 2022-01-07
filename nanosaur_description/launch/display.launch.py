@@ -23,50 +23,80 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import launch
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-import launch_ros
+from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node
 import os
 
 
 def generate_launch_description():
-    pkg_share = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
-    default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf.rviz')
+    
+    nanosaur_description_path = get_package_share_directory('nanosaur_description')
+    
+    gui = LaunchConfiguration('gui')
+    cover_type = LaunchConfiguration('cover_type')
+    rvizconfig = LaunchConfiguration('rvizconfig')
+    
+    default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
 
-    joint_state_publisher_node = launch_ros.actions.Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
-    )
-    joint_state_publisher_gui_node = launch_ros.actions.Node(
+    declare_cover_type_cmd = DeclareLaunchArgument(
+        name='cover_type',
+        default_value='fisheye',
+        description='Cover type to use. Options: pi, fisheye, realsense, zedmini.')
+
+    declare_gui_cmd = DeclareLaunchArgument(
+        name='gui',
+        default_value='True',
+        description='Flag to enable joint_state_publisher_gui')
+
+    declare_rvizconfig_cmd = DeclareLaunchArgument(
+        name='rvizconfig',
+        default_value=default_rviz_config_path,
+        description='Absolute path to rviz config file')
+
+    joint_state_publisher_gui_node = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
-        condition=launch.conditions.IfCondition(LaunchConfiguration('gui'))
+        condition=IfCondition(gui)
     )
-    rviz_node = launch_ros.actions.Node(
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        condition=UnlessCondition(gui)
+    )
+    rviz_node = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
+        arguments=['-d', rvizconfig],
     )
 
-    return launch.LaunchDescription([
-        launch.actions.DeclareLaunchArgument(name='gui', default_value='True',
-                                             description='Flag to enable joint_state_publisher_gui'),
-        launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
-                                             description='Absolute path to rviz config file'),
-        # Nanosaur description launch
-        # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                [pkg_share, '/launch/description.launch.py'])),
-        joint_state_publisher_node,
-        joint_state_publisher_gui_node,
-        rviz_node
-    ])
+    # Nanosaur description launch
+    # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
+    description_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
+        launch_arguments={'cover_type': cover_type}.items()
+        )
+
+    # Define LaunchDescription variable and return it
+    ld = LaunchDescription()
+    
+    ld.add_action(declare_cover_type_cmd)
+    ld.add_action(declare_gui_cmd)
+    ld.add_action(declare_rvizconfig_cmd)
+    ld.add_action(description_launch)
+    ld.add_action(joint_state_publisher_node)
+    ld.add_action(joint_state_publisher_gui_node)
+    ld.add_action(rviz_node)
+
+    return ld
 # EOF

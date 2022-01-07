@@ -8,7 +8,7 @@
     <color rgba="0.0 0.8 0.0 1.0"/>
   </material>
 
-  <material name="Grey">
+  <material name="aluminum">
     <color rgba="0.5 0.5 0.5 1.0"/>
   </material>
 
@@ -22,6 +22,10 @@
 
   <material name="Gold">
     <color rgba="1 1 0.752941176470588 1" />
+  </material>
+
+  <material name="zedm_mat">
+      <color rgba="0 0 0 0.9"/>
   </material>
 
 </robot>

@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_head_fisheye" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:property name="cam_angle" value="5"/>
+    <xacro:property name="display_angle" value="70.6"/>
+
+    <xacro:macro name="nanosaur_head_fisheye">
+
+        <joint name="cover_joint" type="fixed">
+            <origin xyz="0.06 0 -0.026" rpy="0 0 0" />
+            <parent link="base_front"/>
+            <child link="cover"/>
+        </joint>
+
+        <link name="cover">
+            <visual>
+                <geometry><mesh filename="${path_meshes}/cover-fe.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="display_left_joint" type="fixed">
+            <origin xyz="-0.024 0.0242 0.060" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="display_left"/>
+        </joint>
+
+        <link name="display_left">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="display_right_joint" type="fixed">
+            <origin xyz="-0.024 -0.0242 0.060" rpy="0 ${M_PI/2 - display_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="display_right"/>
+        </joint>
+
+        <link name="display_right">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="camera_joint" type="fixed">
+            <origin xyz="0.0142 0 0.0310" rpy="0 ${M_PI/2 - cam_angle * M_PI/180} 0" />
+            <parent link="cover"/>
+            <child link="camera_board"/>
+        </joint>
+
+        <link name="camera_board">
+            <visual>
+                <origin xyz="-0.0039 0 -0.001" rpy="${M_PI/2} 0 -${M_PI/2}" />
+                <geometry><mesh filename="${path_meshes}/parts/fisheye_camera.dae"/></geometry>
+            </visual>
+        </link>
+
+        <joint name="camera_optical_joint" type="fixed">
+            <origin xyz="0 0 0.005" rpy="0 0 -${M_PI/2}"/>
+            <parent link="camera_board"/>
+            <child link="camera_optical_frame"/>
+        </joint>
+
+        <link name="camera_optical_frame"/>
+
+    </xacro:macro>
+
+</robot>

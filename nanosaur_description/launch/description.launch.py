@@ -23,25 +23,63 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import launch
+
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
 from launch.substitutions import Command, LaunchConfiguration
-import launch_ros
+from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node
 import os
 
 
 def generate_launch_description():
-    pkg_share = launch_ros.substitutions.FindPackageShare(package='nanosaur_description').find('nanosaur_description')
-    default_model_path = os.path.join(pkg_share, 'urdf/nanosaur.urdf.xml')
-
-    robot_state_publisher_node = launch_ros.actions.Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')])}]
+    
+    xacro_path = LaunchConfiguration('xacro_path')
+    cover_type = LaunchConfiguration('cover_type')
+    use_nominal_extrinsics = LaunchConfiguration('use_nominal_extrinsics')
+    
+    # URDF/xacro file to be loaded by the Robot State Publisher node
+    default_xacro_path = os.path.join(
+        get_package_share_directory('nanosaur_description'),
+        'urdf',
+        'nanosaur.urdf.xml'
     )
 
-    return launch.LaunchDescription([
-        launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path,
-                                             description='Absolute path to robot urdf file'),
-        robot_state_publisher_node,
-    ])
+    declare_model_path_cmd = DeclareLaunchArgument(
+        name='xacro_path',
+        default_value=default_xacro_path,
+        description='Absolute path to robot urdf file')
+
+    declare_cover_type_cmd = DeclareLaunchArgument(
+        name='cover_type',
+        default_value='fisheye',
+        description='Cover type to use. Options: pi, fisheye, realsense, zedmini.')
+    
+    declare_use_nominal_extrinsics_cmd = DeclareLaunchArgument(
+        name='use_nominal_extrinsics',
+        default_value='false',
+        description='Use nominal extrinsics ONLY for Realsense camera.')
+
+    robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        parameters=[{'robot_description': Command(
+            [
+                'xacro ', xacro_path, ' ',
+                'cover_type:=', cover_type, ' ',
+                'use_nominal_extrinsics:=', use_nominal_extrinsics, ' ',
+            ])
+        }]
+    )
+
+    # Define LaunchDescription variable and return it
+    ld = LaunchDescription()
+    
+    ld.add_action(declare_model_path_cmd)
+    ld.add_action(declare_cover_type_cmd)
+    ld.add_action(declare_use_nominal_extrinsics_cmd)
+    ld.add_action(robot_state_publisher_node)
+
+    return ld
 # EOF
