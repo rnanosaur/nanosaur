@@ -732,7 +732,7 @@ main()
                     ISAAC_WS_DOCKER="-v $ISAAC_ROS_WS/src:/opt/isaac_ros_ws/src/"
                 fi
                 # Run docker
-                docker run --runtime nvidia -it --rm --network host \
+                docker run --runtime nvidia -it --rm --network host --privileged \
                             -v /tmp/argus_socket:/tmp/argus_socket \
                             $domain \
                             $WORKSPACE_DOCKER \

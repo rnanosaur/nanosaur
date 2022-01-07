@@ -4,6 +4,11 @@ name: Docker Builder CI
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on: [push, workflow_dispatch]
 
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 # https://github.com/docker/build-push-action
 jobs:
 

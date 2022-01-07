@@ -52,6 +52,7 @@ services:
     image: nanosaur/perception:${DOCKER_TAG:-latest}
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
+    privileged: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
     labels:
