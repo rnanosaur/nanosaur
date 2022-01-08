@@ -220,6 +220,7 @@ update()
     if [ $DOCKER_TAG != 'latest' ] ; then
         branch=$DOCKER_TAG
     fi
+
     if [ ! -d $NANOSAUR_CORE_WS ] ; then
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA" >&2
         curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/nanosaur -o $NANOSAUR_DATA/nanosaur
