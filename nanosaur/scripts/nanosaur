@@ -632,6 +632,22 @@ main()
         fi
         echo "ROS_DOMAIN_ID=$domain"
         exit 0
+    elif [ $option = "distro" ] ; then
+        if [ -z "$arguments" ] ; then
+            echo "ROS_DISTRO=$DEFAULT_DISTRO"
+            exit 0
+        elif [ "$arguments" = "reset" ] ; then
+            DOCKER_TAG="latest"
+            ROS_DISTRO=$DEFAULT_DISTRO
+            echo "Restore distribution: ${bold}$DOCKER_TAG${reset}" >&2
+        else
+            DOCKER_TAG=$arguments
+            ROS_DISTRO=$arguments
+            echo "Distribution: ${bold}$DOCKER_TAG${reset}" >&2
+        fi
+        # Saving parameters
+        config_save
+        exit 0
     fi
     # Desktop options
     if [ $PLATFORM = "x86_64" ] ; then
@@ -643,11 +659,6 @@ main()
         elif [ $option = "activate" ] ; then
             echo "${yellow}Please run:${reset}" >&2
             echo "source nanosaur" >&2
-        elif [ $option = "distro" ] ; then
-            if [ -z "$arguments" ] ; then
-                echo "ROS_DISTRO=$DEFAULT_DISTRO"
-                exit 0
-            fi
         else
             usage "[ERROR] Unknown option: $option" >&2
             exit 1
@@ -659,21 +670,6 @@ main()
             echo "-------------------------------------------------------------------------" >&2
             echo "${bold}Configuration:${reset}"
             config_info
-        elif [ $option = "distro" ] ; then
-            if [ -z "$arguments" ] ; then
-                echo "ROS_DISTRO=$DEFAULT_DISTRO"
-                exit 0
-            elif [ "$arguments" = "reset" ] ; then
-                DOCKER_TAG="latest"
-                ROS_DISTRO=$DEFAULT_DISTRO
-                echo "Restore distribution: ${bold}$DOCKER_TAG${reset}" >&2
-            else
-                DOCKER_TAG=$arguments
-                ROS_DISTRO=$arguments
-                echo "Distribution: ${bold}$DOCKER_TAG${reset}" >&2
-            fi
-            # Saving parameters
-            config_save
         elif [ $option = "network" ] ; then
             if [ -z "$arguments" ] ; then
                 DOCKER_NETWORK="host"
