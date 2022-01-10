@@ -481,6 +481,10 @@ installer()
         # Make sure the nvidia docker runtime will be used for builds
         DEFAULT_RUNTIME=$(docker info | grep "Default Runtime: nvidia" ; true)
         if [[ -z "$DEFAULT_RUNTIME" ]]; then
+            local branch='master'
+            if [ $DOCKER_TAG != 'latest' ] ; then
+                branch=$DOCKER_TAG
+            fi
             echo "${green} - Download docker daemon.json${reset}"
             curl https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/scripts/daemon.json -o $NANOSAUR_DATA/daemon.json
             echo "${green} - Set runtime nvidia on /etc/docker/daemon.json${reset}"
