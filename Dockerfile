@@ -37,7 +37,7 @@ COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 RUN mkdir -p $ROS_WS/src && \
     vcs import $ROS_WS/src < robot.rosinstall && \
     apt-get update && \
-    apt-get install libjpeg-dev zlib1g-dev python3-pip -y && \
+    apt-get install libjpeg-dev zlib1g-dev python3-pip fonts-open-sans -y && \
     pip3 install -U jetson-stats && \
     pip3 install -r $ROS_WS/src/nanosaur_robot/nanosaur_base/requirements.txt && \
     rosdep install --from-paths $ROS_WS/src --ignore-src -r -y && \

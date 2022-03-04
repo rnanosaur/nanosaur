@@ -1,4 +1,10 @@
+# Message header
+std_msgs/Header header
+
+# Type eyes
+int8 DEFAULT = 0
+int8 SQUARE = 1
+int8 type
+
 # eyes position
-float64 x
-float64 y
-float64 z
+geometry_msgs/Point position
