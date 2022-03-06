@@ -34,6 +34,7 @@ ENV ROS_WS /opt/ros_ws
 # Copy wstool robot.rosinstall
 COPY nanosaur/rosinstall/robot.rosinstall robot.rosinstall
 # Initialize ROS2 workspace and install python dependencies
+# fonts-open-sans required for nanosaur_base
 RUN mkdir -p $ROS_WS/src && \
     vcs import $ROS_WS/src < robot.rosinstall && \
     apt-get update && \
