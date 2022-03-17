@@ -1,129 +1,19 @@
 <?xml version="1.0"?>
 <robot name="nanosaur" xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
     <!-- nanosaur parts -->
-    <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_pi.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_fisheye.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_zedmini.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/robot.urdf.xacro" />
+
+    <!-- Enable simulation mode.
+         Add extra wheel and center sprocket for differential drive simulation -->
+    <xacro:arg name="simulation" default="false" />
     <!-- camera definitions -->
-    <xacro:arg name="cover_type" default="zedmini" /> <!--options: pi, fisheye, realsense, zedmini -->
+    <xacro:arg name="cover_type" default="fisheye" /> <!--options: pi, fisheye, realsense, zedmini -->
     <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
-    <!-- Global properties -->
-    <xacro:property name="M_PI" value="3.14159"/>
-    <xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>
-    <!-- nanosaur properties -->
-    <xacro:property name="sprocket_radius" value="0.0105"/>
-    <xacro:property name="motor_board_angle" value="35"/>
-    <xacro:property name="cover_type_name" value="$(arg cover_type)"/>
-    <!-- nanosaur definition -->
-    <link name="base_link" />
 
-    <joint name="base_front_joint" type="fixed">
-        <origin xyz="0 0 0.03" rpy="0 0 0" />
-        <parent link="base_link"/>
-        <child link="base_front"/>
-    </joint>
-
-    <link name="base_front">
-        <visual>
-            <geometry><mesh filename="${path_meshes}/base_front.stl" scale="0.001 0.001 0.001"/></geometry>
-            <material name="Green" />
-        </visual>
-    </link>
-
-    <joint name="base_rear_joint" type="fixed">
-        <origin xyz="0 0 0.03" rpy="0 0 0" />
-        <parent link="base_link"/>
-        <child link="base_rear"/>
-    </joint>
-
-    <link name="base_rear">
-        <visual>
-            <geometry><mesh filename="${path_meshes}/base_rear.stl" scale="0.001 0.001 0.001"/></geometry>
-            <material name="Green" />
-        </visual>
-        <collision>
-            <origin xyz="0 0 -0.01" rpy="0 0 0" />
-            <geometry><box size="0.12 0.07 0.03" /></geometry>
-            <material name="Green" />
-        </collision>
-    </link>
-
-    <joint name="motor_board_joint" type="fixed">
-        <origin xyz="0.055 0 0.005" rpy="0 ${M_PI/2 - motor_board_angle * M_PI/180} 0" />
-        <parent link="base_front"/>
-        <child link="motor_board"/>
-    </joint>
-
-    <link name="motor_board">
-        <visual>
-            <geometry><mesh filename="${path_meshes}/parts/motor_board.stl"/></geometry>
-            <material name="GunMetalGrey" />
-        </visual>
-    </link>
-
-    <joint name="power_bank_joint" type="fixed">
-        <origin xyz="0.0 0 0.0" rpy="0 0 0" />
-        <parent link="base_rear"/>
-        <child link="power_bank"/>
-    </joint>
-
-    <link name="power_bank">
-        <visual>
-            <origin xyz="0.0 0 -0.0115" rpy="0 0 ${M_PI}" />
-            <geometry><mesh filename="${path_meshes}/parts/power_bank.stl"/></geometry>
-            <material name="DarkGrey" />
-        </visual>
-    </link>
-
-    <joint name="pb_holder_joint" type="fixed">
-        <origin xyz="-0.0545 0 -0.0061" rpy="0 0 0" />
-        <parent link="base_rear"/>
-        <child link="pb_holder"/>
-    </joint>
-
-    <link name="pb_holder">
-        <visual>
-            <origin xyz="0.0 0 0" rpy="0 0 0" />
-            <geometry><mesh filename="${path_meshes}/pb_holder.stl" scale="0.001 0.001 0.001"/></geometry>
-            <material name="Green" />
-        </visual>
-    </link>
-
-    <joint name="NVIDIA_jetson_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <parent link="base_rear"/>
-        <child link="NVIDIA_jetson"/>
-    </joint>
-
-    <link name="NVIDIA_jetson">
-        <visual>
-            <origin xyz="0.039 0.022 0.005" rpy="0 0 ${M_PI}" />
-            <geometry><mesh filename="${path_meshes}/parts/NVIDIA_jetson_nano_4gb.stl"/></geometry>
-            <material name="DarkGrey" />
-        </visual>
-    </link>
-
-    <xacro:track type="left" parent="base_link" radius="${sprocket_radius}"/>
-    <xacro:track type="right" parent="base_link" radius="${sprocket_radius}"/>
-    <xacro:flap />
-
-    <!-- Nanosaur heads -->
-    <xacro:if value="${cover_type_name == 'pi'}">
-        <xacro:nanosaur_head_pi />
-    </xacro:if>
-    <xacro:if value="${cover_type_name == 'fisheye'}">
-        <xacro:nanosaur_head_fisheye />
-    </xacro:if>
-    <xacro:if value="${cover_type_name == 'realsense'}">
-        <xacro:nanosaur_head_realsense name="camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)" />
-    </xacro:if>
-    <xacro:if value="${cover_type_name == 'zedmini'}">
-        <xacro:nanosaur_head_zedmini name="zed" />
-    </xacro:if>
+    <!-- nanosaur robot -->
+    <xacro:nanosaur cover_type="$(arg cover_type)"
+                    use_nominal_extrinsics="$(arg use_nominal_extrinsics)"
+                    simulation="$(arg simulation)" />
 
 </robot>

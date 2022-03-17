@@ -3,6 +3,11 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
   <xacro:macro name="zed_camera" params="name=zed model=zedm parent *origin">
+
+    <gazebo reference="${name}_camera_center">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
     <xacro:if value="${model == 'zedm'}">
       <xacro:property name="baseline" value="0.06" />
       <xacro:property name="height" value="0.0265" />

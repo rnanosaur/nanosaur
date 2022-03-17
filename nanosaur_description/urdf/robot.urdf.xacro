@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<robot name="robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
+    <!-- nanosaur parts -->
+    <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_pi.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_fisheye.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_zedmini.urdf.xacro" />
+    <!-- Global properties -->
+    <xacro:property name="M_PI" value="3.14159"/>
+    <!--https://github.com/ros-simulation/gazebo_ros_pkgs/pull/1284 -->
+    <xacro:property name="path_meshes" value="file://$(find nanosaur_description)/meshes"/>
+    <!--<xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>-->
+    <!-- nanosaur properties -->
+    <xacro:property name="motor_board_angle" value="35"/>
+
+    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics simulation">
+
+        <xacro:if value="${simulation}">
+            <!-- Gazebo color reference:
+            https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
+            http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
+            -->
+            <gazebo reference="base_front">
+                <material>Gazebo/Green</material>
+            </gazebo>
+            <gazebo reference="base_rear">
+                <material>Gazebo/Green</material>
+            </gazebo>
+            <gazebo reference="motor_board">
+                <material>Gazebo/DarkGrey</material>
+            </gazebo>
+            <gazebo reference="power_bank">
+                <material>Gazebo/DarkGrey</material>
+            </gazebo>
+            <gazebo reference="pb_holder">
+                <material>Gazebo/Green</material>
+            </gazebo>
+            <gazebo reference="NVIDIA_jetson">
+                <material>Gazebo/DarkGrey</material>
+            </gazebo>
+            <!-- nanosaur properties -->
+            <xacro:property name="sprocket_radius" value="0.0150"/>
+        </xacro:if>
+        <xacro:unless value="${simulation}">
+            <!-- nanosaur properties -->
+            <xacro:property name="sprocket_radius" value="0.0105"/>
+        </xacro:unless>
+
+        <!-- nanosaur definition -->
+        <link name="base_link" />
+
+        <joint name="base_front_joint" type="fixed">
+            <origin xyz="0 0 0.03" rpy="0 0 0" />
+            <parent link="base_link"/>
+            <child link="base_front"/>
+        </joint>
+
+        <link name="base_front">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0.053376 0 -0.007808"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <geometry><mesh filename="${path_meshes}/base_front.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="base_rear_joint" type="fixed">
+            <origin xyz="0 0 0.03" rpy="0 0 0" />
+            <parent link="base_link"/>
+            <child link="base_rear"/>
+        </joint>
+
+        <link name="base_rear">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <geometry><mesh filename="${path_meshes}/base_rear.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 -0.01" rpy="0 0 0" />
+                <geometry><box size="0.12 0.07 0.03" /></geometry>
+                <material name="Green" />
+            </collision>
+        </link>
+
+        <joint name="motor_board_joint" type="fixed">
+            <origin xyz="0.055 0 0.005" rpy="0 ${M_PI/2 - motor_board_angle * M_PI/180} 0" />
+            <parent link="base_front"/>
+            <child link="motor_board"/>
+        </joint>
+
+        <link name="motor_board">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <geometry><mesh filename="${path_meshes}/parts/motor_board.stl"/></geometry>
+                <material name="GunMetalGrey" />
+            </visual>
+        </link>
+
+        <joint name="power_bank_joint" type="fixed">
+            <origin xyz="0.0 0 0.0" rpy="0 0 0" />
+            <parent link="base_rear"/>
+            <child link="power_bank"/>
+        </joint>
+
+        <link name="power_bank">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0 -0.0115" rpy="0 0 ${M_PI}" />
+                <geometry><mesh filename="${path_meshes}/parts/power_bank.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="pb_holder_joint" type="fixed">
+            <origin xyz="-0.0545 0 -0.0061" rpy="0 0 0" />
+            <parent link="base_rear"/>
+            <child link="pb_holder"/>
+        </joint>
+
+        <link name="pb_holder">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/pb_holder.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="NVIDIA_jetson_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="base_rear"/>
+            <child link="NVIDIA_jetson"/>
+        </joint>
+
+        <link name="NVIDIA_jetson">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.039 0.022 0.005" rpy="0 0 ${M_PI}" />
+                <geometry><mesh filename="${path_meshes}/parts/NVIDIA_jetson_nano_4gb.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" simulation="${simulation}"/>
+        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" simulation="${simulation}"/>
+        <xacro:flap />
+
+        <!-- Nanosaur heads -->
+        <xacro:if value="${cover_type == 'pi'}">
+            <xacro:nanosaur_head_pi />
+        </xacro:if>
+        <xacro:if value="${cover_type == 'fisheye'}">
+            <xacro:nanosaur_head_fisheye />
+        </xacro:if>
+        <xacro:if value="${cover_type == 'realsense'}">
+            <xacro:nanosaur_head_realsense name="camera" use_nominal_extrinsics="${use_nominal_extrinsics}" />
+        </xacro:if>
+        <xacro:if value="${cover_type == 'zedmini'}">
+            <xacro:nanosaur_head_zedmini name="zed" />
+        </xacro:if>
+
+    </xacro:macro>
+
+</robot>

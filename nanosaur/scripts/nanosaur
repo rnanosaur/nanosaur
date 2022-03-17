@@ -298,7 +298,7 @@ update()
         cd $NANOSAUR_CORE_WS
         # Catkin make all workspace
         echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_CORE_WS)" >&2
-        colcon build
+        colcon build --symlink-install 
         # Return to main path
         cd $THIS
     fi

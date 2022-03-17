@@ -3,6 +3,16 @@
 
     <xacro:macro name="flap">
 
+        <gazebo reference="flap_bottom">
+            <material>Gazebo/Green</material>
+        </gazebo>
+        <gazebo reference="flap_top">
+            <material>Gazebo/Green</material>
+        </gazebo>
+        <gazebo reference="board_expansion">
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+
         <joint name="flap_bottom_joint" type="fixed">
             <origin xyz="-0.05 0 0" rpy="0 0 0" />
             <parent link="base_rear"/>
@@ -10,6 +20,11 @@
         </joint>
 
         <link name="flap_bottom">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
             <visual>
                 <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
                 <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
@@ -24,6 +39,11 @@
         </joint>
 
         <link name="flap_top">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
             <visual>
                 <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
                 <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
@@ -38,6 +58,11 @@
         </joint>
 
         <link name="board_expansion">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
             <visual>
                 <!--<origin xyz="-0.0017 0 0.019" rpy="0 0 0" />-->
                 <origin xyz="-0.002 0.0005 0.017" rpy="0 0 0" />

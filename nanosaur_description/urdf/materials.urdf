@@ -25,7 +25,7 @@
   </material>
 
   <material name="zedm_mat">
-      <color rgba="0 0 0 0.9"/>
+    <color rgba="0 0 0 0.9"/>
   </material>
 
 </robot>
