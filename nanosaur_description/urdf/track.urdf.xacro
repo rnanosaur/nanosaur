@@ -2,7 +2,7 @@
 <robot name="nanosaur_track" xmlns:xacro="http://ros.org/wiki/xacro">
 
 
-    <xacro:macro name="track" params="type parent radius simulation">
+    <xacro:macro name="track" params="type parent radius diff_drive_emulation">
 
         <!-- Define orientation -->
         <xacro:if value="${type == 'left'}">
@@ -13,10 +13,10 @@
         </xacro:if>
 
         <joint name="sprocket_${type}_joint" type="continuous">
-            <xacro:if value="${simulation}">
+            <xacro:if value="${diff_drive_emulation}">
                 <origin xyz="0.0 ${orientation * -0.043} 0.015" rpy="${orientation * M_PI/2} 0 0" />
             </xacro:if>
-            <xacro:unless value="${simulation}">
+            <xacro:unless value="${diff_drive_emulation}">
                 <origin xyz="0.053 ${orientation * -0.043} 0.015" rpy="${orientation * M_PI/2} 0 0" />
             </xacro:unless>
             <parent link="${parent}"/>
@@ -105,7 +105,7 @@
             <material>Gazebo/Red</material>
         </gazebo>
 
-        <xacro:if value="${simulation}">
+        <xacro:if value="${diff_drive_emulation}">
             <joint name="front_wheel_${type}_joint" type="fixed">
                 <origin xyz="0 0 0" rpy="0 0 0" />
                 <parent link="motor_${type}"/>

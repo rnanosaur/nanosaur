@@ -16,39 +16,33 @@
     <!--<xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>-->
     <!-- nanosaur properties -->
     <xacro:property name="motor_board_angle" value="35"/>
+    <!-- Real radius 0.0105 but augmented for track thickness -->
+    <xacro:property name="sprocket_radius" value="0.0150"/>
 
-    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics simulation">
+    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation">
 
-        <xacro:if value="${simulation}">
-            <!-- Gazebo color reference 
-            https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
-            http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
-            -->
-            <gazebo reference="base_front">
-                <material>Gazebo/Green</material>
-            </gazebo>
-            <gazebo reference="base_rear">
-                <material>Gazebo/Green</material>
-            </gazebo>
-            <gazebo reference="motor_board">
-                <material>Gazebo/DarkGrey</material>
-            </gazebo>
-            <gazebo reference="power_bank">
-                <material>Gazebo/DarkGrey</material>
-            </gazebo>
-            <gazebo reference="pb_holder">
-                <material>Gazebo/Green</material>
-            </gazebo>
-            <gazebo reference="NVIDIA_jetson">
-                <material>Gazebo/DarkGrey</material>
-            </gazebo>
-            <!-- nanosaur properties -->
-            <xacro:property name="sprocket_radius" value="0.0150"/>
-        </xacro:if>
-        <xacro:unless value="${simulation}">
-            <!-- nanosaur properties -->
-            <xacro:property name="sprocket_radius" value="0.0105"/>
-        </xacro:unless>
+        <!-- Gazebo color reference 
+        https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
+        http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
+        -->
+        <gazebo reference="base_front">
+            <material>Gazebo/Green</material>
+        </gazebo>
+        <gazebo reference="base_rear">
+            <material>Gazebo/Green</material>
+        </gazebo>
+        <gazebo reference="motor_board">
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="power_bank">
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="pb_holder">
+            <material>Gazebo/Green</material>
+        </gazebo>
+        <gazebo reference="NVIDIA_jetson">
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
 
         <!-- nanosaur definition -->
         <link name="base_link" />
@@ -169,8 +163,8 @@
             </visual>
         </link>
 
-        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" simulation="${simulation}"/>
-        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" simulation="${simulation}"/>
+        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}"/>
+        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}"/>
         <xacro:flap />
 
         <!-- Nanosaur heads -->

@@ -37,7 +37,7 @@ def generate_launch_description():
     
     xacro_path = LaunchConfiguration('xacro_path')
     cover_type = LaunchConfiguration('cover_type')
-    simulation = LaunchConfiguration('simulation')
+    diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     use_nominal_extrinsics = LaunchConfiguration('use_nominal_extrinsics')
     
     # URDF/xacro file to be loaded by the Robot State Publisher node
@@ -58,9 +58,9 @@ def generate_launch_description():
         description='Cover type to use. Options: pi, fisheye, realsense, zedmini.')
 
     declare_simulation_cmd = DeclareLaunchArgument(
-        name='simulation',
+        name='diff_drive_emulation',
         default_value='false',
-        description='Enable urdf for simulation mode.')
+        description='Enable urdf for differential drive emulation, for simulation.')
    
     declare_use_nominal_extrinsics_cmd = DeclareLaunchArgument(
         name='use_nominal_extrinsics',
@@ -74,7 +74,7 @@ def generate_launch_description():
             [
                 'xacro ', xacro_path, ' ',
                 'cover_type:=', cover_type, ' ',
-                'simulation:=', simulation, ' ',
+                'diff_drive_emulation:=', diff_drive_emulation, ' ',
                 'use_nominal_extrinsics:=', use_nominal_extrinsics, ' ',
             ])
         }]

@@ -41,7 +41,7 @@ def generate_launch_description():
     
     gui = LaunchConfiguration('gui')
     cover_type = LaunchConfiguration('cover_type')
-    simulation = LaunchConfiguration('simulation')
+    diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
@@ -52,9 +52,9 @@ def generate_launch_description():
         description='Cover type to use. Options: pi, fisheye, realsense, zedmini.')
 
     declare_simulation_cmd = DeclareLaunchArgument(
-        name='simulation',
+        name='diff_drive_emulation',
         default_value='false',
-        description='Enable urdf for simulation mode.')
+        description='Enable urdf for differential drive emulation, for simulation.')
 
     declare_gui_cmd = DeclareLaunchArgument(
         name='gui',
@@ -90,7 +90,7 @@ def generate_launch_description():
     # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
     description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
-        launch_arguments={'cover_type': cover_type, 'simulation': simulation}.items()
+        launch_arguments={'cover_type': cover_type, 'diff_drive_emulation': diff_drive_emulation}.items()
         )
 
     # Define LaunchDescription variable and return it
