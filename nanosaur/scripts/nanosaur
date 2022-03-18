@@ -132,7 +132,7 @@ config_save()
     echo "BRANCH_TAG=$BRANCH_TAG" > $NANOSAUR_DATA/.env
     if [[ $PLATFORM = "robot" ]] ; then
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
-        echo "DOCKER_TAG=$DOCKER_TAG" > $NANOSAUR_DATA/.env
+        echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
     fi
     if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
         echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
@@ -154,7 +154,17 @@ set_branch()
 
 set_distro()
 {
-    echo "A"
+    local arguments=$1
+    # Update branch
+    if [ ! -z "$arguments" ] ; then
+        # Set BRANCH_TAG and save
+        BRANCH_TAG=$arguments
+        # Update docker tag distro
+        echo "TODO add docker tag distro"
+        DOCKER_TAG=$arguments
+        config_save
+    fi
+    echo "${bold}Distro:${reset} ${green}$DOCKER_TAG${reset}" >&2
 }
 
 set_domain()
@@ -246,6 +256,7 @@ update_usage()
 
 update_nanosaur_tools()
 {
+    local branch=$BRANCH_TAG
     # Update nanosaur script and bash completition script
     if [ ! -d $NANOSAUR_CORE_WS_PATH ] ; then
         echo " - ${bold}${green}Pull nanosaur command${reset} and copy in $NANOSAUR_DATA" >&2
@@ -263,7 +274,7 @@ update_developer()
     if [ -d $NANOSAUR_CORE_WS_PATH/src ] ; then
         # Import workspace
         if [ -d $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall ] ; then
-            echo " - ${bold}${green}Check status all workspaces${reset}" >&2
+            echo " - ${green}Check status all workspaces${reset} Branch: ${bold}$BRANCH_TAG${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
             if [[ $PLATFORM = "aarch64" ]] ; then
                 rosinstall_name="robot.rosinstall"
@@ -290,8 +301,8 @@ update_developer()
         if [ -d $NANOSAUR_PERCEPTION_WS_PATH/src ] ; then
             # Import workspace
             if [ -d $NANOSAUR_PERCEPTION_WS_PATH/src/nanosaur_perception/nanosaur_perception/rosinstall ] ; then
-                echo " - ${bold}${green}Check status all perception workspaces${reset}" >&2
-                local path_perception = $NANOSAUR_PERCEPTION_WS_PATH/src/nanosaur_perception/nanosaur_perception/rosinstall/perception.rosinstall
+                echo " - ${green}Check status all perception workspaces${reset} Branch: ${bold}$BRANCH_TAG${reset}" >&2
+                local path_perception=$NANOSAUR_PERCEPTION_WS_PATH/src/nanosaur_perception/nanosaur_perception/rosinstall/perception.rosinstall
                 vcs import $NANOSAUR_PERCEPTION_WS_PATH/src < $path_perception
                 vcs pull $NANOSAUR_PERCEPTION_WS_PATH/src
             else

@@ -27,8 +27,15 @@
 # https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
 _dothis_completions()
 {
-    # Detect platform
-    local PLATFORM="$(uname -m)"
+    # Load platform
+    # - aarch64 = NVIDIA Jetson
+    # - x86_64 = Desktop
+    local PLATFORM="desktop"
+    #CHECK_JETSON=$(dpkg-query --showformat='${Version}' --show nvidia-l4t-core)
+    #echo $CHECK_JETSON
+    if [[ "$(uname -m)" = "aarch64" ]] ; then
+        PLATFORM="robot"
+    fi
     local NANOSAUR_DATA='/opt/nanosaur'
 
     COMPREPLY=()
@@ -39,19 +46,19 @@ _dothis_completions()
 
     case "$prev" in
         install)
-            COMPREPLY=( $(compgen -W "--help -y dev" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "--help -y developer" -- ${cur}) )
             return 0
         ;;
         update)
-            if [[ $PLATFORM = "x86_64" ]]; then
-                COMPREPLY=($(compgen -W "rosinstall build -h" -- ${cur}))
+            if [[ $PLATFORM = "desktop" ]]; then
+                COMPREPLY=($(compgen -W "rosinstall -h" -- ${cur}))
             else
                 COMPREPLY=($(compgen -W "--clean -h" -- ${cur}))
             fi
             return 0
         ;;
         clean)
-            if [[ $PLATFORM = "aarch64" ]]; then
+            if [[ $PLATFORM = "robot" ]]; then
                 COMPREPLY=($(compgen -W "-f" -- ${cur}))
             else
                 COMPREPLY=()
@@ -69,14 +76,14 @@ _dothis_completions()
         ;;
     esac
 
-    COMPREPLY=($(compgen -W "help info distro domain install update" "${COMP_WORDS[1]}"))
+    COMPREPLY=($(compgen -W "help info config domain install update" "${COMP_WORDS[1]}"))
     # Add extra configurations
-    if [[ $PLATFORM = "aarch64" ]]; then
-        COMPREPLY+=($(compgen -W "run network config dev clean" "${COMP_WORDS[1]}"))
+    if [[ $PLATFORM = "robot" ]]; then
+        COMPREPLY+=($(compgen -W "distro network wakeup down" "${COMP_WORDS[1]}"))
         # Docker
-        COMPREPLY+=($(compgen -W "wakeup up start stop restart logs down" "${COMP_WORDS[1]}"))
+        COMPREPLY+=($(compgen -W "up start stop restart logs top exec" "${COMP_WORDS[1]}"))
     else
-        COMPREPLY+=($(compgen -W "activate" "${cur}"))
+        COMPREPLY+=($(compgen -W "build branch" "${cur}"))
     fi
     return 0
 }

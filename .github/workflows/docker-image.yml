@@ -58,11 +58,14 @@ jobs:
     - name: Build project
       run: |
         bash nanosaur_description/scripts/nanosaur_stl.sh
-    - name: upload results
+    - name: upload data
       uses: actions/upload-artifact@v2
       with:
         name: data
-        path: nanosaur_stl.zip
+        path: |
+          nanosaur_stl.zip
+          nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
+          nanosaur_description/meshes/datasheet/nanosaur-size.pdf
 
   update_docker_description:
     name: Update docker description
@@ -106,6 +109,8 @@ jobs:
         prerelease: false
         files: |
           nanosaur_stl.zip
+          nanosaur-powerbank.pdf
+          nanosaur-size.pdf
 
   notify:
     name: "Notify socials"

@@ -82,6 +82,7 @@ services:
       - seccomp:unconfined
   watchtower:
     image: containrrr/watchtower
+    network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
