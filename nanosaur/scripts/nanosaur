@@ -40,7 +40,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
-NANOSAUR_L4T="32.6.1"
+NANOSAUR_L4T="32.7.1"
 NANOSAUR_VERSION='2.0.0'
 ROBOT_NAME='nanosaur'
 ROBOT_FILE_PATH=$NANOSAUR_DATA/'param/robot.yml'
@@ -553,6 +553,7 @@ install_on_robot()
 
     # Create nanosaur docker
     echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
+    # TODO: make .env file before start
     sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
 }
 
@@ -560,7 +561,7 @@ installer()
 {
     local developer=false
     local SILENT=false
-    local FORCE=true
+    local FORCE=false
 	# Decode all information from startup
     while [ -n "$1" ]; do
         case "$1" in
@@ -827,8 +828,8 @@ main()
                 # local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
 
                 # echo "${yellow}Please select an image to load: ${bold}[$services]${reset}" >&2
+                image_name="core"
                 echo "${yellow}Load default image $${reset}" >&2
-                image_name="core" 
             fi
             # Load command option
             local docker_cmd="bash"
