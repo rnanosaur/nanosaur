@@ -276,7 +276,7 @@ update_developer()
         if [ -d $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall ] ; then
             echo " - ${green}Check status all workspaces${reset} Branch: ${bold}$BRANCH_TAG${reset}" >&2
             local rosinstall_name="desktop.rosinstall"
-            if [[ $PLATFORM = "aarch64" ]] ; then
+            if [[ $PLATFORM = "robot" ]] ; then
                 rosinstall_name="robot.rosinstall"
             fi
             vcs import $NANOSAUR_CORE_WS_PATH/src < $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
@@ -607,11 +607,9 @@ installer()
     local type_developer=""
     # Recap installatation
     echo "------ Configuration ------"
-    if $developer ; then
-        echo " - ${bold}Developer:${reset} ${yellow}$developer${reset}"
-    fi
-    echo " - ${bold}Install on:${reset} ${green}$PLATFORM${reset}"
     echo " - ${bold}User:${reset} ${green}$USER${reset} - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
+    echo " - ${bold}Install on:${reset} ${green}$PLATFORM${reset}"
+    echo " - ${bold}Developer:${reset} ${green}$developer${reset}"
     config_info
     echo "---------------------------"
 
@@ -649,7 +647,10 @@ installer()
     install_nanosaur_tools
     # Install Docker and other scripts
     if [[ $PLATFORM = "robot" ]] ; then
+        # install all services
         install_on_robot
+        # Populate folders if exists
+        update_developer
     else
         # Run ronsintall
         update rosinstall
@@ -739,6 +740,7 @@ usage()
         echo "  $name network [host/bridge]    Select network configuration" >&2
         echo "  $name wakeup/down              start/stop nanosaur systems (eq. nanosaur up -d)" >&2
         echo "  $name [start/restart/stop/up/logs/top/exec]  Control nanosaur docker" >&2
+        echo "  $name run [CNT:core][CMD:bash] Run a new nanosaur container for development" >&2
         echo "  $name clean                    clean all dangling images" >&2
     fi
     echo ""
