@@ -487,6 +487,14 @@ install_developer()
     fi
 }
 
+install_on_desktop()
+{
+    if ! command -v rosdep &> /dev/null ; then
+        echo " - ${bold}${green}Install rosdep${reset}"
+        sudo apt-get install -y python3-rosdep2
+    fi
+}
+
 install_on_robot()
 {
     if ! command -v pip3 &> /dev/null ; then
@@ -652,6 +660,8 @@ installer()
         # Populate folders if exists
         update_developer
     else
+        # Install software dependencies
+        install_on_desktop
         # Run ronsintall
         update rosinstall
         # Run builder
