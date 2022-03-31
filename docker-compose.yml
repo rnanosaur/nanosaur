@@ -35,6 +35,7 @@ services:
       - "/dev/input" # Joystick robot
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - COVER_TYPE=${COVER_TYPE}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:
@@ -49,12 +50,13 @@ services:
       # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
       - seccomp:unconfined
   perception:
-    image: nanosaur/perception:${DOCKER_TAG:-latest}
+    image: nanosaur/perception:${PERCEPTION_DOCKER_TAG:-latest}
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     privileged: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - COVER_TYPE=${COVER_TYPE}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:

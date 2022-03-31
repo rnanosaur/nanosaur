@@ -63,9 +63,5 @@ RUN sed --in-place --expression \
 # https://docs.docker.com/engine/reference/builder/#stopsignal
 # https://hynek.me/articles/docker-signals/
 STOPSIGNAL SIGINT
-# Set default RMW implementation
-# Fix camera run
-# https://github.com/ros2/rmw_fastrtps/issues/460
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # run ros package launch file
 CMD ["ros2", "launch", "nanosaur_bringup", "bringup.launch.py"]

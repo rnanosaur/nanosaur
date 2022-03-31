@@ -32,7 +32,9 @@ ROS_DEV_WS_NAME='ros_ws'
 ROS_CORE_WS_NAME='nanosaur_ws'
 ROS_PERC_WS_NAME='nanosaur_perception'
 DOCKER_TAG='latest'
+PERCEPTION_DOCKER_TAG='latest'
 BRANCH_TAG='master'
+COVER_TYPE='pi'
 DOCKER_NETWORK='host'
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
@@ -115,6 +117,7 @@ get_perception_rosinstall()
 config_info()
 {
     echo " - ${bold}Branch:${reset} ${green}$BRANCH_TAG${reset}" >&2
+    echo " - ${bold}Cover type:${reset} ${green}$COVER_TYPE${reset}" >&2
     if [[ $PLATFORM = "robot" ]] ; then
         echo " - ${bold}Network:${reset} ${green}$DOCKER_NETWORK${reset}" >&2
         echo " - ${bold}Tag:${reset} ${green}$DOCKER_TAG${reset}" >&2
@@ -130,9 +133,11 @@ config_save()
 {
     # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
     echo "BRANCH_TAG=$BRANCH_TAG" > $NANOSAUR_DATA/.env
+    echo "COVER_TYPE=$COVER_TYPE" > $NANOSAUR_DATA/.env
     if [[ $PLATFORM = "robot" ]] ; then
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
+        echo "PERCEPTION_DOCKER_TAG=$PERCEPTION_DOCKER_TAG" >> $NANOSAUR_DATA/.env
     fi
     if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
         echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
@@ -140,6 +145,40 @@ config_save()
 }
 
 ############################ BRANCH/DISTRO functions ###########################################
+
+ColorGreen(){
+	echo -ne ${green}$1${reset}
+}
+
+cover()
+{
+    local arguments=$1
+echo -ne "Cover type: [${bold}$COVER_TYPE${reset}]
+$(ColorGreen '1)') fisheye
+$(ColorGreen '2)') pi
+$(ColorGreen '3)') realsense 
+$(ColorGreen '4)') zedmini
+Chose an option (Q for Exit): "
+    read a
+    case $a in
+        1) COVER_TYPE="fisheye" ;;
+        2) COVER_TYPE="pi" ;;
+        3) COVER_TYPE="realsense" ;;
+        4) COVER_TYPE="zedmini" ;;
+    q|Q) exit 0 ;;
+    *) echo -e ${red}"Wrong option."${reset};;
+    esac
+
+    echo " - ${bold}Cover type:${reset} ${green}$COVER_TYPE${reset}" >&2
+    # Align docker with camera name
+    if [ "$COVER_TYPE" == 'pi' ] || [ "$COVER_TYPE" == 'fisheye' ]; then
+        PERCEPTION_DOCKER_TAG=$DOCKER_TAG
+    else
+        PERCEPTION_DOCKER_TAG=$DOCKER_TAG-$COVER_TYPE
+    fi
+    # Store new cover type
+    config_save
+}
 
 set_branch()
 {
@@ -737,6 +776,7 @@ usage()
     echo "$name is your manager to control, update your robot or your desktop to work with nanosaur." >&2
     echo "${bold}Commands:${reset}" >&2
     echo "  $name help                     This help" >&2
+    echo "  $name cover                    Set cover type" >&2
     echo "  $name info                     Status" >&2
     echo "  $name config                   Open/create robot.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
     echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
@@ -775,6 +815,9 @@ main()
     # Options
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
+        exit 0
+    elif [ $option = "cover" ] ; then
+        cover $arguments
         exit 0
     elif [ $option = "info" ] ; then
         info $arguments
@@ -866,6 +909,7 @@ main()
                     echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_CORE_WS_PATH${reset}" >&2
                     WORKSPACE_DOCKER="-v $NANOSAUR_CORE_WS_PATH/src:/opt/ros_ws/src/"
                 fi
+                echo "${bold}Running Docker${reset} nanosaur/nanosaur:$DOCKER_TAG $docker_cmd"
                 # Run docker
                 docker run -it --rm --network host \
                             --device /dev/i2c-0 \
@@ -873,6 +917,7 @@ main()
                             --device /dev/input \
                             -v /run/jtop.sock:/run/jtop.sock \
                             -v /run/ros2sm.sock:/run/ros2sm.sock \
+                            -e COVER_TYPE=$COVER_TYPE \
                             $domain \
                             $WORKSPACE_DOCKER \
                             nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
@@ -888,13 +933,15 @@ main()
                     echo " - ${bold}Load volume:${reset} ${yellow}$ISAAC_ROS_WS_PATH${reset}" >&2
                     ISAAC_WS_DOCKER="-v $ISAAC_ROS_WS_PATH/src:/opt/isaac_ros_ws/src/"
                 fi
+                echo "${bold}Running Docker ${blue}nanosaur/perception:$PERCEPTION_DOCKER_TAG $docker_cmd${reset}"
                 # Run docker
                 docker run --runtime nvidia -it --rm --network host --privileged \
                             -v /tmp/argus_socket:/tmp/argus_socket \
                             $domain \
                             $WORKSPACE_DOCKER \
                             $ISAAC_WS_DOCKER \
-                            nanosaur/perception:$DOCKER_TAG $docker_cmd
+                            -e COVER_TYPE=$COVER_TYPE \
+                            nanosaur/perception:$PERCEPTION_DOCKER_TAG $docker_cmd
             else
                 echo "${yellow}Load default docker image ${bold}$N1${reset}" >&2
                 docker run -it --rm --network host $domain \
