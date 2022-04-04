@@ -133,7 +133,7 @@ config_save()
 {
     # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
     echo "BRANCH_TAG=$BRANCH_TAG" > $NANOSAUR_DATA/.env
-    echo "COVER_TYPE=$COVER_TYPE" > $NANOSAUR_DATA/.env
+    echo "COVER_TYPE=$COVER_TYPE" >> $NANOSAUR_DATA/.env
     if [[ $PLATFORM = "robot" ]] ; then
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
@@ -914,7 +914,7 @@ main()
                     echo " - ${bold}Load volume:${reset} ${yellow}$NANOSAUR_CORE_WS_PATH${reset}" >&2
                     WORKSPACE_DOCKER="-v $NANOSAUR_CORE_WS_PATH/src:/opt/ros_ws/src/"
                 fi
-                echo "${bold}Running Docker${reset} nanosaur/nanosaur:$DOCKER_TAG $docker_cmd"
+                echo "${bold}Running Docker ${blue}nanosaur/nanosaur:$DOCKER_TAG $docker_cmd${reset}"
                 # Run docker
                 docker run -it --rm --network host \
                             --device /dev/i2c-0 \
