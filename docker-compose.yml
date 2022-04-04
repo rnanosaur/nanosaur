@@ -44,11 +44,6 @@ services:
       # if you want change the nanosaur configuration
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
       - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
-    security_opt:
-      # Temporary fix bug on nvidia-container-runtime
-      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
-      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
-      - seccomp:unconfined
   perception:
     image: nanosaur/perception:${PERCEPTION_DOCKER_TAG:-latest}
     network_mode: ${DOCKER_NETWORK:-host}
@@ -64,11 +59,6 @@ services:
       # if you want change the nanosaur configuration
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
       - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_perception/share/nanosaur_perception/param" # Extra configuration folder
-    security_opt:
-      # Temporary fix bug on nvidia-container-runtime
-      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
-      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
-      - seccomp:unconfined
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
     network_mode: ${DOCKER_NETWORK:-host}
@@ -77,11 +67,6 @@ services:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
-    security_opt:
-      # Temporary fix bug on nvidia-container-runtime
-      # - https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common/issues/5
-      # - https://github.com/dusty-nv/jetson-containers/issues/108#issuecomment-962597353
-      - seccomp:unconfined
   watchtower:
     image: containrrr/watchtower
     network_mode: ${DOCKER_NETWORK:-host}

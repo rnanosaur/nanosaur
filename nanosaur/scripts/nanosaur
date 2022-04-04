@@ -29,12 +29,12 @@ NANOSAUR_DATA='/opt/nanosaur'
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
 ROS_DEV_WS_NAME='ros_ws'
-ROS_CORE_WS_NAME='nanosaur_ws'
+ROS_CORE_WS_NAME='nanosaur_core'
 ROS_PERC_WS_NAME='nanosaur_perception'
 DOCKER_TAG='latest'
 PERCEPTION_DOCKER_TAG='latest'
 BRANCH_TAG='master'
-COVER_TYPE='pi'
+COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
@@ -152,6 +152,7 @@ ColorGreen(){
 
 cover()
 {
+    # https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash
     local arguments=$1
 echo -ne "Cover type: [${bold}$COVER_TYPE${reset}]
 $(ColorGreen '1)') fisheye
