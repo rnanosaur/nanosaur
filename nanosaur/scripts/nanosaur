@@ -162,14 +162,14 @@ echo -ne "Cover type: [${bold}$COVER_TYPE${reset}]
 $(ColorMenu '1' 'fisheye')
 $(ColorMenu '2' 'pi') 
 $(ColorMenu '3' 'realsense') 
-$(ColorMenu '4' 'zedmini')
+$(ColorMenu '4' 'zed')
 Chose an option (Q for Exit): "
     read a
     case $a in
         1) COVER_TYPE="fisheye" ;;
         2) COVER_TYPE="pi" ;;
         3) COVER_TYPE="realsense" ;;
-        4) COVER_TYPE="zedmini" ;;
+        4) COVER_TYPE="zed" ;;
     q|Q) exit 0 ;;
     *) echo -e ${red}"Wrong option."${reset};;
     esac
@@ -794,7 +794,7 @@ usage()
         echo "  $name distro                   Set nanoasur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
         echo "  $name wakeup/down              start/stop nanosaur systems (eq. nanosaur up -d)" >&2
-        echo "  $name [start/restart/stop/up/logs/top/exec]  Control nanosaur docker" >&2
+        echo "  $name [start/restart/stop/up/logs/top/rm/exec]  Control nanosaur docker" >&2
         echo "  $name run [CNT:core][CMD:bash] Run a new nanosaur container for development" >&2
         echo "  $name clean                    clean all dangling images" >&2
     fi
@@ -868,7 +868,7 @@ main()
             exit 0
         elif [ $option = "up" ] || [ $option = "start" ] || [ $option = "restart" ] || 
                 [ $option = "stop" ] || [ $option = "down" ] || [ $option = "logs" ] || 
-                [ $option = "top" ] || [ $option = "exec" ] ; then
+                [ $option = "top" ] || [ $option = "rm" ] ||[ $option = "exec" ] ; then
             # Run docker compose
             docker-compose -f $NANOSAUR_DATA/docker-compose.yml $option $arguments
             exit 0
