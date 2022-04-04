@@ -146,8 +146,12 @@ config_save()
 
 ############################ BRANCH/DISTRO functions ###########################################
 
-ColorGreen(){
-	echo -ne ${green}$1${reset}
+ColorMenu(){
+    if [ "$COVER_TYPE" == "$2" ] ; then
+	    echo -ne "${bold}${green}$1)${reset} ${bold}$2${reset}"
+    else
+        echo -ne "${blue}$1${reset}) $2"
+    fi
 }
 
 cover()
@@ -155,10 +159,10 @@ cover()
     # https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash
     local arguments=$1
 echo -ne "Cover type: [${bold}$COVER_TYPE${reset}]
-$(ColorGreen '1)') fisheye
-$(ColorGreen '2)') pi
-$(ColorGreen '3)') realsense 
-$(ColorGreen '4)') zedmini
+$(ColorMenu '1' 'fisheye')
+$(ColorMenu '2' 'pi') 
+$(ColorMenu '3' 'realsense') 
+$(ColorMenu '4' 'zedmini')
 Chose an option (Q for Exit): "
     read a
     case $a in
