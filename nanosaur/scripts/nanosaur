@@ -985,6 +985,10 @@ deactivate () {
         if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
             unset ROS_DOMAIN_ID
         fi
+        # Load NANOSAUR_COVER_TYPE
+        if [ ! -z ${NANOSAUR_COVER_TYPE+x} ] ; then
+            unset NANOSAUR_COVER_TYPE
+        fi
     fi
 
     # This should detect bash and zsh, which have a hash command that must
