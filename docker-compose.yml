@@ -35,7 +35,7 @@ services:
       - "/dev/input" # Joystick robot
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-      - COVER_TYPE=${COVER_TYPE}
+      - NANOSAUR_COVER_TYPE=${NANOSAUR_COVER_TYPE}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:
@@ -51,7 +51,7 @@ services:
     privileged: true
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-      - COVER_TYPE=${COVER_TYPE}
+      - NANOSAUR_COVER_TYPE=${NANOSAUR_COVER_TYPE}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:

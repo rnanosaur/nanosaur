@@ -34,7 +34,7 @@ ROS_PERC_WS_NAME='nanosaur_perception'
 DOCKER_TAG='latest'
 PERCEPTION_DOCKER_TAG='latest'
 BRANCH_TAG='master'
-COVER_TYPE='fisheye'
+NANOSAUR_COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
@@ -117,7 +117,7 @@ get_perception_rosinstall()
 config_info()
 {
     echo " - ${bold}Branch:${reset} ${green}$BRANCH_TAG${reset}" >&2
-    echo " - ${bold}Cover type:${reset} ${green}$COVER_TYPE${reset}" >&2
+    echo " - ${bold}Cover type:${reset} ${green}$NANOSAUR_COVER_TYPE${reset}" >&2
     if [[ $PLATFORM = "robot" ]] ; then
         echo " - ${bold}Network:${reset} ${green}$DOCKER_NETWORK${reset}" >&2
         echo " - ${bold}Tag:${reset} ${green}$DOCKER_TAG${reset}" >&2
@@ -133,7 +133,7 @@ config_save()
 {
     # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
     echo "BRANCH_TAG=$BRANCH_TAG" > $NANOSAUR_DATA/.env
-    echo "COVER_TYPE=$COVER_TYPE" >> $NANOSAUR_DATA/.env
+    echo "NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE" >> $NANOSAUR_DATA/.env
     if [[ $PLATFORM = "robot" ]] ; then
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
@@ -147,7 +147,7 @@ config_save()
 ############################ BRANCH/DISTRO functions ###########################################
 
 ColorMenu(){
-    if [ "$COVER_TYPE" == "$2" ] ; then
+    if [ "$NANOSAUR_COVER_TYPE" == "$2" ] ; then
 	    echo -ne "${bold}${green}$1)${reset} ${bold}$2${reset}"
     else
         echo -ne "${blue}$1${reset}) $2"
@@ -158,7 +158,7 @@ cover()
 {
     # https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash
     local arguments=$1
-echo -ne "Cover type: [${bold}$COVER_TYPE${reset}]
+echo -ne "Cover type: [${bold}$NANOSAUR_COVER_TYPE${reset}]
 $(ColorMenu '1' 'fisheye')
 $(ColorMenu '2' 'pi') 
 $(ColorMenu '3' 'realsense') 
@@ -166,20 +166,20 @@ $(ColorMenu '4' 'zed')
 Chose an option (Q for Exit): "
     read a
     case $a in
-        1) COVER_TYPE="fisheye" ;;
-        2) COVER_TYPE="pi" ;;
-        3) COVER_TYPE="realsense" ;;
-        4) COVER_TYPE="zed" ;;
+        1) NANOSAUR_COVER_TYPE="fisheye" ;;
+        2) NANOSAUR_COVER_TYPE="pi" ;;
+        3) NANOSAUR_COVER_TYPE="realsense" ;;
+        4) NANOSAUR_COVER_TYPE="zed" ;;
     q|Q) exit 0 ;;
     *) echo -e ${red}"Wrong option."${reset};;
     esac
 
-    echo " - ${bold}Cover type:${reset} ${green}$COVER_TYPE${reset}" >&2
+    echo " - ${bold}Cover type:${reset} ${green}$NANOSAUR_COVER_TYPE${reset}" >&2
     # Align docker with camera name
-    if [ "$COVER_TYPE" == 'pi' ] || [ "$COVER_TYPE" == 'fisheye' ]; then
+    if [ "$NANOSAUR_COVER_TYPE" == 'pi' ] || [ "$NANOSAUR_COVER_TYPE" == 'fisheye' ]; then
         PERCEPTION_DOCKER_TAG=$DOCKER_TAG
     else
-        PERCEPTION_DOCKER_TAG=$DOCKER_TAG-$COVER_TYPE
+        PERCEPTION_DOCKER_TAG=$DOCKER_TAG-$NANOSAUR_COVER_TYPE
     fi
     # Store new cover type
     config_save
@@ -922,7 +922,7 @@ main()
                             --device /dev/input \
                             -v /run/jtop.sock:/run/jtop.sock \
                             -v /run/ros2sm.sock:/run/ros2sm.sock \
-                            -e COVER_TYPE=$COVER_TYPE \
+                            -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
                             $domain \
                             $WORKSPACE_DOCKER \
                             nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
@@ -945,7 +945,7 @@ main()
                             $domain \
                             $WORKSPACE_DOCKER \
                             $ISAAC_WS_DOCKER \
-                            -e COVER_TYPE=$COVER_TYPE \
+                            -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
                             nanosaur/perception:$PERCEPTION_DOCKER_TAG $docker_cmd
             else
                 echo "${yellow}Load default docker image ${bold}$N1${reset}" >&2
@@ -1020,6 +1020,10 @@ source $ROS2_PATH
 # Load ROS_DOMAIN_ID
 if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
     export ROS_DOMAIN_ID=$ROS_DOMAIN_ID
+fi
+# Load NANOSAUR_COVER_TYPE
+if [ ! -z ${NANOSAUR_COVER_TYPE+x} ] ; then
+    export NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE
 fi
 
 if [ ! -d $NANOSAUR_CORE_WS_PATH/install ] ; then
