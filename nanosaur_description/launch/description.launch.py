@@ -55,7 +55,7 @@ def generate_launch_description():
     declare_cover_type_cmd = DeclareLaunchArgument(
         name='cover_type',
         default_value='fisheye',
-        description='Cover type to use. Options: pi, fisheye, realsense, zedmini.')
+        description='Cover type to use. Options: pi, fisheye, realsense, zed.')
 
     declare_simulation_cmd = DeclareLaunchArgument(
         name='diff_drive_emulation',
