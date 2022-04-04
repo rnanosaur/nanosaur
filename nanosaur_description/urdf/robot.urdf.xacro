@@ -179,7 +179,7 @@
             <xacro:nanosaur_head_realsense name="camera" use_nominal_extrinsics="${use_nominal_extrinsics}" />
         </xacro:if>
         <xacro:if value="${cover_type == 'zed'}">
-            <xacro:nanosaur_head_zedmini name="zed" />
+            <xacro:nanosaur_head_zedmini name="zedm" />
         </xacro:if>
 
     </xacro:macro>
