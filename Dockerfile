@@ -51,7 +51,7 @@ WORKDIR $ROS_WS
 ENV DOCKER_CONTAINER Yes
 # Build Isaac ROS
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build --symlink-install --packages-skip nanosaur_camera \
+    colcon build --symlink-install \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
 

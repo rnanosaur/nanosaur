@@ -791,7 +791,7 @@ usage()
         echo "  $name build                    Build developer boards" >&2
         echo "  $name branch                   Set branch nanoasur projects" >&2
     else
-        echo "  $name distro                   Set nanoasur distribution" >&2
+        echo "  $name distro                   Set nanosaur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
         echo "  $name wakeup/down              start/stop nanosaur systems (eq. nanosaur up -d)" >&2
         echo "  $name [start/restart/stop/up/logs/top/rm/exec]  Control nanosaur docker" >&2

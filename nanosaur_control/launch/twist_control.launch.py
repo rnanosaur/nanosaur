@@ -27,6 +27,7 @@
 from genericpath import isfile
 import os
 import launch
+from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
@@ -37,15 +38,14 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    twist_mux_pkg = get_package_share_directory('twist_mux')
+    nanosaur_control_pkg = get_package_share_directory('nanosaur_control')
     
-    default_config_locks = os.path.join(get_package_share_directory('twist_mux'),
-                                        'config', 'twist_mux_locks.yaml')
-    default_config_topics = os.path.join(get_package_share_directory('twist_mux'),
-                                         'config', 'twist_mux_topics.yaml')
-    default_config_joystick = os.path.join(get_package_share_directory('twist_mux'),
-                                           'config', 'joystick.yaml')
+    default_config_locks = os.path.join(nanosaur_control_pkg, 'config', 'twist_mux_locks.yaml')
+    default_config_topics = os.path.join(nanosaur_control_pkg, 'config', 'twist_mux_topics.yaml')
+    default_config_joystick = os.path.join(nanosaur_control_pkg, 'config', 'joystick.yaml')
 
-    twist_mux_node = launch_ros.actions.Node(
+    twist_mux_node = Node(
             package='twist_mux',
             executable='twist_mux',
             output='screen',

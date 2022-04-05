@@ -1,4 +1,4 @@
-teleop_twist_joy_node:
+/**:
   ros__parameters:
     axis_linear:  # Left thumb stick vertical
       x: 1
