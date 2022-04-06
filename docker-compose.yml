@@ -36,6 +36,7 @@ services:
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - NANOSAUR_COVER_TYPE=${NANOSAUR_COVER_TYPE}
+      - RMW_IMPLEMENTATION=${NANOSAUR_RMW:-rmw_cyclonedds_cpp}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:
@@ -49,9 +50,12 @@ services:
     network_mode: ${DOCKER_NETWORK:-host}
     restart: always
     privileged: true
+    depends_on:
+      - "core"
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - NANOSAUR_COVER_TYPE=${NANOSAUR_COVER_TYPE}
+      - RMW_IMPLEMENTATION=${NANOSAUR_RMW:-rmw_cyclonedds_cpp}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:
