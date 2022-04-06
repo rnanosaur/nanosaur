@@ -30,12 +30,12 @@ _dothis_completions()
     # Load platform
     # - aarch64 = NVIDIA Jetson
     # - x86_64 = Desktop
+    # PLATFORM="$(uname -m)"
     local PLATFORM="desktop"
-    #CHECK_JETSON=$(dpkg-query --showformat='${Version}' --show nvidia-l4t-core)
-    #echo $CHECK_JETSON
-    if [[ "$(uname -m)" = "aarch64" ]] ; then
+    if [ -f /etc/nv_tegra_release ] ; then
         PLATFORM="robot"
     fi
+
     local NANOSAUR_DATA='/opt/nanosaur'
 
     COMPREPLY=()
@@ -46,14 +46,14 @@ _dothis_completions()
 
     case "$prev" in
         install)
-            COMPREPLY=( $(compgen -W "--help -y developer" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "developer --force --help" -- ${cur}) )
             return 0
         ;;
         update)
             if [[ $PLATFORM = "desktop" ]]; then
-                COMPREPLY=($(compgen -W "rosinstall -h" -- ${cur}))
+                COMPREPLY=($(compgen -W "rosinstall --help" -- ${cur}))
             else
-                COMPREPLY=($(compgen -W "--clean -h" -- ${cur}))
+                COMPREPLY=($(compgen -W "--clean" -- ${cur}))
             fi
             return 0
         ;;
@@ -65,12 +65,12 @@ _dothis_completions()
             fi
             return 0
         ;;
-        dev|up|start|stop|restart|logs|down|top|exec)
+        run|start|restart|stop|up|logs|down|top|exec|rm)
             local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
             COMPREPLY=( $(compgen -W "$services" -- ${cur}) )
             return 0
         ;;
-        help|info|distro|domain|network|config|wakeup|activate|run)
+        help|info|cover|config|domain|distro|network|wakeup)
             COMPREPLY=()
             return 0
         ;;

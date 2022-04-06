@@ -63,13 +63,11 @@ reset=`tput sgr0`
 # Load platform
 # - aarch64 = NVIDIA Jetson
 # - x86_64 = Desktop
+# PLATFORM="$(uname -m)"
 PLATFORM="desktop"
-#CHECK_JETSON=$(dpkg-query --showformat='${Version}' --show nvidia-l4t-core)
-#echo $CHECK_JETSON
-if [[ "$(uname -m)" = "aarch64" ]] ; then
+if [ -f /etc/nv_tegra_release ] ; then
     PLATFORM="robot"
 fi
-# PLATFORM="$(uname -m)"
 
 # Modules check sudo
 # https://serverfault.com/questions/266039/temporarily-increasing-sudos-timeout-for-the-duration-of-an-install-script
@@ -789,7 +787,7 @@ usage()
     echo "  $name update                   Update docker and scripts" >&2
     if [[ $PLATFORM = "desktop" ]] ; then
         echo "  $name build                    Build developer boards" >&2
-        echo "  $name branch                   Set branch nanoasur projects" >&2
+        echo "  $name branch                   Set branch nanosaur projects" >&2
     else
         echo "  $name distro                   Set nanosaur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
