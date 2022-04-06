@@ -70,7 +70,7 @@ _dothis_completions()
             COMPREPLY=( $(compgen -W "$services" -- ${cur}) )
             return 0
         ;;
-        help|info|cover|config|domain|distro|network|wakeup)
+        help|info|cover|config|dds|domain|distro|network|wakeup)
             COMPREPLY=()
             return 0
         ;;

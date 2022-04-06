@@ -36,7 +36,7 @@ services:
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - NANOSAUR_COVER_TYPE=${NANOSAUR_COVER_TYPE}
-      - RMW_IMPLEMENTATION=${NANOSAUR_RMW:-rmw_cyclonedds_cpp}
+      - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
     labels:
       - "com.centurylinklabs.watchtower.scope=nanosaur"
     volumes:

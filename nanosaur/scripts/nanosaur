@@ -36,6 +36,7 @@ PERCEPTION_DOCKER_TAG='latest'
 BRANCH_TAG='master'
 NANOSAUR_COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
+RMW_IMPLEMENTATION='rmw_cyclonedds_cpp'
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
@@ -116,6 +117,7 @@ config_info()
 {
     echo " - ${bold}Branch:${reset} ${green}$BRANCH_TAG${reset}" >&2
     echo " - ${bold}Cover type:${reset} ${green}$NANOSAUR_COVER_TYPE${reset}" >&2
+    echo " - ${bold}DDS impementation:${reset} ${green}$RMW_IMPLEMENTATION${reset}" >&2
     if [[ $PLATFORM = "robot" ]] ; then
         echo " - ${bold}Network:${reset} ${green}$DOCKER_NETWORK${reset}" >&2
         echo " - ${bold}Tag:${reset} ${green}$DOCKER_TAG${reset}" >&2
@@ -132,6 +134,7 @@ config_save()
     # https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
     echo "BRANCH_TAG=$BRANCH_TAG" > $NANOSAUR_DATA/.env
     echo "NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE" >> $NANOSAUR_DATA/.env
+    echo "RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION" >> $NANOSAUR_DATA/.env
     if [[ $PLATFORM = "robot" ]] ; then
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
@@ -186,7 +189,7 @@ Chose an option (Q for Exit): "
 set_network()
 {
     local arguments=$1
-echo -ne "Cover type: [${bold}$DOCKER_NETWORK${reset}]
+echo -ne "Network: [${bold}$DOCKER_NETWORK${reset}]
 $(ColorMenu $DOCKER_NETWORK '1' 'host')
 $(ColorMenu $DOCKER_NETWORK '2' 'bridge')
 Chose an option (Q for Exit): "
@@ -198,6 +201,25 @@ Chose an option (Q for Exit): "
     *) echo -e ${red}"Wrong option."${reset};;
     esac
     echo "${bold}${green}Network:${reset} $DOCKER_NETWORK" >&2
+    # Saving parameters
+    config_save
+}
+
+set_dds()
+{
+    local arguments=$1
+echo -ne "DDS: [${bold}$RMW_IMPLEMENTATION${reset}]
+$(ColorMenu $RMW_IMPLEMENTATION '1' 'rmw_cyclonedds_cpp')
+$(ColorMenu $RMW_IMPLEMENTATION '2' 'rmw_fastrtps_cpp')
+Chose an option (Q for Exit): "
+    read a
+    case $a in
+        1) RMW_IMPLEMENTATION="rmw_cyclonedds_cpp" ;;
+        2) RMW_IMPLEMENTATION="rmw_fastrtps_cpp" ;;
+    q|Q) exit 0 ;;
+    *) echo -e ${red}"Wrong option."${reset};;
+    esac
+    echo "${bold}${green}DDS implementation:${reset} $RMW_IMPLEMENTATION" >&2
     # Saving parameters
     config_save
 }
@@ -801,6 +823,7 @@ usage()
     echo "  $name info                     Status" >&2
     echo "  $name cover                    Set cover type" >&2
     echo "  $name config                   Open/create robot.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
+    echo "  $name dds                      Set DDS communication" >&2
     echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
     echo "  $name install                  Install nanosaur environment." >&2
     echo "  $name update                   Update docker and scripts" >&2
@@ -846,6 +869,9 @@ main()
         exit 0
     elif [ $option = "config" ] ; then
         nano $ROBOT_FILE_PATH
+        exit 0
+    elif [ $option = "dds" ] ; then
+        set_dds $arguments
         exit 0
     elif [ $option = "domain" ] ; then
         set_domain $arguments
@@ -899,7 +925,7 @@ main()
 
                 # echo "${yellow}Please select an image to load: ${bold}[$services]${reset}" >&2
                 image_name="core"
-                echo "${yellow}Load default image $${reset}" >&2
+                echo "${yellow}Load default image ${reset}" >&2
             fi
             # Load command option
             local docker_cmd="bash"
@@ -933,6 +959,7 @@ main()
                             -v /run/jtop.sock:/run/jtop.sock \
                             -v /run/ros2sm.sock:/run/ros2sm.sock \
                             -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
+                            -e RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION \
                             $domain \
                             $WORKSPACE_DOCKER \
                             nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
@@ -953,6 +980,7 @@ main()
                 docker run --runtime nvidia -it --rm --network host --privileged \
                             -v /tmp/argus_socket:/tmp/argus_socket \
                             -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
+                            -e RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION \
                             $domain \
                             $WORKSPACE_DOCKER \
                             $ISAAC_WS_DOCKER \
@@ -999,6 +1027,10 @@ deactivate () {
         if [ ! -z ${NANOSAUR_COVER_TYPE+x} ] ; then
             unset NANOSAUR_COVER_TYPE
         fi
+        # Load RMW_IMPLEMENTATION
+        if [ ! -z ${RMW_IMPLEMENTATION+x} ] ; then
+            unset RMW_IMPLEMENTATION
+        fi
     fi
 
     # This should detect bash and zsh, which have a hash command that must
@@ -1038,6 +1070,10 @@ fi
 # Load NANOSAUR_COVER_TYPE
 if [ ! -z ${NANOSAUR_COVER_TYPE+x} ] ; then
     export NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE
+fi
+# Load RMW_IMPLEMENTATION
+if [ ! -z ${RMW_IMPLEMENTATION+x} ] ; then
+    export RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION
 fi
 
 if [ ! -d $NANOSAUR_CORE_WS_PATH/install ] ; then
