@@ -76,12 +76,12 @@ _dothis_completions()
         ;;
     esac
 
-    COMPREPLY=($(compgen -W "help info config domain install update" "${COMP_WORDS[1]}"))
+    COMPREPLY=($(compgen -W "help info cover config domain install update" "${COMP_WORDS[1]}"))
     # Add extra configurations
     if [[ $PLATFORM = "robot" ]]; then
         COMPREPLY+=($(compgen -W "distro network wakeup down" "${COMP_WORDS[1]}"))
         # Docker
-        COMPREPLY+=($(compgen -W "up start stop restart logs top exec" "${COMP_WORDS[1]}"))
+        COMPREPLY+=($(compgen -W "start restart stop up logs top rm exec" "${COMP_WORDS[1]}"))
     else
         COMPREPLY+=($(compgen -W "build branch" "${cur}"))
     fi

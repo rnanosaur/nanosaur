@@ -145,10 +145,10 @@ config_save()
 ############################ BRANCH/DISTRO functions ###########################################
 
 ColorMenu(){
-    if [ "$NANOSAUR_COVER_TYPE" == "$2" ] ; then
-	    echo -ne "${bold}${green}$1)${reset} ${bold}$2${reset}"
+    if [ "$1" == "$3" ] ; then
+	    echo -ne "${bold}${green}$2)${reset} ${bold}$3${reset}"
     else
-        echo -ne "${blue}$1${reset}) $2"
+        echo -ne "${blue}$2${reset}) $3"
     fi
 }
 
@@ -157,10 +157,10 @@ cover()
     # https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash
     local arguments=$1
 echo -ne "Cover type: [${bold}$NANOSAUR_COVER_TYPE${reset}]
-$(ColorMenu '1' 'fisheye')
-$(ColorMenu '2' 'pi') 
-$(ColorMenu '3' 'realsense') 
-$(ColorMenu '4' 'zed')
+$(ColorMenu $NANOSAUR_COVER_TYPE '1' 'fisheye')
+$(ColorMenu $NANOSAUR_COVER_TYPE '2' 'pi') 
+$(ColorMenu $NANOSAUR_COVER_TYPE '3' 'realsense') 
+$(ColorMenu $NANOSAUR_COVER_TYPE '4' 'zed')
 Chose an option (Q for Exit): "
     read a
     case $a in
@@ -172,7 +172,7 @@ Chose an option (Q for Exit): "
     *) echo -e ${red}"Wrong option."${reset};;
     esac
 
-    echo " - ${bold}Cover type:${reset} ${green}$NANOSAUR_COVER_TYPE${reset}" >&2
+    echo "${bold}${green}Cover:${reset} $NANOSAUR_COVER_TYPE" >&2
     # Align docker with camera name
     if [ "$NANOSAUR_COVER_TYPE" == 'pi' ] || [ "$NANOSAUR_COVER_TYPE" == 'fisheye' ]; then
         PERCEPTION_DOCKER_TAG=$DOCKER_TAG
@@ -180,6 +180,25 @@ Chose an option (Q for Exit): "
         PERCEPTION_DOCKER_TAG=$DOCKER_TAG-$NANOSAUR_COVER_TYPE
     fi
     # Store new cover type
+    config_save
+}
+
+set_network()
+{
+    local arguments=$1
+echo -ne "Cover type: [${bold}$DOCKER_NETWORK${reset}]
+$(ColorMenu $DOCKER_NETWORK '1' 'host')
+$(ColorMenu $DOCKER_NETWORK '2' 'bridge')
+Chose an option (Q for Exit): "
+    read a
+    case $a in
+        1) DOCKER_NETWORK="host" ;;
+        2) DOCKER_NETWORK="bridge" ;;
+    q|Q) exit 0 ;;
+    *) echo -e ${red}"Wrong option."${reset};;
+    esac
+    echo "${bold}${green}Network:${reset} $DOCKER_NETWORK" >&2
+    # Saving parameters
     config_save
 }
 
@@ -779,8 +798,8 @@ usage()
     echo "$name is your manager to control, update your robot or your desktop to work with nanosaur." >&2
     echo "${bold}Commands:${reset}" >&2
     echo "  $name help                     This help" >&2
-    echo "  $name cover                    Set cover type" >&2
     echo "  $name info                     Status" >&2
+    echo "  $name cover                    Set cover type" >&2
     echo "  $name config                   Open/create robot.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
     echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
     echo "  $name install                  Install nanosaur environment." >&2
@@ -855,14 +874,7 @@ main()
             set_distro $arguments
             exit 0
         elif [ $option = "network" ] ; then
-            if [ -z "$arguments" ] ; then
-                DOCKER_NETWORK="host"
-            else
-                DOCKER_NETWORK=$arguments
-            fi
-            echo "Network ${green}nanosaur${reset}: ${bold}$DOCKER_NETWORK${reset}" >&2
-            # Saving parameters
-            config_save
+            set_network $arguments
             exit 0
         elif [ $option = "up" ] || [ $option = "start" ] || [ $option = "restart" ] || 
                 [ $option = "stop" ] || [ $option = "down" ] || [ $option = "logs" ] || 
@@ -940,10 +952,10 @@ main()
                 # Run docker
                 docker run --runtime nvidia -it --rm --network host --privileged \
                             -v /tmp/argus_socket:/tmp/argus_socket \
+                            -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
                             $domain \
                             $WORKSPACE_DOCKER \
                             $ISAAC_WS_DOCKER \
-                            -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
                             nanosaur/perception:$PERCEPTION_DOCKER_TAG $docker_cmd
             else
                 echo "${yellow}Load default docker image ${bold}$N1${reset}" >&2
