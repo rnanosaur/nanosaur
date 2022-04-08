@@ -89,7 +89,9 @@ jobs:
         TAG_RELEASE=2.0.0
         pip3 install -r nanosaur/CI/requirements.txt
         python3 nanosaur/CI/version_build.py $TAG_RELEASE
-        python3 nanosaur/CI/check_if_release.py $TAG_RELEASE
+        CHECK_DRAFT=$(python3 nanosaur/CI/check_is_draft.py $TAG_RELEASE)
+        echo $CHECK_DRAFT
+        echo ::set-output name=draft::${CHECK_DRAFT}
 
   update_docker_description:
     name: Update docker description
