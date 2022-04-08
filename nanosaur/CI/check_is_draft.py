@@ -37,7 +37,7 @@ def main():
     # https://packaging.pypa.io/en/latest/version.html#packaging.version.parse
     version = parse(args.version)
     print("true" if version.is_prerelease else "false")
-    exit(0 if version.is_prerelease else 1)
+    #exit(0 if version.is_prerelease else 1)
 
 
 if __name__ == '__main__':
