@@ -24,29 +24,16 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-echo "Test CI is draft?"
+echo "Test CI is pre release?"
 
-TAG_TEST="1.2.3pre"
+TAG_RELEASE="1.2.3pre"
 
-CHECK_DRAFT=$(python3 nanosaur/CI/check_is_draft.py $TAG_TEST)
-echo $CHECK_DRAFT
-
-python nanosaur/CI/check_is_draft.py $TAG_TEST
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "$TAG_TEST = $retVal"
-else
-    echo "$TAG_TEST = $retVal -> pre-release"
-fi
+CHECK_PRE_RELEASE=$(python3 nanosaur/CI/check_pre_release.py $TAG_RELEASE)
+echo "$TAG_RELEASE - Pre-release? $CHECK_PRE_RELEASE"
 
 ## Standard release
 
-TAG_TEST="1.2.3"
+TAG_RELEASE="1.2.3"
 
-python nanosaur/CI/check_is_draft.py $TAG_TEST
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "$TAG_TEST = $retVal"
-else
-    echo "$TAG_TEST = $retVal -> pre-release"
-fi
+CHECK_PRE_RELEASE=$(python3 nanosaur/CI/check_pre_release.py $TAG_RELEASE)
+echo "$TAG_RELEASE - Pre-release? $CHECK_PRE_RELEASE"
