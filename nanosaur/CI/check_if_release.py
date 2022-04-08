@@ -24,57 +24,9 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
-from sys import exit
 import argparse
-from xml.etree.ElementTree import ElementTree
+from sys import exit
 from packaging.version import parse
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-    @staticmethod
-    def ok(message="OK"):
-        return bcolors.OKGREEN + message + bcolors.ENDC
-
-    @staticmethod
-    def warning(message="WARN"):
-        return bcolors.WARNING + message + bcolors.ENDC
-
-    @staticmethod
-    def fail(message="ERR"):
-        return bcolors.FAIL + message + bcolors.ENDC
-
-
-def check_packages(new_version, folders):
-    check = True
-    for folder in folders:
-        package_manifest = os.path.join(folder, 'package.xml')
-        if os.path.exists(package_manifest):
-            try:
-                root = ElementTree(None, package_manifest)
-                version = root.findtext('version')
-            except Exception:
-                pass
-            
-            # https://packaging.pypa.io/en/latest/version.html#packaging.version.parse
-            pkg_version = parse(version)
-            # Check version
-            if new_version == pkg_version:
-                print(bcolors.ok(f"[ OK ] {folder} {pkg_version}"))
-                check = check and True
-            else:
-                print(bcolors.fail(f"[ERROR] {folder} {pkg_version} != {new_version}"))
-                check = check and False
-    return check
 
 
 def main():
@@ -82,14 +34,10 @@ def main():
     parser.add_argument("version")
     args = parser.parse_args()
 
-    new_version = parse(args.version)
-    # Get all folders in repo
-    path = "."
-    folders = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name)) if not name.startswith('.')]
-    # Check all folders
-    check = check_packages(new_version, folders)
-    # Exit status
-    exit(0 if check else 1)
+    # https://packaging.pypa.io/en/latest/version.html#packaging.version.parse
+    version = parse(args.version)
+    print("true" if not version.is_prerelease else "false")
+    exit(0 if not version.is_prerelease else 1)
 
 
 if __name__ == '__main__':
