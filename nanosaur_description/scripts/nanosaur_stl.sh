@@ -50,7 +50,7 @@ usage()
 
 main()
 {
-    local zip_name=nanosaur_stl.zip
+    local zip_name=nanosaur-stl.zip
     local SILENT=false
 	# Decode all information from startup
     while [ -n "$1" ]; do

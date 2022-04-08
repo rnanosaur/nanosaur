@@ -65,7 +65,7 @@ jobs:
         name: data
         path: |
           nanosaur/CI/
-          nanosaur_stl.zip
+          nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
           nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
 
@@ -123,9 +123,9 @@ jobs:
         draft: false
         prerelease: ${{ steps.pre_release.outputs.pre_release }}
         files: |
-          nanosaur_stl.zip
+          nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
-          nanosaur_description/meshes/datasheet/nanosaur-size.pdf
+          nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
 
   notify:
     name: "Notify socials"
