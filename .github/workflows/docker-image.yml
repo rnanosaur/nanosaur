@@ -1,4 +1,4 @@
-name: Docker Builder CI
+name: nanosaur builder
 
 # Reference:
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
@@ -65,7 +65,7 @@ jobs:
         path: |
           nanosaur_stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
-          nanosaur_description/meshes/datasheet/nanosaur-size.pdf
+          nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
 
   update_docker_description:
     name: Update docker description

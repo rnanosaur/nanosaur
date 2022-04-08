@@ -4,6 +4,7 @@ nanosaur_stl.zip
 
 # VSCode
 .vscode/
+.venv/
 
 devel/
 logs/
