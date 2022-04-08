@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python
 # Copyright (C) 2022, Raffaello Bonghi <raffaello@rnext.it>
 # All rights reserved
 # Redistribution and use in source and binary forms, with or without
@@ -24,29 +24,22 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-echo "Test CI is draft?"
+import argparse
+from sys import exit
+from packaging.version import parse
 
-TAG_TEST="1.2.3pre"
 
-CHECK_DRAFT=$(python3 nanosaur/CI/check_is_draft.py $TAG_TEST)
-echo $CHECK_DRAFT
+def main():
+    parser = argparse.ArgumentParser(description='version build check for all packages')
+    parser.add_argument("version")
+    args = parser.parse_args()
 
-python nanosaur/CI/check_is_draft.py $TAG_TEST
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "$TAG_TEST = $retVal"
-else
-    echo "$TAG_TEST = $retVal -> pre-release"
-fi
+    # https://packaging.pypa.io/en/latest/version.html#packaging.version.parse
+    version = parse(args.version)
+    print("true" if version.is_prerelease else "false")
+    exit(0 if version.is_prerelease else 1)
 
-## Standard release
 
-TAG_TEST="1.2.3"
-
-python nanosaur/CI/check_is_draft.py $TAG_TEST
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "$TAG_TEST = $retVal"
-else
-    echo "$TAG_TEST = $retVal -> pre-release"
-fi
+if __name__ == '__main__':
+    main()
+# EOF
