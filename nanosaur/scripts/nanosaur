@@ -823,7 +823,7 @@ usage()
     echo "  $name info                     Status" >&2
     echo "  $name cover                    Set cover type" >&2
     echo "  $name config                   Open/create robot.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
-    echo "  $name dds                      Set DDS communication" >&2
+    echo "  $name dds                      Set DDS communication RMW_IMPLEMENTATION" >&2
     echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
     echo "  $name install                  Install nanosaur environment." >&2
     echo "  $name update                   Update docker and scripts" >&2
@@ -917,15 +917,18 @@ main()
             docker image prune $arguments
             exit 0
         elif [ $option = "run" ] ; then
+            # Check if is selected help
+            if [ $2 = "--help" ] ; then
+                # Get list of all services
+                local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
+                echo "${yellow}All images available: ${bold}[${services//$'\n'/ }]${reset}" >&2
+                exit 0
+            fi
             local image_name=$2
             local arguments=${@:3}
             if [ -z $image_name ] ; then
-                # Get list of all services availabe
-                # local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
-
-                # echo "${yellow}Please select an image to load: ${bold}[$services]${reset}" >&2
-                image_name="core"
                 echo "${yellow}Load default image ${reset}" >&2
+                image_name="develop"
             fi
             # Load command option
             local docker_cmd="bash"
