@@ -26,9 +26,8 @@ jobs:
         # generate Docker tags based on the following events/attributes
         tags: |
           type=ref,event=branch
-          type=ref,event=pr
           type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
+          type=ref,event=tag
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
