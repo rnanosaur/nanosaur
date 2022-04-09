@@ -67,7 +67,6 @@ jobs:
       with:
         name: data
         path: |
-          nanosaur/CI/
           nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
           nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
@@ -89,12 +88,45 @@ jobs:
         short-description: ${{ github.event.repository.description }}
         readme-filepath: ./README.md
 
+  test_tools:
+    name: Upload release
+    runs-on: ubuntu-latest
+    needs: [export]
+    steps:
+    - name: Checkout nanosaur tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: rnanosaur/nanosaur_tools
+        path: nanosaur_tools
+    - name: Extract artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: data
+    - name: Extract tag name
+      id: repo_status
+      shell: bash
+      run: |
+        pip3 install -r nanosaur_tools/CI/requirements.txt
+        if ${{ startsWith(github.ref, 'refs/tags/') }} ; then
+          TAG_RELEASE=${GITHUB_REF/refs\/tags\//}
+        else
+          TAG_RELEASE=${GITHUB_REF/refs\/heads\//}
+        fi
+        CHECK_PRE_RELEASE=$(python3 nanosaur_tools/CI/check_pre_release.py $TAG_RELEASE)
+        echo ::set-output name=tag::${TAG_RELEASE}
+        echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}  
+
   release_stl:
     name: Upload release
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     needs: [export]
     steps:
+    - name: Checkout nanosaur tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: rnanosaur/nanosaur_tools
+        path: nanosaur_tools
     - name: Extract tag name
       id: extract_tag
       shell: bash
@@ -112,9 +144,9 @@ jobs:
       id: pre_release
       shell: bash
       run: |
-        pip3 install -r nanosaur/CI/requirements.txt
+        pip3 install -r nanosaur_tools/CI/requirements.txt
         TAG_RELEASE=${{ steps.extract_tag.outputs.tag }}
-        CHECK_PRE_RELEASE=$(python3 nanosaur/CI/check_pre_release.py $TAG_RELEASE)
+        CHECK_PRE_RELEASE=$(python3 nanosaur_tools/CI/check_pre_release.py $TAG_RELEASE)
         echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}
     - name: Release # https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v1
