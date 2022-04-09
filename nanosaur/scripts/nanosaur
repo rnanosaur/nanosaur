@@ -861,6 +861,9 @@ main()
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
         exit 0
+    elif [ $option = "-v" ] ; then
+        echo $NANOSAUR_VERSION
+        exit 0
     elif [ $option = "cover" ] ; then
         cover $arguments
         exit 0
@@ -990,7 +993,10 @@ main()
                             nanosaur/perception:$PERCEPTION_DOCKER_TAG $docker_cmd
             else
                 echo "${yellow}Load default docker image ${bold}$N1${reset}" >&2
-                docker run -it --rm --network host $domain \
+                docker run -it --rm --network host \
+                            -e NANOSAUR_COVER_TYPE=$NANOSAUR_COVER_TYPE \
+                            -e RMW_IMPLEMENTATION=$RMW_IMPLEMENTATION \
+                            $domain \
                             nanosaur/nanosaur:$DOCKER_TAG $docker_cmd
             fi
             # Exit option run

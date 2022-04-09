@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  docker_image_name: nanosaur/nanosaur
+
 # https://github.com/docker/build-push-action
 jobs:
 
@@ -22,7 +25,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: nanosaur/nanosaur
+        images: ${{ env.docker_image_name }}
         # generate Docker tags based on the following events/attributes
         tags: |
           type=ref,event=branch
@@ -147,4 +150,4 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: '**{{ EVENT_PAYLOAD.repository.full_name }}:${{ steps.extract_tag.outputs.tag }}** has been deployed!'
+        args: '**${{ env.docker_image_name }}:${{ steps.extract_tag.outputs.tag }}** has been deployed!'
