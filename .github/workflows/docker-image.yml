@@ -88,8 +88,9 @@ jobs:
         short-description: ${{ github.event.repository.description }}
         readme-filepath: ./README.md
 
-  test_tools:
-    name: Test tools
+  release_stl:
+    name: Upload release
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     needs: [export]
     steps:
@@ -102,7 +103,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: data
-    - name: Extract tag name
+    - name: Repository status
       id: repo_status
       shell: bash
       run: |
@@ -115,53 +116,15 @@ jobs:
         CHECK_PRE_RELEASE=$(python3 nanosaur_tools/CI/check_pre_release.py $TAG_RELEASE)
         echo ::set-output name=tag::${TAG_RELEASE}
         echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}
-    - name: Read output
-      shell: bash
-      run: |
-        echo ${{ steps.repo_status.outputs.tag }}
-        echo ${{ steps.repo_status.outputs.pre_release }}
-
-  release_stl:
-    name: Upload release
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    needs: [export]
-    steps:
-    - name: Checkout nanosaur tools repo
-      uses: actions/checkout@v3
-      with:
-        repository: rnanosaur/nanosaur_tools
-        path: nanosaur_tools
-    - name: Extract tag name
-      id: extract_tag
-      shell: bash
-      run: |
-        if ${{ startsWith(github.ref, 'refs/tags/') }} ; then
-          echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
-        else
-          echo ::set-output name=tag::${GITHUB_REF/refs\/heads\//}
-        fi
-    - name: Extract artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: data
-    - name: Check is Prerelease
-      id: pre_release
-      shell: bash
-      run: |
-        pip3 install -r nanosaur_tools/CI/requirements.txt
-        TAG_RELEASE=${{ steps.extract_tag.outputs.tag }}
-        CHECK_PRE_RELEASE=$(python3 nanosaur_tools/CI/check_pre_release.py $TAG_RELEASE)
-        echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}
     - name: Release # https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ github.ref }}
-        name: Release ${{ steps.extract_tag.outputs.tag }}
+        name: Release ${{ steps.repo_status.outputs.tag }}
         generate_release_notes: true
         draft: false
-        prerelease: ${{ steps.pre_release.outputs.pre_release }}
+        prerelease: ${{ steps.repo_status.outputs.pre_release }}
         files: |
           nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
@@ -173,18 +136,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # https://github.community/t/how-to-get-just-the-tag-name/16241/11
-    - name: Extract tag name
-      id: extract_tag
+    - name: Repository status
+      id: repo_status
       shell: bash
       run: |
         if ${{ startsWith(github.ref, 'refs/tags/') }} ; then
-          echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+          TAG_RELEASE=${GITHUB_REF/refs\/tags\//}
         else
-          echo ::set-output name=tag::${GITHUB_REF/refs\/heads\//}
+          TAG_RELEASE=${GITHUB_REF/refs\/heads\//}
         fi
+        echo ::set-output name=tag::${TAG_RELEASE}
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: '**${{ env.docker_image_name }}:${{ steps.extract_tag.outputs.tag }}** has been deployed!'
+        args: '**${{ env.docker_image_name }}:${{ steps.repo_status.outputs.tag }}** has been deployed!'
