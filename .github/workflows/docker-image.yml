@@ -89,7 +89,7 @@ jobs:
         readme-filepath: ./README.md
 
   test_tools:
-    name: Upload release
+    name: Test tools
     runs-on: ubuntu-latest
     needs: [export]
     steps:
@@ -114,7 +114,12 @@ jobs:
         fi
         CHECK_PRE_RELEASE=$(python3 nanosaur_tools/CI/check_pre_release.py $TAG_RELEASE)
         echo ::set-output name=tag::${TAG_RELEASE}
-        echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}  
+        echo ::set-output name=pre_release::${CHECK_PRE_RELEASE}
+    - name: Read output
+      shell: bash
+      run: |
+        echo ${{ steps.repo_status.outputs.tag }}
+        echo ${{ steps.repo_status.outputs.pre_release }}
 
   release_stl:
     name: Upload release
