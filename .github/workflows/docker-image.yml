@@ -132,7 +132,7 @@ jobs:
     needs: [test-pkgs, export]
     steps:
     - name: Extract artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: data
     - name: Release # https://github.com/softprops/action-gh-release
