@@ -100,7 +100,7 @@ jobs:
       run: |
         bash nanosaur_description/scripts/nanosaur_stl.sh
     - name: upload data
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: data
         path: |
