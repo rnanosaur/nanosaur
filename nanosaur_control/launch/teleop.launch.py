@@ -43,7 +43,7 @@ def generate_launch_description():
 
     joy_ns_cmd = DeclareLaunchArgument(
         'joy_ns',
-        default_value='telop',
+        default_value='teleop',
         description='Enable a namespace for multiple robot. This namespace group all nodes and topics.')
 
     joy_vel_cmd = DeclareLaunchArgument('joy_vel', default_value='cmd_vel')
