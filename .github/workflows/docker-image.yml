@@ -109,6 +109,7 @@ jobs:
           nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
           nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
+          nanosaur/scripts/nanosaur
 
   update_docker_description:
     name: Update docker description
@@ -127,7 +128,7 @@ jobs:
         short-description: ${{ github.event.repository.description }}
         readme-filepath: ./README.md
 
-  release_stl:
+  new_release:
     name: Upload release
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
@@ -150,10 +151,11 @@ jobs:
           nanosaur-stl.zip
           nanosaur_description/meshes/datasheet/nanosaur-powerbank.pdf
           nanosaur_description/meshes/datasheet/nanosaur-datasheet.pdf
+          nanosaur/scripts/nanosaur
 
   notify:
     name: "Notify socials"
-    needs: [test-pkgs, release_stl, update_docker_description]
+    needs: [test-pkgs, new_release, update_docker_description]
     runs-on: ubuntu-latest
     steps:
     - name: Discord notification
