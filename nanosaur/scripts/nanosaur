@@ -51,6 +51,7 @@ NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
 NANOSAUR_CORE_WS_PATH=$HOME/$ROS_CORE_WS_NAME
 NANOSAUR_PERCEPTION_WS_PATH=$HOME/$ROS_PERC_WS_NAME
 ISAAC_ROS_WS_PATH=$HOME/isaac_ros_ws
+NANOSAUR_IS_SIMULATION="$NANOSAUR_DATA/.simulation"
 
 ############################################################################################
 
@@ -100,6 +101,9 @@ get_nanosaur_rosinstall()
     local ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/desktop.rosinstall"
     if [[ $PLATFORM = "robot" ]] ; then
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
+    fi
+    if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/simulation.rosinstall"
     fi
     echo $ROSINSTALL_FILE
 }
@@ -394,6 +398,9 @@ update_developer()
             if [[ $PLATFORM = "robot" ]] ; then
                 rosinstall_name="robot.rosinstall"
             fi
+            if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+                rosinstall_name="simulation.rosinstall"
+            fi
             vcs import $NANOSAUR_CORE_WS_PATH/src < $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
             vcs pull $NANOSAUR_CORE_WS_PATH/src
         else
@@ -535,6 +542,7 @@ installer_usage()
     echo "nanosaur install [options]" >&2
     echo "${bold}options:${reset}" >&2
     echo "   developer            | Install nanosaur in developer mode (install in ${bold}$NANOSAUR_CORE_WS_PATH${reset} workspace)" >&2
+    echo "   simulation           | Install simulation packages (install in ${bold}$NANOSAUR_CORE_WS_PATH${reset} workspace)"
     echo "   -y                   | Run this script silent" >&2
     echo "   --force              | Force to install nanosaur anyway" >&2
     echo "   -h|--help            | This help" >&2
@@ -683,6 +691,7 @@ install_on_robot()
 installer()
 {
     local developer=false
+    local simulation=false
     local SILENT=false
     local FORCE=false
 	# Decode all information from startup
@@ -700,6 +709,9 @@ installer()
                 ;;
             developer)
                 developer=true
+                ;;
+            simulation)
+                simulation=true
                 ;;
             *)
                 installer_usage "[ERROR] Unknown option: $1" >&2
@@ -733,6 +745,9 @@ installer()
     echo " - ${bold}User:${reset} ${green}$USER${reset} - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
     echo " - ${bold}Install on:${reset} ${green}$PLATFORM${reset}"
     echo " - ${bold}Developer:${reset} ${green}$developer${reset}"
+    if [[ $PLATFORM = "desktop" ]] ; then
+        echo " - ${bold}Simulation:${reset} ${blue}$simulation${reset}"
+    fi
     config_info
     echo "---------------------------"
 
@@ -762,6 +777,11 @@ installer()
         mkdir -p "$NANOSAUR_DATA/param"
     fi
 
+    # Enable simulation
+    if $simulation ; then
+        touch $NANOSAUR_IS_SIMULATION
+    fi
+    # Install developer tools
     if $developer ; then
         # Make folders
         install_developer

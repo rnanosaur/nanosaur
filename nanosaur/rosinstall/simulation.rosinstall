@@ -1,0 +1,8 @@
+- git:
+    local-name: nanosaur_gazebo
+    version: main
+    uri: https://github.com/rnanosaur/nanosaur_gazebo.git
+- git:
+    local-name: nanosaur
+    version: foxy
+    uri: https://github.com/rnanosaur/nanosaur.git
