@@ -25,6 +25,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
+NANOSAUR_VERSION='2.0.0-dev3'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
@@ -33,7 +34,7 @@ ROS_CORE_WS_NAME='nanosaur_core'
 ROS_PERC_WS_NAME='nanosaur_perception'
 DOCKER_TAG='latest'
 PERCEPTION_DOCKER_TAG='latest'
-BRANCH_TAG='master'
+BRANCH_TAG=$NANOSAUR_VERSION #Same tag release by default
 NANOSAUR_COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
 RMW_IMPLEMENTATION='rmw_cyclonedds_cpp'
@@ -44,7 +45,6 @@ fi
 
 # Default variable
 NANOSAUR_L4T="32.7.1"
-NANOSAUR_VERSION='2.0.0-dev3'
 ROBOT_NAME='nanosaur'
 ROBOT_FILE_PATH=$NANOSAUR_DATA/'param/robot.yml'
 NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
@@ -228,10 +228,24 @@ set_branch()
 {
     local arguments=$1
     if [ ! -z "$arguments" ] ; then
-        # Set BRANCH_TAG and save
         BRANCH_TAG=$arguments
-        config_save
+    else
+        echo -ne "Branch: [${bold}$BRANCH_TAG${reset}]
+$(ColorMenu $BRANCH_TAG '1' $NANOSAUR_VERSION)
+$(ColorMenu $BRANCH_TAG '2' 'foxy')
+$(ColorMenu $BRANCH_TAG '3' 'galactic')
+Chose an option (Q for Exit): "
+        read a
+        case $a in
+            1) BRANCH_TAG="$NANOSAUR_VERSION" ;;
+            2) BRANCH_TAG="foxy" ;;
+            3) BRANCH_TAG="galactic" ;;
+        q|Q) exit 0 ;;
+        *) echo -e ${red}"Wrong option."${reset};;
+        esac
     fi
+    # Save configuration
+    config_save
     echo "${bold}Branch:${reset} ${green}$BRANCH_TAG${reset}" >&2
 }
 
@@ -240,13 +254,31 @@ set_distro()
     local arguments=$1
     # Update branch
     if [ ! -z "$arguments" ] ; then
-        # Set BRANCH_TAG and save
-        BRANCH_TAG=$arguments
-        # Update docker tag distro
-        echo "TODO add docker tag distro"
         DOCKER_TAG=$arguments
-        config_save
+        exit 0
+    else
+        echo -ne "Branch: [${bold}$DOCKER_TAG${reset}]
+$(ColorMenu $DOCKER_TAG '1' 'latest')
+$(ColorMenu $DOCKER_TAG '2' 'foxy')
+$(ColorMenu $DOCKER_TAG '3' 'galactic')
+Chose an option (Q for Exit): "
+        read a
+        case $a in
+            1) DOCKER_TAG="latest" ;;
+            2) DOCKER_TAG="foxy" ;;
+            3) DOCKER_TAG="galactic" ;;
+        q|Q) exit 0 ;;
+        *) echo -e ${red}"Wrong option."${reset};;
+        esac
     fi
+
+    if [ $DOCKER_TAG = "latest" ] ; then
+        BRANCH_TAG=$NANOSAUR_VERSION
+    else
+        BRANCH_TAG=$DOCKER_TAG
+    fi
+    # Save configuration
+    config_save
     echo "${bold}Distro:${reset} ${green}$DOCKER_TAG${reset}" >&2
 }
 
