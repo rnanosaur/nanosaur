@@ -616,6 +616,8 @@ install_on_desktop()
         echo " - ${bold}${green}Install rosdep${reset}"
         sudo apt-get install -y python3-rosdep
     fi
+    echo " - ${bold}${green}Install/Update python-dotenv${reset}"
+    pip3 install -U python-dotenv --no-warn-script-location
 }
 
 install_on_robot()
