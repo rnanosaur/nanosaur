@@ -614,7 +614,7 @@ install_on_desktop()
 {
     if ! command -v rosdep &> /dev/null ; then
         echo " - ${bold}${green}Install rosdep${reset}"
-        sudo apt-get install -y python3-rosdep2
+        sudo apt-get install -y python3-rosdep
     fi
 }
 
