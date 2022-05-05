@@ -3,9 +3,9 @@
     version: foxy
     uri: https://github.com/rnanosaur/nanosaur.git
 - git:
-    local-name: nanosaur_gazebo
+    local-name: nanosaur_simulations
     version: main
-    uri: https://github.com/rnanosaur/nanosaur_gazebo.git
+    uri: https://github.com/rnanosaur/nanosaur_simulations.git
 - git:
     local-name: realsense_gazebo_plugin
     version: foxy-devel

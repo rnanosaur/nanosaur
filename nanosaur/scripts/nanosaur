@@ -103,7 +103,7 @@ get_nanosaur_rosinstall()
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
     if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
-        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/simulation.rosinstall"
+        ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/simulations.rosinstall"
     fi
     echo $ROSINSTALL_FILE
 }
@@ -399,7 +399,7 @@ update_developer()
                 rosinstall_name="robot.rosinstall"
             fi
             if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
-                rosinstall_name="simulation.rosinstall"
+                rosinstall_name="simulations.rosinstall"
             fi
             vcs import $NANOSAUR_CORE_WS_PATH/src < $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
             vcs pull $NANOSAUR_CORE_WS_PATH/src
