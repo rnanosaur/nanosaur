@@ -62,7 +62,7 @@ jobs:
     # https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v4
       with:
         images: ${{ env.docker_image_name }}
         # generate Docker tags based on the following events/attributes
