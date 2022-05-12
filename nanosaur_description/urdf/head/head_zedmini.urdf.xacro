@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<robot name="nanosaur_head_zedmini" xmlns:xacro="http://ros.org/wiki/xacro">
-    
+<robot name="nanosaur_head_zedmini"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
     <xacro:include filename="$(find nanosaur_description)/urdf/head/zedmini.urdf.xacro" />
 
     <xacro:property name="cam_angle" value="5"/>
@@ -10,6 +11,14 @@
 
         <gazebo reference="cover">
             <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
         <gazebo reference="display_left">
             <material>Gazebo/Black</material>
@@ -31,13 +40,17 @@
                 <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
             </inertial>
             <visual>
-                <geometry><mesh filename="${path_meshes}/cover-zedmini.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/cover-zedmini.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Green" />
             </visual>
             <!-- Collision cylinder -->
             <collision>
                 <origin xyz="0.003 0 0.03" rpy="${M_PI/2} ${M_PI/2} 0" />
-                <geometry><cylinder length="0.07" radius="0.028"/></geometry>
+                <geometry>
+                    <cylinder length="0.07" radius="0.028"/>
+                </geometry>
                 <material name="Green" />
             </collision>
         </link>
@@ -56,7 +69,9 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
-                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
                 <material name="Black" />
             </visual>
         </link>
@@ -75,7 +90,9 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
-                <geometry><mesh filename="${path_meshes}/parts/OLED_Module.stl"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
                 <material name="Black" />
             </visual>
         </link>

@@ -6,7 +6,3 @@
     local-name: nanosaur_simulations
     version: main
     uri: https://github.com/rnanosaur/nanosaur_simulations.git
-- git:
-    local-name: realsense_gazebo_plugin
-    version: foxy-devel
-    uri: https://github.com/pal-robotics/realsense_gazebo_plugin.git

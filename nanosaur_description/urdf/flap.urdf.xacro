@@ -1,16 +1,41 @@
 <?xml version="1.0"?>
-<robot name="nanosaur_flap" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="nanosaur_flap"
+    xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:macro name="flap">
 
         <gazebo reference="flap_bottom">
             <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
         <gazebo reference="flap_top">
             <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
         <gazebo reference="board_expansion">
             <material>Gazebo/DarkGrey</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.5 0.5 0.5 1.0</ambient>
+                    <diffuse>0.5 0.5 0.5 1.0</diffuse>
+                    <specular>0.5 0.5 0.5 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
         <joint name="flap_bottom_joint" type="fixed">
@@ -28,7 +53,9 @@
             <visual>
                 <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
                 <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/flap_bottom.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/flap_bottom.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Green" />
             </visual>
         </link>
@@ -47,7 +74,9 @@
             <visual>
                 <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
                 <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/flap_top.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/flap_top.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Green" />
             </visual>
         </link>
@@ -66,7 +95,9 @@
             <visual>
                 <!--<origin xyz="-0.0017 0 0.019" rpy="0 0 0" />-->
                 <origin xyz="-0.002 0.0005 0.017" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/parts/nanosaur-exp-board.stl"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/nanosaur-exp-board.stl"/>
+                </geometry>
                 <material name="GunMetalGrey" />
             </visual>
         </link>

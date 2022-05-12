@@ -24,26 +24,9 @@
 
         <!-- Gazebo color reference 
         https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
-        http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
+        Gazebo http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
+        Ignition https://gazebosim.org/api/gazebo/3.7/migrationsdf.html
         -->
-        <gazebo reference="base_front">
-            <material>Gazebo/Green</material>
-        </gazebo>
-        <gazebo reference="base_rear">
-            <material>Gazebo/Green</material>
-        </gazebo>
-        <gazebo reference="motor_board">
-            <material>Gazebo/DarkGrey</material>
-        </gazebo>
-        <gazebo reference="power_bank">
-            <material>Gazebo/DarkGrey</material>
-        </gazebo>
-        <gazebo reference="pb_holder">
-            <material>Gazebo/Green</material>
-        </gazebo>
-        <gazebo reference="NVIDIA_jetson">
-            <material>Gazebo/DarkGrey</material>
-        </gazebo>
 
         <!-- nanosaur definition -->
         <link name="base_link" />
