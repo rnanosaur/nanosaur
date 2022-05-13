@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_gazebo_materials"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Gazebo color reference https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
+    Gazebo http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
+    Ignition https://gazebosim.org/api/gazebo/3.7/migrationsdf.html
+    -->
+
+    <gazebo reference="base_front">
+        <material>Gazebo/Green</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.0 0.5 0.0 1.0</ambient>
+                <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                <specular>0.0 0.5 0.0 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+    <gazebo reference="base_rear">
+        <material>Gazebo/Green</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.0 0.5 0.0 1.0</ambient>
+                <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                <specular>0.0 0.5 0.0 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+    <gazebo reference="motor_board">
+        <material>Gazebo/DarkGrey</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.2 0.2 0.2 1.0</ambient>
+                <diffuse>0.2 0.2 0.2 1.0</diffuse>
+                <specular>0.2 0.2 0.2 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+    <gazebo reference="power_bank">
+        <material>Gazebo/DarkGrey</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.2 0.2 0.2 1.0</ambient>
+                <diffuse>0.2 0.2 0.2 1.0</diffuse>
+                <specular>0.2 0.2 0.2 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+    <gazebo reference="pb_holder">
+        <material>Gazebo/Green</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.0 0.5 0.0 1.0</ambient>
+                <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                <specular>0.0 0.5 0.0 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+    <gazebo reference="NVIDIA_jetson">
+        <material>Gazebo/DarkGrey</material>
+        <!-- Ignition color reference -->
+        <visual>
+            <material>
+                <ambient>0.2 0.2 0.2 1.0</ambient>
+                <diffuse>0.2 0.2 0.2 1.0</diffuse>
+                <specular>0.2 0.2 0.2 1.0</specular>
+            </material>
+        </visual>
+    </gazebo>
+
+</robot>

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<robot name="nanosaur_track" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="nanosaur_track"
+    xmlns:xacro="http://ros.org/wiki/xacro">
 
 
     <xacro:macro name="track" params="type parent radius diff_drive_emulation">
@@ -32,13 +33,17 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/sprocket.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/sprocket.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Black" />
             </visual>
             <!-- Collision cylinder -->
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0" />
-                <geometry><cylinder length="0.015" radius="${radius}"/></geometry>
+                <geometry>
+                    <cylinder length="0.015" radius="${radius}"/>
+                </geometry>
                 <material name="Black" />
             </collision>
         </link>
@@ -49,6 +54,14 @@
             <mu1>10000000</mu1>
             <mu2>10000000</mu2>
             <material>Gazebo/Blue</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.0 0.5 1.0</ambient>
+                    <diffuse>0.0 0.0 0.5 1.0</diffuse>
+                    <specular>0.0 0.0 0.5 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
         <joint name="motor_${type}_joint" type="fixed">
@@ -60,13 +73,23 @@
         <link name="motor_${type}">
             <visual>
                 <origin xyz="0 0 -0.031" rpy="0 0 -${M_PI/2}" />
-                <geometry><mesh filename="${path_meshes}/parts/Pololu-Micro-Metal-Gearmotor.stl"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/Pololu-Micro-Metal-Gearmotor.stl"/>
+                </geometry>
                 <material name="Gold" />
             </visual>
         </link>
 
         <gazebo reference="motor_${type}">
             <material>Gazebo/Gold</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.9 0.7 0.0 1.0</ambient>
+                    <diffuse>0.9 0.7 0.0 1.0</diffuse>
+                    <specular>0.9 0.7 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
         <joint name="wheel_${type}_joint" type="continuous">
@@ -86,13 +109,17 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Black" />
             </visual>
             <!-- Collision cylinder -->
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0" />
-                <geometry><cylinder length="0.015" radius="${radius}"/></geometry>
+                <geometry>
+                    <cylinder length="0.015" radius="${radius}"/>
+                </geometry>
                 <material name="Black" />
             </collision>
         </link>
@@ -103,6 +130,14 @@
             <mu1>0</mu1>
             <mu2>0</mu2>
             <material>Gazebo/Red</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.5 0.0 0.0 1.0</ambient>
+                    <diffuse>0.5 0.0 0.0 1.0</diffuse>
+                    <specular>0.5 0.0 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
         <xacro:if value="${diff_drive_emulation}">
@@ -122,13 +157,17 @@
                 </inertial>
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
-                    <geometry><mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/></geometry>
+                    <geometry>
+                        <mesh filename="${path_meshes}/wheel.stl" scale="0.001 0.001 0.001"/>
+                    </geometry>
                     <material name="Black" />
                 </visual>
                 <!-- Collision cylinder -->
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
-                    <geometry><cylinder length="0.015" radius="${radius}"/></geometry>
+                    <geometry>
+                        <cylinder length="0.015" radius="${radius}"/>
+                    </geometry>
                     <material name="Black" />
                 </collision>
             </link>
@@ -139,6 +178,14 @@
                 <mu1>0</mu1>
                 <mu2>0</mu2>
                 <material>Gazebo/Green</material>
+                <!-- Ignition color reference -->
+                <visual>
+                    <material>
+                        <ambient>0.0 0.5 0.0 1.0</ambient>
+                        <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                        <specular>0.0 0.5 0.0 1.0</specular>
+                    </material>
+                </visual>
             </gazebo>
         </xacro:if>
 
@@ -156,13 +203,23 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
-                <geometry><mesh filename="${path_meshes}/track.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/track.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Black" />
             </visual>
         </link>
 
         <gazebo reference="track_${type}">
             <material>Gazebo/Black</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.01 0.01 0.01 1.0</ambient>
+                    <diffuse>0.01 0.01 0.01 1.0</diffuse>
+                    <specular>0.01 0.01 0.01 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
         <joint name="slider_${type}_joint" type="fixed">
@@ -178,13 +235,23 @@
             </inertial>
             <visual>
                 <origin xyz="0 0 0.008" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/slider.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry>
+                    <mesh filename="${path_meshes}/slider.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
                 <material name="Green" />
             </visual>
         </link>
 
         <gazebo reference="slider_${type}">
             <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
         </gazebo>
 
     </xacro:macro>
