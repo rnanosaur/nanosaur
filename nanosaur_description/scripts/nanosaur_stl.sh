@@ -84,7 +84,7 @@ main()
     # echo $(ls -p $path | grep -v / )
     cd $path
     # Make zip file
-    zip -r -D $zip_name . -x parts/**\*
+    zip -r -D $zip_name . -x parts/**\* materials/**\*
     # Move to main folder
     mv $zip_name $pwd
 

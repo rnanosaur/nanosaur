@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <robot name="robot" xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <!-- materials -->
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/materials.gazebo.xacro" />
     <!-- nanosaur parts -->
     <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
@@ -21,12 +23,6 @@
     <xacro:property name="sprocket_radius" value="0.0150"/>
 
     <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation path_meshes:=package://nanosaur_description/meshes">
-
-        <!-- Gazebo color reference 
-        https://bitbucket.org/osrf/gazebo/src/default/media/materials/scripts/gazebo.material?fileviewer=file-view-default
-        Gazebo http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
-        Ignition https://gazebosim.org/api/gazebo/3.7/migrationsdf.html
-        -->
 
         <!-- nanosaur definition -->
         <link name="base_link" />

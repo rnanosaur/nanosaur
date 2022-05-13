@@ -8,7 +8,8 @@ This is the URDF model for the Intel RealSense 430 camera, in its
 aluminum peripherial evaluation case.
 -->
 
-<robot name="sensor_d435" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="sensor_d435"
+  xmlns:xacro="http://ros.org/wiki/xacro">
 
   <xacro:macro name="sensor_d435" params="parent *origin name:=camera use_nominal_extrinsics:=false use_mesh:=true">
     <xacro:property name="M_PI" value="3.1415926535897931" />
@@ -48,7 +49,7 @@ aluminum peripherial evaluation case.
     <link name="${name}_bottom_screw_frame"/>
 
     <joint name="${name}_link_joint" type="fixed">
-      <origin xyz="${d435_mesh_x_offset} ${d435_cam_depth_py} ${d435_cam_depth_pz}" rpy="0 0 0"/>
+      <origin xyz="-${d435_mesh_x_offset} ${d435_cam_depth_py} ${d435_cam_depth_pz}" rpy="0 0 0"/>
       <parent link="${name}_bottom_screw_frame"/>
       <child link="${name}_link" />
     </joint>
@@ -57,7 +58,7 @@ aluminum peripherial evaluation case.
       <visual>
         <xacro:if value="${use_mesh}">
           <!-- the mesh origin is at front plate in between the two infrared camera axes -->
-          <origin xyz="${d435_zero_depth_to_glass + d435_glass_to_front} ${-d435_cam_depth_py} 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+          <origin xyz="${d435_zero_depth_to_glass + d435_glass_to_front} ${-d435_cam_depth_py} 0" rpy="0 0 ${M_PI/2}"/>
           <geometry>
             <mesh filename="${path_meshes}/parts/d435.dae" />
           </geometry>
@@ -68,7 +69,7 @@ aluminum peripherial evaluation case.
             <box size="${d435_cam_depth} ${d435_cam_width} ${d435_cam_height}"/>
           </geometry>
           <material name="aluminum"/>
-        </xacro:unless>     
+        </xacro:unless>
       </visual>
       <collision>
         <origin xyz="0 ${-d435_cam_depth_py} 0" rpy="0 0 0"/>
