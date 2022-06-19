@@ -25,7 +25,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_VERSION='2.0.0'
+NANOSAUR_VERSION='2.0.1'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
@@ -44,7 +44,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
-NANOSAUR_L4T="32.7.1"
+NANOSAUR_L4T="32.7"
 ROBOT_NAME='nanosaur'
 ROBOT_FILE_PATH=$NANOSAUR_DATA/'param/robot.yml'
 NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
@@ -733,8 +733,8 @@ installer()
         local JETSON_L4T_RELEASE=$(echo $JETSON_L4T_ARRAY | cut -f 1 -d '.')
         local JETSON_L4T_REVISION=${JETSON_L4T_ARRAY#"$JETSON_L4T_RELEASE."}
 
-        if [[ $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION != $NANOSAUR_L4T ]] ; then
-            echo "${bold}${red}You cannot install nanosaur on this Jetpack with L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION need L4T $NANOSAUR_L4T ${reset}"
+        if [[ $JETSON_L4T_RELEASE != $NANOSAUR_L4T ]] ; then
+            echo "${bold}${red}You cannot install nanosaur on this Jetpack with L4T $JETSON_L4T_RELEASE need L4T $NANOSAUR_L4T ${reset}"
             if ! $FORCE ; then
                 exit 0
             fi
