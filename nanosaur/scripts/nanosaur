@@ -25,7 +25,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_VERSION='2.0.1'
+NANOSAUR_VERSION='2.0.2'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
@@ -730,7 +730,7 @@ installer()
         # extract version
         local JETSON_L4T_ARRAY=$(echo $JETSON_L4T_STRING | cut -f 1 -d '-')
         # Load release and revision
-        local JETSON_L4T_RELEASE=$(echo $JETSON_L4T_ARRAY | cut -f 1 -d '.')
+        local JETSON_L4T_RELEASE=$(echo $JETSON_L4T_ARRAY | cut -f1,2 -d '.')
         local JETSON_L4T_REVISION=${JETSON_L4T_ARRAY#"$JETSON_L4T_RELEASE."}
 
         if [[ $JETSON_L4T_RELEASE != $NANOSAUR_L4T ]] ; then
@@ -744,6 +744,7 @@ installer()
     local type_developer=""
     # Recap installatation
     echo "------ Configuration ------"
+    echo " - ${bold}NVIDIA L4T:${reset} ${green}$JETSON_L4T_RELEASE.$JETSON_L4T_REVISION${reset}"
     echo " - ${bold}User:${reset} ${green}$USER${reset} - ${bold}Hostname:${reset} ${green}$HOSTNAME${reset}"
     echo " - ${bold}Install on:${reset} ${green}$PLATFORM${reset}"
     echo " - ${bold}Developer:${reset} ${green}$developer${reset}"
@@ -768,6 +769,8 @@ installer()
 
     # Request sudo password
     sudo -v
+
+    echo "${bold}${green}Install nanosaur on Jetpack L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION ${reset}"
 
     if [ ! -d $NANOSAUR_DATA ] ; then
         echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DATA${reset}"
