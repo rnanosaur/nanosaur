@@ -28,7 +28,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>nanosaur</name>
-  <version>2.0.1</version>
+  <version>2.0.2</version>
   <description>nanosaur support meta package</description>
 
   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
