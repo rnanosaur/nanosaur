@@ -618,6 +618,25 @@ install_on_desktop()
     fi
     echo " - ${bold}${green}Install/Update python-dotenv${reset}"
     pip3 install -U python-dotenv --no-warn-script-location
+
+    if ! command -v docker &> /dev/null ; then
+        echo " - ${bold}${green}Install docker & docker compose 2${reset}"
+        # Install certificates
+        sudo apt-get install -y ca-certificates curl gnupg lsb-release
+        # Add Docker’s official GPG key
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        # Set up the repository
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        # Install Docker Engine
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    fi
+
+    if ! getent group docker | grep -q "\b$USER\b" ; then
+        echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
+        sudo usermod -aG docker $USER
+    fi
 }
 
 install_on_robot()
@@ -770,7 +789,9 @@ installer()
     # Request sudo password
     sudo -v
 
-    echo "${bold}${green}Install nanosaur on Jetpack L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION ${reset}"
+    if [[ $PLATFORM = "robot" ]] ; then
+        echo "${bold}${green}Install nanosaur on Jetpack L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION ${reset}"
+    fi
 
     if [ ! -d $NANOSAUR_DATA ] ; then
         echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DATA${reset}"
@@ -887,6 +908,7 @@ usage()
     if [[ $PLATFORM = "desktop" ]] ; then
         echo "  $name build                    Build developer boards" >&2
         echo "  $name branch                   Set branch nanosaur projects" >&2
+        echo "  $name perception               Run docker with Isaac ROS perception" >&2
     else
         echo "  $name distro                   Set nanosaur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
@@ -952,6 +974,9 @@ main()
             exit 0
         elif [ $option = "branch" ] ; then
             set_branch $arguments
+            exit 0
+        elif [ $option = "perception" ] ; then
+            docker compose -f $NANOSAUR_CORE_WS_PATH/src/nanosaur_perception/docker-compose.yml up $arguments
             exit 0
         fi
     else

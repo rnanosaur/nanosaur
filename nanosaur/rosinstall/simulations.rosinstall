@@ -6,3 +6,7 @@
     local-name: nanosaur_simulations
     version: main
     uri: https://github.com/rnanosaur/nanosaur_simulations.git
+- git:
+    local-name: nanosaur_perception
+    version: foxy
+    uri: https://github.com/rnanosaur/nanosaur_perception.git
