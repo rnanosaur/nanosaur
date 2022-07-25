@@ -358,19 +358,16 @@ build_clean()
     # Go to catkin path
     cd $NANOSAUR_CORE_WS_PATH
 
-    # Request sudo password
-    sudo -v
-
     echo "Clean build folders in ${bold}$ROS_CORE_WS_NAME${reset}" >&2
 
     if [ -d build ] ; then
-        sudo rm -R build
+        rm -R build
     fi
     if [ -d install ] ; then
-        sudo rm -R install
+        rm -R install
     fi
     if [ -d log ] ; then
-        sudo rm -R log
+        rm -R log
     fi
     # Return to main path
     cd $THIS
