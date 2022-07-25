@@ -57,6 +57,10 @@ _dothis_completions()
             fi
             return 0
         ;;
+        build)
+            COMPREPLY=( $(compgen -W "clean --help --verbose" -- ${cur}) )
+            return 0
+        ;;
         clean)
             if [[ $PLATFORM = "robot" ]]; then
                 COMPREPLY=($(compgen -W "-f" -- ${cur}))
@@ -76,14 +80,14 @@ _dothis_completions()
         ;;
     esac
 
-    COMPREPLY=($(compgen -W "help info cover config domain install update" "${COMP_WORDS[1]}"))
+    COMPREPLY=($(compgen -W "help info cover config dds domain install update" "${COMP_WORDS[1]}"))
     # Add extra configurations
     if [[ $PLATFORM = "robot" ]]; then
-        COMPREPLY+=($(compgen -W "distro network wakeup down" "${COMP_WORDS[1]}"))
+        COMPREPLY+=($(compgen -W "distro network wakeup down clean" "${COMP_WORDS[1]}"))
         # Docker
         COMPREPLY+=($(compgen -W "start restart stop up logs top rm exec" "${COMP_WORDS[1]}"))
     else
-        COMPREPLY+=($(compgen -W "build branch" "${cur}"))
+        COMPREPLY+=($(compgen -W "build branch perception teleop" "${cur}"))
     fi
     return 0
 }
