@@ -53,6 +53,8 @@ NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
 NANOSAUR_CORE_WS_PATH=$HOME/$ROS_CORE_WS_NAME
 NANOSAUR_PERCEPTION_WS_PATH=$HOME/$ROS_PERC_WS_NAME
 ISAAC_ROS_WS_PATH=$HOME/isaac_ros_ws
+# nanosaur keyboard command
+nanosaur_keyboard_cmd="ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/nanosaur/key_vel"
 
 ############################################################################################
 
@@ -343,8 +345,35 @@ build_usage()
     echo "This script build all workspaces." >&2
     echo "nanosaur build [options]" >&2
     echo "${bold}options:${reset}" >&2
+    echo "   clean                | Clean build folder" >&2
     echo "   -h|--help            | This help" >&2
     echo "   -v|--verbose         | Verbose build" >&2
+}
+
+build_clean()
+{
+    # Run update function
+    local THIS="$(pwd)"
+
+    # Go to catkin path
+    cd $NANOSAUR_CORE_WS_PATH
+
+    # Request sudo password
+    sudo -v
+
+    echo "Clean build folders in ${bold}$ROS_CORE_WS_NAME${reset}" >&2
+
+    if [ -d build ] ; then
+        sudo rm -R build
+    fi
+    if [ -d install ] ; then
+        sudo rm -R install
+    fi
+    if [ -d log ] ; then
+        sudo rm -R log
+    fi
+    # Return to main path
+    cd $THIS
 }
 
 build()
@@ -356,8 +385,12 @@ build()
                 build_usage
                 exit 0
                 ;;
-            -v|--verbose) # Load help
+            -v|--verbose)
                 verbose_build=true
+                ;;
+            clean)
+                build_clean
+                exit 0
                 ;;
             *)
                 build_usage "[ERROR] Unknown option: $1" >&2
@@ -946,6 +979,7 @@ usage()
         echo "  $name build                    Build developer boards" >&2
         echo "  $name branch                   Set branch nanosaur projects" >&2
         echo "  $name perception               Run docker with Isaac ROS perception" >&2
+        echo "  $name teleop                   Run the nanosaur keyboard controller" >&2
     else
         echo "  $name distro                   Set nanosaur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
@@ -1021,6 +1055,9 @@ main()
             exit 0
         elif [ $option = "perception" ] ; then
             docker compose -f $NANOSAUR_CORE_WS_PATH/src/nanosaur_perception/docker-compose.yml up $arguments
+            exit 0
+        elif [ $option = "teleop" ] ; then
+            eval $nanosaur_keyboard_cmd
             exit 0
         fi
     else
