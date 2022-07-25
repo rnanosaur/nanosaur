@@ -25,7 +25,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_VERSION='2.0.2'
+NANOSAUR_VERSION='2.0.3'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
@@ -38,6 +38,8 @@ BRANCH_TAG=$NANOSAUR_VERSION #Same tag release by default
 NANOSAUR_COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
 RMW_IMPLEMENTATION='rmw_cyclonedds_cpp'
+IGNITION_VERSION=fortress
+SIMULATOR_INSTALLED=false
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
@@ -51,7 +53,6 @@ NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
 NANOSAUR_CORE_WS_PATH=$HOME/$ROS_CORE_WS_NAME
 NANOSAUR_PERCEPTION_WS_PATH=$HOME/$ROS_PERC_WS_NAME
 ISAAC_ROS_WS_PATH=$HOME/isaac_ros_ws
-NANOSAUR_IS_SIMULATION="$NANOSAUR_DATA/.simulation"
 
 ############################################################################################
 
@@ -102,7 +103,7 @@ get_nanosaur_rosinstall()
     if [[ $PLATFORM = "robot" ]] ; then
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
-    if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+    if $SIMULATOR_INSTALLED ; then
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/simulations.rosinstall"
     fi
     echo $ROSINSTALL_FILE
@@ -131,6 +132,10 @@ config_info()
     else
         echo " - ${bold}ROS_DOMAIN_ID:${reset} 0 ${yellow}(not set)${reset}" >&2
     fi
+    if $SIMULATOR_INSTALLED ; then
+        echo "${bold}Simulation info:${reset}"
+        echo " - ${bold}Ignition Gazebo version:${reset} ${green}$IGNITION_VERSION${reset}" >&2
+    fi
 }
 
 config_save()
@@ -143,6 +148,9 @@ config_save()
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
         echo "PERCEPTION_DOCKER_TAG=$PERCEPTION_DOCKER_TAG" >> $NANOSAUR_DATA/.env
+    elif [[ $PLATFORM = "desktop" ]] ; then
+        echo "IGNITION_VERSION=$IGNITION_VERSION" >> $NANOSAUR_DATA/.env
+        echo "SIMULATOR_INSTALLED=$SIMULATOR_INSTALLED" >> $NANOSAUR_DATA/.env
     fi
     if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
         echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
@@ -311,6 +319,19 @@ set_domain()
     echo "ROS_DOMAIN_ID=$domain"
 }
 
+set_simulation_version()
+{
+    local arguments=$1
+    # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    if [ ! -z "$arguments" ] ; then
+        # Set ROS_DOMAIN_ID
+        IGNITION_VERSION=$arguments
+        config_save
+    fi
+    # Read ROS_DOMAIN_ID variable
+    echo "IGNITION_VERSION=$IGNITION_VERSION"
+}
+
 ############################ BUILD functions ##################################################
 
 build_usage()
@@ -323,15 +344,20 @@ build_usage()
     echo "nanosaur build [options]" >&2
     echo "${bold}options:${reset}" >&2
     echo "   -h|--help            | This help" >&2
+    echo "   -v|--verbose         | Verbose build" >&2
 }
 
 build()
 {
+    local verbose_build=false
     while [ -n "$1" ]; do
         case "$1" in
             -h|--help) # Load help
                 build_usage
                 exit 0
+                ;;
+            -v|--verbose) # Load help
+                verbose_build=true
                 ;;
             *)
                 build_usage "[ERROR] Unknown option: $1" >&2
@@ -347,9 +373,18 @@ build()
     source $ROS2_PATH
     # Go to catkin path
     cd $NANOSAUR_CORE_WS_PATH
+    # Load igntion variable
+    if $SIMULATOR_INSTALLED ; then
+        export IGNITION_VERSION=$IGNITION_VERSION
+        echo " ${bold}*${reset} ${green}Ignition build version:${reset} $IGNITION_VERSION" >&2
+    fi
     # Catkin make all workspace
     echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_CORE_WS_PATH)" >&2
-    colcon build --symlink-install 
+    if $verbose_build ; then
+        colcon build --symlink-install --merge-install --event-handlers console_direct+
+    else
+        colcon build --symlink-install --merge-install
+    fi
     # Return to main path
     cd $THIS
 }
@@ -398,7 +433,7 @@ update_developer()
             if [[ $PLATFORM = "robot" ]] ; then
                 rosinstall_name="robot.rosinstall"
             fi
-            if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+            if $SIMULATOR_INSTALLED ; then
                 rosinstall_name="simulations.rosinstall"
             fi
             vcs import $NANOSAUR_CORE_WS_PATH/src < $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
@@ -805,7 +840,9 @@ installer()
 
     # Enable simulation
     if $simulation ; then
-        touch $NANOSAUR_IS_SIMULATION
+        SIMULATOR_INSTALLED=true
+        # Saving parameters
+        config_save
     fi
     # Install developer tools
     if $developer ; then
@@ -917,6 +954,10 @@ usage()
         echo "  $name run [CNT:core][CMD:bash] Run a new nanosaur container for development" >&2
         echo "  $name clean                    clean all dangling images" >&2
     fi
+    if $SIMULATOR_INSTALLED ; then
+        echo "${bold}Simulation info:${reset}"
+        echo "  $name ignition                 Set simulation Ignition version. Default: $IGNITION_VERSION" >&2
+    fi
     echo ""
     echo "$name managager ${bold}v$NANOSAUR_VERSION${reset} | Configuration folder is in ${bold}$NANOSAUR_DATA${reset}" >&2
 }
@@ -974,6 +1015,9 @@ main()
             exit 0
         elif [ $option = "branch" ] ; then
             set_branch $arguments
+            exit 0
+        elif [ $option = "ignition" ] ; then
+            set_simulation_version $arguments
             exit 0
         elif [ $option = "perception" ] ; then
             docker compose -f $NANOSAUR_CORE_WS_PATH/src/nanosaur_perception/docker-compose.yml up $arguments
