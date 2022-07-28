@@ -407,11 +407,9 @@ simulation()
 
     if $run_simulation ; then
         if [[ $NANOSAUR_SIMULATION = "gazebo" ]] ; then
-            # Load Nanosaur workspace
-            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
+            # Launch nanosaur ignition
+            ros2 launch nanosaur_gazebo gazebo.launch.py
         elif [[ $NANOSAUR_SIMULATION = "ignition" ]] ; then
-            # Load Nanosaur workspace
-            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
             # Launch nanosaur ignition
             ros2 launch nanosaur_ignition ignition.launch.py
         elif [[ $NANOSAUR_SIMULATION = "isaac_sim" ]] ; then
@@ -1153,6 +1151,8 @@ main()
             simulation $arguments
             exit 0
         elif [ $option = "teleop" ] ; then
+            # Load Nanosaur workspace
+            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
             eval $nanosaur_keyboard_cmd
             exit 0
         fi
