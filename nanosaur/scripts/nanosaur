@@ -40,6 +40,7 @@ DOCKER_NETWORK='host'
 RMW_IMPLEMENTATION='rmw_cyclonedds_cpp'
 IGNITION_VERSION=fortress
 SIMULATOR_INSTALLED=false
+NANOSAUR_SIMULATION="ignition" # Default simulation
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
@@ -136,6 +137,7 @@ config_info()
     fi
     if $SIMULATOR_INSTALLED ; then
         echo "${bold}Simulation info:${reset}"
+        echo " - ${bold}Default simulator:${reset} ${green}$NANOSAUR_SIMULATION${reset}" >&2
         echo " - ${bold}Ignition Gazebo version:${reset} ${green}$IGNITION_VERSION${reset}" >&2
     fi
 }
@@ -153,6 +155,7 @@ config_save()
     elif [[ $PLATFORM = "desktop" ]] ; then
         echo "IGNITION_VERSION=$IGNITION_VERSION" >> $NANOSAUR_DATA/.env
         echo "SIMULATOR_INSTALLED=$SIMULATOR_INSTALLED" >> $NANOSAUR_DATA/.env
+        echo "NANOSAUR_SIMULATION=$NANOSAUR_SIMULATION" >> $NANOSAUR_DATA/.env
     fi
     if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
         echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
@@ -332,6 +335,98 @@ set_simulation_version()
     fi
     # Read ROS_DOMAIN_ID variable
     echo "IGNITION_VERSION=$IGNITION_VERSION"
+}
+
+############################ SIMULATION functions #############################################
+
+simulation_usage()
+{
+    if [ "$1" != "" ]; then
+        echo "${red}$1${reset}" >&2
+    fi
+
+    echo "Control the nanosaur simulation" >&2
+    echo "nanosaur simulation [options]" >&2
+    echo "${bold}options:${reset}" >&2
+    echo "   run                | Run default simulation" >&2
+    echo "   set                | Set default simulation" >&2
+    echo "   -h|--help          | This help" >&2
+}
+
+set_simulation()
+{
+    local arguments=$1
+    # Update branch
+    if [ ! -z "$arguments" ] ; then
+        NANOSAUR_SIMULATION=$arguments
+        exit 0
+    else
+        echo -ne "Branch: [${bold}$NANOSAUR_SIMULATION${reset}]
+$(ColorMenu $NANOSAUR_SIMULATION '1' 'gazebo')
+$(ColorMenu $NANOSAUR_SIMULATION '2' 'ignition')
+$(ColorMenu $NANOSAUR_SIMULATION '3' 'isaac_sim')
+Chose an option (Q for Exit): "
+        read a
+        case $a in
+            1) NANOSAUR_SIMULATION="gazebo" ;;
+            2) NANOSAUR_SIMULATION="ignition" ;;
+            3) NANOSAUR_SIMULATION="isaac_sim" ;;
+        q|Q) exit 0 ;;
+        *) echo -e ${red}"Wrong option."${reset};;
+        esac
+    fi
+
+    # Save configuration
+    config_save
+    echo "${bold}Simulation:${reset} ${green}$NANOSAUR_SIMULATION${reset}" >&2
+}
+
+simulation()
+{
+    local run_simulation=false
+    while [ -n "$1" ]; do
+        case "$1" in
+            -h|--help) # Load help
+                simulation_usage
+                exit 0
+                ;;
+            run) # Run simulation
+                run_simulation=true
+                ;;
+            set) # Set simulator
+                set_simulation
+                exit 0
+                ;;
+            *)
+                simulation_usage "[ERROR] Unknown option: $1" >&2
+                exit 1
+                ;;
+        esac
+            shift 1
+    done
+
+    if $run_simulation ; then
+        if [[ $NANOSAUR_SIMULATION = "gazebo" ]] ; then
+            # Load Nanosaur workspace
+            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
+        elif [[ $NANOSAUR_SIMULATION = "ignition" ]] ; then
+            # Load Nanosaur workspace
+            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
+            # Launch nanosaur ignition
+            ros2 launch nanosaur_ignition ignition.launch.py
+        elif [[ $NANOSAUR_SIMULATION = "isaac_sim" ]] ; then
+            # Run NVIDIA Isaac SIM in a new terminal
+            local isaac_sim="nanosaur_isaac_sim/scripts/launcher.sh"
+            local DIRNAME=$NANOSAUR_CORE_WS_PATH/src/nanosaur_simulations
+            gnome-terminal --working-directory=$DIRNAME -- sh -c "bash -c \"echo 'RUN Isaac SIM'; exec bash $isaac_sim\""
+            # Run nanosaur isaac_sim ros2 launcer
+            ros2 launch nanosaur_isaac_sim isaac_sim.launch.py
+        else
+            echo "${red}Unknown${reset} ${bold}$NANOSAUR_SIMULATION${reset} ${red}simulator${reset}" >&2
+        fi
+    else
+        simulation_usage
+    fi
 }
 
 ############################ BUILD functions ##################################################
@@ -987,6 +1082,7 @@ usage()
     fi
     if $SIMULATOR_INSTALLED ; then
         echo "${bold}Simulation info:${reset}"
+        echo "  $name simulation               Start the nanosaur simulator" >&2
         echo "  $name ignition                 Set simulation Ignition version. Default: $IGNITION_VERSION" >&2
     fi
     echo ""
@@ -1052,6 +1148,9 @@ main()
             exit 0
         elif [ $option = "perception" ] ; then
             docker compose -f $NANOSAUR_CORE_WS_PATH/src/nanosaur_perception/docker-compose.yml up $arguments
+            exit 0
+        elif [ $option = "simulation" ] ; then
+            simulation $arguments
             exit 0
         elif [ $option = "teleop" ] ; then
             eval $nanosaur_keyboard_cmd

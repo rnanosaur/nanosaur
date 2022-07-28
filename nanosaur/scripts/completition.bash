@@ -57,6 +57,10 @@ _dothis_completions()
             fi
             return 0
         ;;
+        simulation)
+            COMPREPLY=( $(compgen -W "run set --help" -- ${cur}) )
+            return 0
+        ;;
         build)
             COMPREPLY=( $(compgen -W "clean --help --verbose" -- ${cur}) )
             return 0
@@ -87,7 +91,7 @@ _dothis_completions()
         # Docker
         COMPREPLY+=($(compgen -W "start restart stop up logs top rm exec" "${COMP_WORDS[1]}"))
     else
-        COMPREPLY+=($(compgen -W "build branch perception teleop" "${cur}"))
+        COMPREPLY+=($(compgen -W "build branch perception simulation teleop" "${cur}"))
     fi
     return 0
 }
