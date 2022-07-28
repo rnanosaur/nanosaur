@@ -3,7 +3,7 @@
     xmlns:xacro="http://ros.org/wiki/xacro">
 
 
-    <xacro:macro name="track" params="type parent radius diff_drive_emulation">
+    <xacro:macro name="track" params="type parent radius diff_drive_emulation mimic_enable">
 
         <!-- Define orientation -->
         <xacro:if value="${type == 'left'}">
@@ -12,6 +12,15 @@
         <xacro:if value="${type == 'right'}">
             <xacro:property name="orientation" value="1"/>
         </xacro:if>
+
+        <xacro:if value="${mimic_enable}">
+            <xacro:property name="mimic_type" value="continuous"/>
+        </xacro:if>
+        <xacro:unless value="${mimic_enable}">
+            <xacro:property name="mimic_type" value="fixed"/>
+        </xacro:unless>
+
+        <xacro:property name="radius_wheel" value="${radius}"/>
 
         <joint name="sprocket_${type}_joint" type="continuous">
             <xacro:if value="${diff_drive_emulation}">
@@ -92,13 +101,15 @@
             </visual>
         </gazebo>
 
-        <joint name="wheel_${type}_joint" type="continuous">
+        <joint name="wheel_${type}_joint" type="${mimic_type}">
             <origin xyz="-0.099 0 0" rpy="0 0 0" />
             <parent link="motor_${type}"/>
             <child link="wheel_${type}"/>
             <axis xyz="0 0 ${-1 * orientation}" />
             <!-- Passive sprocket rotate automatically according to the status of the active one -->
-            <mimic joint="sprocket_${type}_joint" multiplier="1" offset="0"/>
+            <xacro:if value="${mimic_enable}">
+                <mimic joint="sprocket_${type}_joint" multiplier="1" offset="0"/>
+            </xacro:if>
         </joint>
 
         <link name="wheel_${type}">
@@ -118,7 +129,7 @@
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0" />
                 <geometry>
-                    <cylinder length="0.015" radius="${radius}"/>
+                    <cylinder length="0.015" radius="${radius_wheel}"/>
                 </geometry>
                 <material name="Black" />
             </collision>
@@ -141,12 +152,15 @@
         </gazebo>
 
         <xacro:if value="${diff_drive_emulation}">
-            <joint name="front_wheel_${type}_joint" type="fixed">
+            <joint name="front_wheel_${type}_joint" type="${mimic_type}">
                 <origin xyz="0 0 0" rpy="0 0 0" />
                 <parent link="motor_${type}"/>
                 <child link="front_wheel_${type}"/>
+                <axis xyz="0 0 ${-1 * orientation}" />
                 <!-- Passive sprocket rotate automatically according to the status of the active one -->
-                <mimic joint="sprocket_${type}_joint" multiplier="1" offset="0"/>
+                <xacro:if value="${mimic_enable}">
+                    <mimic joint="sprocket_${type}_joint" multiplier="1" offset="0"/>
+                </xacro:if>
             </joint>
 
             <link name="front_wheel_${type}">
@@ -166,7 +180,7 @@
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <cylinder length="0.015" radius="${radius}"/>
+                        <cylinder length="0.015" radius="${radius_wheel}"/>
                     </geometry>
                     <material name="Black" />
                 </collision>
