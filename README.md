@@ -15,6 +15,8 @@ Meet nanosaur:
 * 🐳 nanosaur [Docker hub](https://hub.docker.com/u/nanosaur)
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 
+If you are looking for an NVIDIA Jetson Nano alternative, you can user for nanosaur [SEEED Studio - reComputer J1010](https://www.seeedstudio.com/Jetson-10-1-H0-p-5335.html)
+
 # CI & CD
 
 **Latest** = ROS2 **_foxy_** at latest tag released
