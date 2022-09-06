@@ -15,12 +15,12 @@
 
         <xacro:if value="${mimic_enable}">
             <xacro:property name="mimic_type" value="continuous"/>
-            <xacro:property name="radius_wheel" value="${radius}"/>
         </xacro:if>
         <xacro:unless value="${mimic_enable}">
             <xacro:property name="mimic_type" value="fixed"/>
-            <xacro:property name="radius_wheel" value="${radius-0.005}"/>
         </xacro:unless>
+
+        <xacro:property name="radius_wheel" value="${radius}"/>
 
         <joint name="sprocket_${type}_joint" type="continuous">
             <xacro:if value="${diff_drive_emulation}">
