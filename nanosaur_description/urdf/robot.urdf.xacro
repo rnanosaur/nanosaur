@@ -22,7 +22,7 @@
     <!-- Real radius 0.0105 but augmented for track thickness -->
     <xacro:property name="sprocket_radius" value="0.0150"/>
 
-    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation path_meshes:=package://nanosaur_description/meshes">
+    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation mimic_enable:=true path_meshes:=package://nanosaur_description/meshes">
 
         <!-- nanosaur definition -->
         <link name="base_link" />
@@ -143,8 +143,8 @@
             </visual>
         </link>
 
-        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}"/>
-        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}"/>
+        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}" mimic_enable="${mimic_enable}"/>
+        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}" mimic_enable="${mimic_enable}"/>
         <xacro:flap />
 
         <!-- Nanosaur heads -->

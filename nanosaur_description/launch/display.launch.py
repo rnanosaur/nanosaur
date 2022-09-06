@@ -23,16 +23,15 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.conditions import IfCondition, UnlessCondition
-from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
-import os
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, Shutdown
+from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
@@ -70,7 +69,8 @@ def generate_launch_description():
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
-        condition=IfCondition(gui)
+        condition=IfCondition(gui),
+        on_exit=Shutdown()
     )
     joint_state_publisher_node = Node(
         package='joint_state_publisher',
@@ -84,6 +84,7 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', rvizconfig],
+        on_exit=Shutdown()
     )
 
     # Nanosaur description launch

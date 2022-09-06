@@ -23,14 +23,13 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from pathlib import Path
+import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription, LaunchContext
 from launch.substitutions import Command, LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.actions import Node
-import os
 
 
 def launch_setup(context: LaunchContext, support_package):

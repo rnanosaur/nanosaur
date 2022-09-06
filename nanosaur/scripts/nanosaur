@@ -25,7 +25,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_VERSION='2.0.2'
+NANOSAUR_VERSION='2.1.0'
 
 # Variable stored in configuration file
 ROS2_PATH='/opt/ros/foxy/setup.bash'
@@ -38,6 +38,9 @@ BRANCH_TAG=$NANOSAUR_VERSION #Same tag release by default
 NANOSAUR_COVER_TYPE='fisheye'
 DOCKER_NETWORK='host'
 RMW_IMPLEMENTATION='rmw_cyclonedds_cpp'
+IGNITION_VERSION=fortress
+SIMULATOR_INSTALLED=false
+NANOSAUR_SIMULATION="ignition" # Default simulation
 # Load nanosaur configuration file
 if [ -f $NANOSAUR_DATA/.env ] ; then
     source $NANOSAUR_DATA/.env
@@ -51,7 +54,8 @@ NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
 NANOSAUR_CORE_WS_PATH=$HOME/$ROS_CORE_WS_NAME
 NANOSAUR_PERCEPTION_WS_PATH=$HOME/$ROS_PERC_WS_NAME
 ISAAC_ROS_WS_PATH=$HOME/isaac_ros_ws
-NANOSAUR_IS_SIMULATION="$NANOSAUR_DATA/.simulation"
+# nanosaur keyboard command
+nanosaur_keyboard_cmd="ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/nanosaur/key_vel"
 
 ############################################################################################
 
@@ -102,7 +106,7 @@ get_nanosaur_rosinstall()
     if [[ $PLATFORM = "robot" ]] ; then
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/robot.rosinstall"
     fi
-    if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+    if $SIMULATOR_INSTALLED ; then
         ROSINSTALL_FILE="https://raw.githubusercontent.com/rnanosaur/nanosaur/$branch/nanosaur/rosinstall/simulations.rosinstall"
     fi
     echo $ROSINSTALL_FILE
@@ -131,6 +135,11 @@ config_info()
     else
         echo " - ${bold}ROS_DOMAIN_ID:${reset} 0 ${yellow}(not set)${reset}" >&2
     fi
+    if $SIMULATOR_INSTALLED ; then
+        echo "${bold}Simulation info:${reset}"
+        echo " - ${bold}Default simulator:${reset} ${green}$NANOSAUR_SIMULATION${reset}" >&2
+        echo " - ${bold}Ignition Gazebo version:${reset} ${green}$IGNITION_VERSION${reset}" >&2
+    fi
 }
 
 config_save()
@@ -143,6 +152,10 @@ config_save()
         echo "DOCKER_NETWORK=$DOCKER_NETWORK" >> $NANOSAUR_DATA/.env
         echo "DOCKER_TAG=$DOCKER_TAG" >> $NANOSAUR_DATA/.env
         echo "PERCEPTION_DOCKER_TAG=$PERCEPTION_DOCKER_TAG" >> $NANOSAUR_DATA/.env
+    elif [[ $PLATFORM = "desktop" ]] ; then
+        echo "IGNITION_VERSION=$IGNITION_VERSION" >> $NANOSAUR_DATA/.env
+        echo "SIMULATOR_INSTALLED=$SIMULATOR_INSTALLED" >> $NANOSAUR_DATA/.env
+        echo "NANOSAUR_SIMULATION=$NANOSAUR_SIMULATION" >> $NANOSAUR_DATA/.env
     fi
     if [ ! -z ${ROS_DOMAIN_ID+x} ] ; then
         echo "ROS_DOMAIN_ID=$ROS_DOMAIN_ID" >> $NANOSAUR_DATA/.env
@@ -311,6 +324,111 @@ set_domain()
     echo "ROS_DOMAIN_ID=$domain"
 }
 
+set_simulation_version()
+{
+    local arguments=$1
+    # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    if [ ! -z "$arguments" ] ; then
+        # Set ROS_DOMAIN_ID
+        IGNITION_VERSION=$arguments
+        config_save
+    fi
+    # Read ROS_DOMAIN_ID variable
+    echo "IGNITION_VERSION=$IGNITION_VERSION"
+}
+
+############################ SIMULATION functions #############################################
+
+simulation_usage()
+{
+    if [ "$1" != "" ]; then
+        echo "${red}$1${reset}" >&2
+    fi
+
+    echo "Control the nanosaur simulation" >&2
+    echo "nanosaur simulation [options]" >&2
+    echo "${bold}options:${reset}" >&2
+    echo "   run                | Run default simulation" >&2
+    echo "   set                | Set default simulation" >&2
+    echo "   -h|--help          | This help" >&2
+}
+
+set_simulation()
+{
+    local arguments=$1
+    # Update branch
+    if [ ! -z "$arguments" ] ; then
+        NANOSAUR_SIMULATION=$arguments
+        exit 0
+    else
+        echo -ne "Branch: [${bold}$NANOSAUR_SIMULATION${reset}]
+$(ColorMenu $NANOSAUR_SIMULATION '1' 'gazebo')
+$(ColorMenu $NANOSAUR_SIMULATION '2' 'ignition')
+$(ColorMenu $NANOSAUR_SIMULATION '3' 'isaac_sim')
+Chose an option (Q for Exit): "
+        read a
+        case $a in
+            1) NANOSAUR_SIMULATION="gazebo" ;;
+            2) NANOSAUR_SIMULATION="ignition" ;;
+            3) NANOSAUR_SIMULATION="isaac_sim" ;;
+        q|Q) exit 0 ;;
+        *) echo -e ${red}"Wrong option."${reset};;
+        esac
+    fi
+
+    # Save configuration
+    config_save
+    echo "${bold}Simulation:${reset} ${green}$NANOSAUR_SIMULATION${reset}" >&2
+}
+
+simulation()
+{
+    local run_simulation=false
+    while [ -n "$1" ]; do
+        case "$1" in
+            -h|--help) # Load help
+                simulation_usage
+                exit 0
+                ;;
+            run) # Run simulation
+                run_simulation=true
+                ;;
+            set) # Set simulator
+                set_simulation
+                exit 0
+                ;;
+            *)
+                simulation_usage "[ERROR] Unknown option: $1" >&2
+                exit 1
+                ;;
+        esac
+            shift 1
+    done
+
+    if $run_simulation ; then
+        if [[ $NANOSAUR_SIMULATION = "gazebo" ]] ; then
+            # Load Nanosaur workspace
+            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
+        elif [[ $NANOSAUR_SIMULATION = "ignition" ]] ; then
+            # Load Nanosaur workspace
+            source $NANOSAUR_CORE_WS_PATH/install/setup.bash
+            # Launch nanosaur ignition
+            ros2 launch nanosaur_ignition ignition.launch.py
+        elif [[ $NANOSAUR_SIMULATION = "isaac_sim" ]] ; then
+            # Run NVIDIA Isaac SIM in a new terminal
+            local isaac_sim="nanosaur_isaac_sim/scripts/launcher.sh"
+            local DIRNAME=$NANOSAUR_CORE_WS_PATH/src/nanosaur_simulations
+            gnome-terminal --working-directory=$DIRNAME -- sh -c "bash -c \"echo 'RUN Isaac SIM'; exec bash $isaac_sim\""
+            # Run nanosaur isaac_sim ros2 launcer
+            ros2 launch nanosaur_isaac_sim isaac_sim.launch.py
+        else
+            echo "${red}Unknown${reset} ${bold}$NANOSAUR_SIMULATION${reset} ${red}simulator${reset}" >&2
+        fi
+    else
+        simulation_usage
+    fi
+}
+
 ############################ BUILD functions ##################################################
 
 build_usage()
@@ -322,15 +440,48 @@ build_usage()
     echo "This script build all workspaces." >&2
     echo "nanosaur build [options]" >&2
     echo "${bold}options:${reset}" >&2
+    echo "   clean                | Clean build folder" >&2
     echo "   -h|--help            | This help" >&2
+    echo "   -v|--verbose         | Verbose build" >&2
+}
+
+build_clean()
+{
+    # Run update function
+    local THIS="$(pwd)"
+
+    # Go to catkin path
+    cd $NANOSAUR_CORE_WS_PATH
+
+    echo "Clean build folders in ${bold}$ROS_CORE_WS_NAME${reset}" >&2
+
+    if [ -d build ] ; then
+        rm -R build
+    fi
+    if [ -d install ] ; then
+        rm -R install
+    fi
+    if [ -d log ] ; then
+        rm -R log
+    fi
+    # Return to main path
+    cd $THIS
 }
 
 build()
 {
+    local verbose_build=false
     while [ -n "$1" ]; do
         case "$1" in
             -h|--help) # Load help
                 build_usage
+                exit 0
+                ;;
+            -v|--verbose)
+                verbose_build=true
+                ;;
+            clean)
+                build_clean
                 exit 0
                 ;;
             *)
@@ -347,9 +498,18 @@ build()
     source $ROS2_PATH
     # Go to catkin path
     cd $NANOSAUR_CORE_WS_PATH
+    # Load igntion variable
+    if $SIMULATOR_INSTALLED ; then
+        export IGNITION_VERSION=$IGNITION_VERSION
+        echo " ${bold}*${reset} ${green}Ignition build version:${reset} $IGNITION_VERSION" >&2
+    fi
     # Catkin make all workspace
     echo " ${bold}*${reset} ${green}colcon build${reset} $(basename $NANOSAUR_CORE_WS_PATH)" >&2
-    colcon build --symlink-install 
+    if $verbose_build ; then
+        colcon build --symlink-install --merge-install --event-handlers console_direct+
+    else
+        colcon build --symlink-install --merge-install
+    fi
     # Return to main path
     cd $THIS
 }
@@ -398,7 +558,7 @@ update_developer()
             if [[ $PLATFORM = "robot" ]] ; then
                 rosinstall_name="robot.rosinstall"
             fi
-            if [[ -f $NANOSAUR_IS_SIMULATION ]] ; then
+            if $SIMULATOR_INSTALLED ; then
                 rosinstall_name="simulations.rosinstall"
             fi
             vcs import $NANOSAUR_CORE_WS_PATH/src < $NANOSAUR_CORE_WS_PATH/src/nanosaur/nanosaur/rosinstall/$rosinstall_name
@@ -618,6 +778,25 @@ install_on_desktop()
     fi
     echo " - ${bold}${green}Install/Update python-dotenv${reset}"
     pip3 install -U python-dotenv --no-warn-script-location
+
+    if ! command -v docker &> /dev/null ; then
+        echo " - ${bold}${green}Install docker & docker compose 2${reset}"
+        # Install certificates
+        sudo apt-get install -y ca-certificates curl gnupg lsb-release
+        # Add Docker’s official GPG key
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        # Set up the repository
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        # Install Docker Engine
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    fi
+
+    if ! getent group docker | grep -q "\b$USER\b" ; then
+        echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
+        sudo usermod -aG docker $USER
+    fi
 }
 
 install_on_robot()
@@ -770,7 +949,9 @@ installer()
     # Request sudo password
     sudo -v
 
-    echo "${bold}${green}Install nanosaur on Jetpack L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION ${reset}"
+    if [[ $PLATFORM = "robot" ]] ; then
+        echo "${bold}${green}Install nanosaur on Jetpack L4T $JETSON_L4T_RELEASE.$JETSON_L4T_REVISION ${reset}"
+    fi
 
     if [ ! -d $NANOSAUR_DATA ] ; then
         echo " - ${bold}${green}Make nanosaur folder in $NANOSAUR_DATA${reset}"
@@ -784,7 +965,9 @@ installer()
 
     # Enable simulation
     if $simulation ; then
-        touch $NANOSAUR_IS_SIMULATION
+        SIMULATOR_INSTALLED=true
+        # Saving parameters
+        config_save
     fi
     # Install developer tools
     if $developer ; then
@@ -887,6 +1070,8 @@ usage()
     if [[ $PLATFORM = "desktop" ]] ; then
         echo "  $name build                    Build developer boards" >&2
         echo "  $name branch                   Set branch nanosaur projects" >&2
+        echo "  $name perception               Run docker with Isaac ROS perception" >&2
+        echo "  $name teleop                   Run the nanosaur keyboard controller" >&2
     else
         echo "  $name distro                   Set nanosaur distribution" >&2
         echo "  $name network [host/bridge]    Select network configuration" >&2
@@ -894,6 +1079,11 @@ usage()
         echo "  $name [start/restart/stop/up/logs/top/rm/exec]  Control nanosaur docker" >&2
         echo "  $name run [CNT:core][CMD:bash] Run a new nanosaur container for development" >&2
         echo "  $name clean                    clean all dangling images" >&2
+    fi
+    if $SIMULATOR_INSTALLED ; then
+        echo "${bold}Simulation info:${reset}"
+        echo "  $name simulation               Start the nanosaur simulator" >&2
+        echo "  $name ignition                 Set simulation Ignition version. Default: $IGNITION_VERSION" >&2
     fi
     echo ""
     echo "$name managager ${bold}v$NANOSAUR_VERSION${reset} | Configuration folder is in ${bold}$NANOSAUR_DATA${reset}" >&2
@@ -952,6 +1142,18 @@ main()
             exit 0
         elif [ $option = "branch" ] ; then
             set_branch $arguments
+            exit 0
+        elif [ $option = "ignition" ] ; then
+            set_simulation_version $arguments
+            exit 0
+        elif [ $option = "perception" ] ; then
+            docker compose -f $NANOSAUR_CORE_WS_PATH/src/nanosaur_perception/docker-compose.yml up $arguments
+            exit 0
+        elif [ $option = "simulation" ] ; then
+            simulation $arguments
+            exit 0
+        elif [ $option = "teleop" ] ; then
+            eval $nanosaur_keyboard_cmd
             exit 0
         fi
     else
