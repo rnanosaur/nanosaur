@@ -44,7 +44,7 @@ services:
       - "/run/ros2sm.sock:/run/ros2sm.sock" # ros2_system_manager
       # if you want change the nanosaur configuration
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
-      - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_bringup/share/nanosaur_bringup/param" # Extra configuration folder
+      - "/opt/nanosaur/param:/opt/ros_ws/install/share/nanosaur_bringup/param" # Extra configuration folder
   perception:
     image: nanosaur/perception:${PERCEPTION_DOCKER_TAG:-latest}
     network_mode: ${DOCKER_NETWORK:-host}
@@ -62,7 +62,7 @@ services:
       - "/tmp/argus_socket:/tmp/argus_socket" # CSI camera
       # if you want change the nanosaur configuration
       # Read https://github.com/rnanosaur/nanosaur/wiki/configuration
-      - "/opt/nanosaur/param:/opt/ros_ws/install/nanosaur_perception/share/nanosaur_perception/param" # Extra configuration folder
+      - "/opt/nanosaur/param:/opt/ros_ws/install/share/nanosaur_perception/param" # Extra configuration folder
   webgui: # Webgui for nanosaur. Open a web interface on: https://<hostname>.local:8888
     image: nanosaur/webgui:main
     network_mode: ${DOCKER_NETWORK:-host}

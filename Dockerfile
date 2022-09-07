@@ -51,7 +51,7 @@ WORKDIR $ROS_WS
 ENV DOCKER_CONTAINER Yes
 # Build Isaac ROS
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build --symlink-install \
+    colcon build --symlink-install --merge-install \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release
 
