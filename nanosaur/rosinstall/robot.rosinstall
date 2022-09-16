@@ -7,6 +7,9 @@
     version: humble
     uri: https://github.com/rnanosaur/nanosaur_robot.git
 - git:
+    local-name: ros2_oled
+    uri: https://github.com/gbr1/ros2_oled.git
+- git:
     local-name: ros2_jetson_stats
     version: foxy
     uri: https://github.com/rbonghi/ros2_jetson_stats.git

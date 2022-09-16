@@ -606,7 +606,7 @@ update_on_robot()
 {
     local CLEAN=$1
     # Switch off nanosaur
-    docker-compose -f $NANOSAUR_DATA/docker-compose.yml down
+    docker compose -f $NANOSAUR_DATA/docker-compose.yml down
     # Update docker-compose
     if [ -d $NANOSAUR_CORE_WS_PATH ] ; then
         if [ ! -L $NANOSAUR_DATA/docker-compose.yml ] ; then
@@ -622,7 +622,7 @@ update_on_robot()
     fi
     echo " - ${bold}${green}Pull and restart all containers DISTRO: $DOCKER_TAG${reset}" >&2
     # Pull all new images
-    docker-compose -f $NANOSAUR_DATA/docker-compose.yml pull
+    docker compose -f $NANOSAUR_DATA/docker-compose.yml pull
     # Clean images after pull
     if $CLEAN ; then
         docker image prune -f
@@ -780,16 +780,18 @@ install_on_desktop()
     # Check if is installed docker compose
     # https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
     docker compose version &> /dev/null
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
         sudo apt-get update
         sudo apt-get install -y ca-certificates curl gnupg lsb-release
         sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        if [ ! -f /etc/apt/keyrings/docker.gpg ] ; then 
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        fi
         echo \
             "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
-        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     fi
 
     if ! getent group docker | grep -q "\b$USER\b" ; then
@@ -831,16 +833,18 @@ install_on_robot()
     # Check if is installed docker compose
     # https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
     docker compose version &> /dev/null
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
         sudo apt-get update
         sudo apt-get install -y ca-certificates curl gnupg lsb-release
         sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        if [ ! -f /etc/apt/keyrings/docker.gpg ] ; then 
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        fi
         echo \
             "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
-        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     fi
 
     local branch=$BRANCH_TAG
@@ -872,7 +876,7 @@ install_on_robot()
     # Create nanosaur docker
     echo " - ${bold}${green}Start nanosaur docker compose${reset}"
     # TODO: make .env file before start
-    #sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
+    sudo docker compose -f $NANOSAUR_DATA/docker-compose.yml up -d
 }
 
 installer()
@@ -1053,7 +1057,7 @@ info()
     if [[ $PLATFORM = "robot" ]] ; then
         echo "-------------------------------------------------------------------------" >&2
         echo "${bold}Docker status:${reset}"
-        docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps -a
+        docker compose -f $NANOSAUR_DATA/docker-compose.yml ps -a
     fi
     echo "-------------------------------------------------------------------------" >&2
 }
@@ -1180,10 +1184,10 @@ main()
                 [ $option = "stop" ] || [ $option = "down" ] || [ $option = "logs" ] || 
                 [ $option = "top" ] || [ $option = "rm" ] ||[ $option = "exec" ] ; then
             # Run docker compose
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml $option $arguments
+            docker compose -f $NANOSAUR_DATA/docker-compose.yml $option $arguments
             exit 0
         elif [ $option = "wakeup" ] ; then
-            docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
+            docker compose -f $NANOSAUR_DATA/docker-compose.yml up -d
             exit 0
         elif [ $option = "clean" ] ; then
             echo "${green}Clean all dangling images${reset}" >&2
@@ -1194,7 +1198,7 @@ main()
             # Check if is selected help
             if [ $2 = "--help" ] ; then
                 # Get list of all services
-                local services=$(docker-compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
+                local services=$(docker compose -f $NANOSAUR_DATA/docker-compose.yml ps --services)
                 echo "${yellow}All images available: ${bold}[${services//$'\n'/ }]${reset}" >&2
                 exit 0
             fi
