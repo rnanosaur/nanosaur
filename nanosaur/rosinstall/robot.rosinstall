@@ -1,9 +1,10 @@
 - git:
     local-name: nanosaur
-    version: foxy
+    version: humble
     uri: https://github.com/rnanosaur/nanosaur.git
 - git:
     local-name: nanosaur_robot
+    version: humble
     uri: https://github.com/rnanosaur/nanosaur_robot.git
 - git:
     local-name: ros2_jetson_stats

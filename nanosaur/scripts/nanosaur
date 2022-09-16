@@ -25,10 +25,10 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NANOSAUR_DATA='/opt/nanosaur'
-NANOSAUR_VERSION='2.1.0'
+NANOSAUR_VERSION='2.2.0'
 
 # Variable stored in configuration file
-ROS2_PATH='/opt/ros/foxy/setup.bash'
+ROS2_PATH='/opt/ros/humble/setup.bash'
 ROS_DEV_WS_NAME='ros_ws'
 ROS_CORE_WS_NAME='nanosaur_core'
 ROS_PERC_WS_NAME='nanosaur_perception'
@@ -47,7 +47,7 @@ if [ -f $NANOSAUR_DATA/.env ] ; then
 fi
 
 # Default variable
-NANOSAUR_L4T="32.7"
+NANOSAUR_L4T="35.1"
 ROBOT_NAME='nanosaur'
 ROBOT_FILE_PATH=$NANOSAUR_DATA/'param/robot.yml'
 NANOSAUR_DEV_WS_PATH=$HOME/$ROS_DEV_WS_NAME
@@ -250,13 +250,13 @@ set_branch()
         echo -ne "Branch: [${bold}$BRANCH_TAG${reset}]
 $(ColorMenu $BRANCH_TAG '1' $NANOSAUR_VERSION)
 $(ColorMenu $BRANCH_TAG '2' 'foxy')
-$(ColorMenu $BRANCH_TAG '3' 'galactic')
+$(ColorMenu $BRANCH_TAG '3' 'humble')
 Chose an option (Q for Exit): "
         read a
         case $a in
             1) BRANCH_TAG="$NANOSAUR_VERSION" ;;
             2) BRANCH_TAG="foxy" ;;
-            3) BRANCH_TAG="galactic" ;;
+            3) BRANCH_TAG="humble" ;;
         q|Q) exit 0 ;;
         *) echo -e ${red}"Wrong option."${reset};;
         esac
@@ -277,13 +277,13 @@ set_distro()
         echo -ne "Branch: [${bold}$DOCKER_TAG${reset}]
 $(ColorMenu $DOCKER_TAG '1' 'latest')
 $(ColorMenu $DOCKER_TAG '2' 'foxy')
-$(ColorMenu $DOCKER_TAG '3' 'galactic')
+$(ColorMenu $DOCKER_TAG '3' 'humble')
 Chose an option (Q for Exit): "
         read a
         case $a in
             1) DOCKER_TAG="latest" ;;
-            2) DOCKER_TAG="foxy" ;;
-            3) DOCKER_TAG="galactic" ;;
+            2) DOCKER_TAG="humble" ;;
+            3) DOCKER_TAG="humble" ;;
         q|Q) exit 0 ;;
         *) echo -e ${red}"Wrong option."${reset};;
         esac
@@ -302,7 +302,7 @@ Chose an option (Q for Exit): "
 set_domain()
 {
     local arguments=$1
-    # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    # https://docs.ros.org/en/ros2_documentation/humble/Concepts/About-Domain-ID.html
     if [ ! -z "$arguments" ] ; then
         # Check if is a number
         local re='^[0-9]+$'
@@ -327,7 +327,7 @@ set_domain()
 set_simulation_version()
 {
     local arguments=$1
-    # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    # https://docs.ros.org/en/ros2_documentation/humble/Concepts/About-Domain-ID.html
     if [ ! -z "$arguments" ] ; then
         # Set ROS_DOMAIN_ID
         IGNITION_VERSION=$arguments
@@ -777,18 +777,19 @@ install_on_desktop()
     echo " - ${bold}${green}Install/Update python-dotenv${reset}"
     pip3 install -U python-dotenv --no-warn-script-location
 
-    if ! command -v docker &> /dev/null ; then
-        echo " - ${bold}${green}Install docker & docker compose 2${reset}"
-        # Install certificates
+    # Check if is installed docker compose
+    # https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
+    docker compose version &> /dev/null
+    if [ $? -eq 0 ]; then
+        sudo apt-get update
         sudo apt-get install -y ca-certificates curl gnupg lsb-release
-        # Add Docker’s official GPG key
         sudo mkdir -p /etc/apt/keyrings
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        # Set up the repository
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        # Install Docker Engine
+        echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
-        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     fi
 
     if ! getent group docker | grep -q "\b$USER\b" ; then
@@ -827,12 +828,19 @@ install_on_robot()
         sudo usermod -aG docker $USER
     fi
 
-    # Check if is installed docker-compose
-    if ! command -v docker-compose &> /dev/null ; then
-        echo " - ${bold}${green}Install docker-compose${reset}"
-        sudo apt-get install -y libffi-dev python-openssl libssl-dev
-        sudo -H pip3 install -U pip
-        sudo pip3 install -U docker-compose
+    # Check if is installed docker compose
+    # https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
+    docker compose version &> /dev/null
+    if [ $? -eq 0 ]; then
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl gnupg lsb-release
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     fi
 
     local branch=$BRANCH_TAG
@@ -862,9 +870,9 @@ install_on_robot()
     fi
 
     # Create nanosaur docker
-    echo " - ${bold}${green}Start nanosaur docker-compose${reset}"
+    echo " - ${bold}${green}Start nanosaur docker compose${reset}"
     # TODO: make .env file before start
-    sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
+    #sudo docker-compose -f $NANOSAUR_DATA/docker-compose.yml up -d
 }
 
 installer()
@@ -885,6 +893,10 @@ installer()
                 ;;
             -y)
                 SILENT=true
+                ;;
+            --branch)
+                BRANCH_TAG=$2
+                shift 1
                 ;;
             developer)
                 developer=true
@@ -1062,7 +1074,7 @@ usage()
     echo "  $name cover                    Set cover type" >&2
     echo "  $name config                   Open/create robot.yml in ${bold}$NANOSAUR_DATA/param${reset} (use nano)" >&2
     echo "  $name dds                      Set DDS communication RMW_IMPLEMENTATION" >&2
-    echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/foxy/Concepts/About-Domain-ID.html
+    echo "  $name domain                   Set ROS_DOMAIN_ID" >&2 # https://docs.ros.org/en/ros2_documentation/humble/Concepts/About-Domain-ID.html
     echo "  $name install                  Install nanosaur environment." >&2
     echo "  $name update                   Update docker and scripts" >&2
     if [[ $PLATFORM = "desktop" ]] ; then

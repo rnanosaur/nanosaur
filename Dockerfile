@@ -24,9 +24,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # https://hub.docker.com/_/ros
-FROM ros:foxy-ros-base
+FROM ros:humble-ros-base
 
-ENV ROS_DISTRO=foxy
+ENV ROS_DISTRO=humble
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
 # Download and build nanosaur_ws
