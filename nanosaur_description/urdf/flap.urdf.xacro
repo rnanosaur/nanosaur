@@ -4,101 +4,23 @@
 
     <xacro:macro name="flap">
 
-        <gazebo reference="flap_bottom">
-            <material>Gazebo/Green</material>
-            <!-- Ignition color reference -->
-            <visual>
-                <material>
-                    <ambient>0.0 0.5 0.0 1.0</ambient>
-                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
-                    <specular>0.0 0.5 0.0 1.0</specular>
-                </material>
-            </visual>
-        </gazebo>
-        <gazebo reference="flap_top">
-            <material>Gazebo/Green</material>
-            <!-- Ignition color reference -->
-            <visual>
-                <material>
-                    <ambient>0.0 0.5 0.0 1.0</ambient>
-                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
-                    <specular>0.0 0.5 0.0 1.0</specular>
-                </material>
-            </visual>
-        </gazebo>
-        <gazebo reference="board_expansion">
-            <material>Gazebo/DarkGrey</material>
-            <!-- Ignition color reference -->
-            <visual>
-                <material>
-                    <ambient>0.5 0.5 0.5 1.0</ambient>
-                    <diffuse>0.5 0.5 0.5 1.0</diffuse>
-                    <specular>0.5 0.5 0.5 1.0</specular>
-                </material>
-            </visual>
-        </gazebo>
-
-        <joint name="flap_bottom_joint" type="fixed">
-            <origin xyz="-0.05 0 0" rpy="0 0 0" />
-            <parent link="base_rear"/>
-            <child link="flap_bottom"/>
+        <joint name="nanosaur_flap_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="nanosaur_base"/>
+            <child link="nanosaur_flap"/>
         </joint>
 
-        <link name="flap_bottom">
+        <link name="nanosaur_flap">
             <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+                <mass value="0.018"/>
+                <origin rpy="0 0 0" xyz="-0.063 0 0.065"/>
+                <inertia ixx="7565.043" ixy="-0.00384" ixz="300.2704"
+                        iyy="2254.45646" iyz="0.00019"
+                        izz="9538.576"/>
             </inertial>
             <visual>
-                <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
-                <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
-                <geometry>
-                    <mesh filename="${path_meshes}/flap_bottom.stl" scale="0.001 0.001 0.001"/>
-                </geometry>
+                <geometry><mesh filename="${path_meshes}/nanosaur_flap.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
-            </visual>
-        </link>
-
-        <joint name="flap_top_joint" type="fixed">
-            <parent link="flap_bottom"/>
-            <child link="flap_top"/>
-        </joint>
-
-        <link name="flap_top">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
-            <visual>
-                <!--<origin xyz="-0.0161 0 0.009" rpy="0 0 0" />-->
-                <origin xyz="0.0068 0 0.0175" rpy="0 0 0" />
-                <geometry>
-                    <mesh filename="${path_meshes}/flap_top.stl" scale="0.001 0.001 0.001"/>
-                </geometry>
-                <material name="Green" />
-            </visual>
-        </link>
-
-        <joint name="board_expansion_joint" type="fixed">
-            <parent link="flap_bottom"/>
-            <child link="board_expansion"/>
-        </joint>
-
-        <link name="board_expansion">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
-            <visual>
-                <!--<origin xyz="-0.0017 0 0.019" rpy="0 0 0" />-->
-                <origin xyz="-0.002 0.0005 0.017" rpy="0 0 0" />
-                <geometry>
-                    <mesh filename="${path_meshes}/parts/nanosaur-exp-board.stl"/>
-                </geometry>
-                <material name="GunMetalGrey" />
             </visual>
         </link>
 

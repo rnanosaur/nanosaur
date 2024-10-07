@@ -5,12 +5,8 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.gazebo.xacro" />
     <!-- nanosaur parts -->
-    <xacro:include filename="$(find nanosaur_description)/urdf/track.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_pi.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_fisheye.urdf.xacro" />
-    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_zedmini.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/omniwheel.urdf.xacro" />
     <!-- Global properties -->
     <xacro:property name="M_PI" value="3.14159"/>
     <!--https://github.com/ros-simulation/gazebo_ros_pkgs/pull/1284 -->
@@ -18,148 +14,153 @@
     <!--<xacro:property name="path_meshes" value="file://$(find nanosaur_description)/meshes"/>-->
     <!--<xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>-->
     <!-- nanosaur properties -->
-    <xacro:property name="motor_board_angle" value="35"/>
-    <!-- Real radius 0.0105 but augmented for track thickness -->
-    <xacro:property name="sprocket_radius" value="0.0150"/>
 
     <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation mimic_enable:=true path_meshes:=package://nanosaur_description/meshes">
 
-        <!-- nanosaur definition -->
-        <link name="base_link" />
-
-        <joint name="base_front_joint" type="fixed">
-            <origin xyz="0 0 0.03" rpy="0 0 0" />
-            <parent link="base_link"/>
-            <child link="base_front"/>
-        </joint>
-
-        <link name="base_front">
+        <link name="nanosaur_base">
             <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0.053376 0 -0.007808"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+                <mass value="0.412"/>
+                <origin rpy=" 0 0 0" xyz="0.0 0 0.0"/>
+                <inertia ixx="922734.27556" ixy="0458.391" ixz="225029.72"
+                        iyy="1.701e-06" iyz="-3998.88622"
+                        izz="1995920.29749"/>
             </inertial>
             <visual>
-                <geometry><mesh filename="${path_meshes}/base_front.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry><mesh filename="${path_meshes}/nanosaur_base.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
             </visual>
         </link>
 
-        <joint name="base_rear_joint" type="fixed">
-            <origin xyz="0 0 0.03" rpy="0 0 0" />
-            <parent link="base_link"/>
-            <child link="base_rear"/>
+        <joint name="nanosaur_cover_batteries_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="nanosaur_base"/>
+            <child link="nanosaur_cover_batteries"/>
         </joint>
 
-        <link name="base_rear">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
+        <link name="nanosaur_cover_batteries">
             <visual>
-                <geometry><mesh filename="${path_meshes}/base_rear.stl" scale="0.001 0.001 0.001"/></geometry>
-                <material name="Green" />
-            </visual>
-            <collision>
-                <origin xyz="0 0 -0.01" rpy="0 0 0" />
-                <geometry><box size="0.12 0.07 0.03" /></geometry>
-                <material name="Green" />
-            </collision>
-        </link>
-
-        <joint name="motor_board_joint" type="fixed">
-            <origin xyz="0.055 0 0.005" rpy="0 ${M_PI/2 - motor_board_angle * M_PI/180} 0" />
-            <parent link="base_front"/>
-            <child link="motor_board"/>
-        </joint>
-
-        <link name="motor_board">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
-            <visual>
-                <geometry><mesh filename="${path_meshes}/parts/motor_board.stl"/></geometry>
-                <material name="GunMetalGrey" />
-            </visual>
-        </link>
-
-        <joint name="power_bank_joint" type="fixed">
-            <origin xyz="0.0 0 0.0" rpy="0 0 0" />
-            <parent link="base_rear"/>
-            <child link="power_bank"/>
-        </joint>
-
-        <link name="power_bank">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
-            <visual>
-                <origin xyz="0.0 0 -0.0115" rpy="0 0 ${M_PI}" />
-                <geometry><mesh filename="${path_meshes}/parts/power_bank.stl"/></geometry>
-                <material name="DarkGrey" />
-            </visual>
-        </link>
-
-        <joint name="pb_holder_joint" type="fixed">
-            <origin xyz="-0.0545 0 -0.0061" rpy="0 0 0" />
-            <parent link="base_rear"/>
-            <child link="pb_holder"/>
-        </joint>
-
-        <link name="pb_holder">
-            <inertial>
-                <mass value="0.01"/>
-                <origin rpy=" 0 0 0" xyz="0 0 0"/>
-                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
-            </inertial>
-            <visual>
-                <origin xyz="0.0 0 0" rpy="0 0 0" />
-                <geometry><mesh filename="${path_meshes}/pb_holder.stl" scale="0.001 0.001 0.001"/></geometry>
+                <geometry><mesh filename="${path_meshes}/nanosaur_cover_batteries.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
             </visual>
         </link>
+
+        <joint name="nanosaur_cover_electronics_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="nanosaur_base"/>
+            <child link="nanosaur_cover_electronics"/>
+        </joint>
+
+        <link name="nanosaur_cover_electronics">
+            <visual>
+                <geometry><mesh filename="${path_meshes}/nanosaur_cover_electronics.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <xacro:omniwheel parent="nanosaur_base" type="left" position="front" xyz="0.05 0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="left" position="rear" xyz="-0.05 0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="right" position="front" xyz="0.05 -0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="right" position="rear" xyz="-0.05 -0.041 -0.035"/>
+
+        <xacro:flap />
 
         <joint name="NVIDIA_jetson_joint" type="fixed">
             <origin xyz="0 0 0" rpy="0 0 0" />
-            <parent link="base_rear"/>
+            <parent link="nanosaur_base"/>
             <child link="NVIDIA_jetson"/>
         </joint>
 
         <link name="NVIDIA_jetson">
+            <visual>
+                <origin xyz="0.056 0.0078 0.0085" rpy="0 0 ${M_PI}" />
+                <geometry><mesh filename="${path_meshes}/parts/NVIDIA_Jetson_Orin_Nano_DevKit.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="motor2040_joint" type="fixed">
+            <origin xyz="0 0 -0.035" rpy="0 ${M_PI} 0" />
+            <parent link="nanosaur_base"/>
+            <child link="motor2040"/>
+        </joint>
+
+        <link name="motor2040">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/motor2040.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="nanosaur_PCB_electronics_joint" type="fixed">
+            <origin xyz="-0.046 -0.015 0.0225" rpy="0 0 0" />
+            <parent link="nanosaur_base"/>
+            <child link="nanosaur_PCB_electronics"/>
+        </joint>
+
+        <link name="nanosaur_PCB_electronics">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/nanosaur_PCB_electronics.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="nanosaur_PCB_oleds_joint" type="fixed">
+            <origin xyz="0.053 0 0.037" rpy="0 ${M_PI / 5.5} 0" />
+            <parent link="nanosaur_base"/>
+            <child link="nanosaur_PCB_oleds"/>
+        </joint>
+
+        <link name="nanosaur_PCB_oleds">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI / 2}" />
+                <geometry><mesh filename="${path_meshes}/parts/nanosaur_PCB_oleds.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="display_left_joint" type="fixed">
+            <origin xyz="-0.0122 0.021 0.003" rpy="0 0 0" />
+            <parent link="nanosaur_PCB_oleds"/>
+            <child link="display_left"/>
+        </joint>
+
+        <link name="display_left">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="display_right_joint" type="fixed">
+            <origin xyz="-0.0122 -0.021 0.003" rpy="0 0 0" />
+            <parent link="nanosaur_PCB_oleds"/>
+            <child link="display_right"/>
+        </joint>
+
+        <link name="display_right">
             <inertial>
                 <mass value="0.01"/>
                 <origin rpy=" 0 0 0" xyz="0 0 0"/>
                 <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
             </inertial>
             <visual>
-                <origin xyz="0.039 0.022 0.005" rpy="0 0 ${M_PI}" />
-                <geometry><mesh filename="${path_meshes}/parts/NVIDIA_jetson_nano_4gb.stl"/></geometry>
-                <material name="DarkGrey" />
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
+                <material name="Black" />
             </visual>
         </link>
-
-        <xacro:track type="left" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}" mimic_enable="${mimic_enable}"/>
-        <xacro:track type="right" parent="base_link" radius="${sprocket_radius}" diff_drive_emulation="${diff_drive_emulation}" mimic_enable="${mimic_enable}"/>
-        <xacro:flap />
-
-        <!-- Nanosaur heads -->
-        <xacro:if value="${cover_type == 'pi'}">
-            <xacro:nanosaur_head_pi />
-        </xacro:if>
-        <xacro:if value="${cover_type == 'fisheye'}">
-            <xacro:nanosaur_head_fisheye />
-        </xacro:if>
-        <xacro:if value="${cover_type == 'realsense'}">
-            <xacro:nanosaur_head_realsense name="camera" use_nominal_extrinsics="${use_nominal_extrinsics}" />
-        </xacro:if>
-        <xacro:if value="${cover_type == 'zed'}">
-            <xacro:nanosaur_head_zedmini name="zedm" />
-        </xacro:if>
 
     </xacro:macro>
 

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<robot name="omniwheel"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <xacro:macro name="omniwheel" params="parent type position xyz">
+
+        <!-- Define orientation -->
+        <xacro:if value="${type == 'left'}">
+            <xacro:property name="orientation" value="-1"/>
+        </xacro:if>
+        <xacro:if value="${type == 'right'}">
+            <xacro:property name="orientation" value="1"/>
+        </xacro:if>
+        <!-- Define orientation -->
+        <xacro:if value="${position == 'front'}">
+            <xacro:property name="motor_orientation" value="1"/>
+        </xacro:if>
+        <xacro:if value="${position == 'rear'}">
+            <xacro:property name="motor_orientation" value="0"/>
+        </xacro:if>
+        <!--radius definition-->
+        <xacro:property name="wheel_diameter" value="0.037"/>
+        <xacro:property name="wheel_length" value="0.0226"/>
+
+        <joint name="motor_${type}_${position}_joint" type="fixed">
+            <origin xyz="${xyz}" rpy="${orientation * M_PI/2} 0 0" />
+            <parent link="${parent}"/>
+            <child link="motor_${type}_${position}"/>
+        </joint>
+
+        <link name="motor_${type}_${position}">
+            <visual>
+                <origin xyz="0 0 -0.024" rpy="0 0 ${motor_orientation * M_PI}" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/motor_block.stl"/>
+                </geometry>
+                <material name="Gold" />
+            </visual>
+        </link>
+
+        <joint name="omniwheel_${type}_${position}_joint" type="continuous">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="motor_${type}_${position}"/>
+            <child link="omniwheel_${type}_${position}"/>
+            <axis xyz="0 0 ${-1 * orientation}" />
+        </joint>
+
+        <link name="omniwheel_${type}_${position}">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/mecanum_cover.stl"/>
+                </geometry>
+                <material name="Black" />
+            </visual>
+            <!-- Collision cylinder -->
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <cylinder length="${wheel_length}" radius="${wheel_diameter / 2}"/>
+                </geometry>
+                <material name="Black" />
+            </collision>
+        </link>
+
+        <joint name="omniwheel_${type}_${position}_wheels_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="omniwheel_${type}_${position}"/>
+            <child link="omniwheel_${type}_${position}_wheels"/>
+            <axis xyz="0 0 ${-1 * orientation}" />
+        </joint>
+
+        <link name="omniwheel_${type}_${position}_wheels">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/mecanum_wheels.stl"/>
+                </geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+
+</robot>
