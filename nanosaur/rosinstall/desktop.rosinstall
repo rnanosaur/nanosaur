@@ -1,8 +1,4 @@
 - git:
     local-name: nanosaur
-    version: foxy
+    version: nanosaur2
     uri: https://github.com/rnanosaur/nanosaur.git
-- git:
-    local-name: nanosaur_board
-    version: main
-    uri: https://github.com/rnanosaur/nanosaur_board.git
