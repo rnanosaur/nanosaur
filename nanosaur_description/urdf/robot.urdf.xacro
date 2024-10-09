@@ -5,17 +5,19 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.urdf" />
     <xacro:include filename="$(find nanosaur_description)/urdf/materials.gazebo.xacro" />
     <!-- nanosaur parts -->
-    <xacro:include filename="$(find nanosaur_description)/urdf/flap.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/omniwheel.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/flap/flap.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/flap/flap_LD06.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
     <!-- Global properties -->
     <xacro:property name="M_PI" value="3.14159"/>
     <!--https://github.com/ros-simulation/gazebo_ros_pkgs/pull/1284 -->
     <!--I cannot use the solution below for remote machines-->
     <!--<xacro:property name="path_meshes" value="file://$(find nanosaur_description)/meshes"/>-->
     <!--<xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>-->
-    <!-- nanosaur properties -->
 
-    <xacro:macro name="nanosaur" params="cover_type use_nominal_extrinsics diff_drive_emulation mimic_enable:=true path_meshes:=package://nanosaur_description/meshes">
+    <xacro:macro name="nanosaur" params="head_type flap_type use_nominal_extrinsics diff_drive_emulation mimic_enable:=true path_meshes:=package://nanosaur_description/meshes">
 
         <link name="nanosaur_base">
             <inertial>
@@ -29,6 +31,13 @@
                 <geometry><mesh filename="${path_meshes}/nanosaur_base.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />
             </visual>
+            <collision>
+                <origin xyz="0.01 0 0.005" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.17 0.075 0.09"/>
+                </geometry>
+                <material name="Green" />
+            </collision>
         </link>
 
         <joint name="nanosaur_cover_batteries_joint" type="fixed">
@@ -56,13 +65,6 @@
                 <material name="Green" />
             </visual>
         </link>
-
-        <xacro:omniwheel parent="nanosaur_base" type="left" position="front" xyz="0.05 0.041 -0.035"/>
-        <xacro:omniwheel parent="nanosaur_base" type="left" position="rear" xyz="-0.05 0.041 -0.035"/>
-        <xacro:omniwheel parent="nanosaur_base" type="right" position="front" xyz="0.05 -0.041 -0.035"/>
-        <xacro:omniwheel parent="nanosaur_base" type="right" position="rear" xyz="-0.05 -0.041 -0.035"/>
-
-        <xacro:flap />
 
         <joint name="NVIDIA_jetson_joint" type="fixed">
             <origin xyz="0 0 0" rpy="0 0 0" />
@@ -161,6 +163,27 @@
                 <material name="Black" />
             </visual>
         </link>
+
+        <xacro:omniwheel parent="nanosaur_base" type="left" position="front" xyz="0.05 0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="left" position="rear" xyz="-0.05 0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="right" position="front" xyz="0.05 -0.041 -0.035"/>
+        <xacro:omniwheel parent="nanosaur_base" type="right" position="rear" xyz="-0.05 -0.041 -0.035"/>
+
+        <!-- Nanosaur heads -->
+        <xacro:if value="${head_type == 'empty'}">
+            <xacro:nanosaur_head parent="nanosaur_base" />
+        </xacro:if>
+        <xacro:if value="${head_type == 'realsense'}">
+            <xacro:nanosaur_head_realsense parent="nanosaur_base" name="camera" use_nominal_extrinsics="${use_nominal_extrinsics}" />
+        </xacro:if>
+
+        <!-- Nanosaur flap -->
+        <xacro:if value="${flap_type == 'empty'}">
+            <xacro:nanosaur_flap parent="nanosaur_base" />
+        </xacro:if>
+        <xacro:if value="${flap_type == 'LD06'}">
+            <xacro:nanosaur_flap_LD06 parent="nanosaur_base" />
+        </xacro:if>
 
     </xacro:macro>
 

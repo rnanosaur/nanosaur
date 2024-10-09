@@ -8,7 +8,8 @@
          Add extra wheel and center sprocket for differential drive simulation -->
     <xacro:arg name="diff_drive_emulation" default="false" />
     <!-- camera definitions -->
-    <xacro:arg name="cover_type" default="fisheye" /> <!--options: pi, fisheye, realsense, zedmini -->
+    <xacro:arg name="head_type" default="empty" /> <!--options: empty, realsense, zedmini -->
+    <xacro:arg name="flap_type" default="empty" /> <!--options: empty, LD06 -->
     <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
 
      <!-- nanosaur definition -->
@@ -21,7 +22,8 @@
      </joint>
 
     <!-- nanosaur robot -->
-    <xacro:nanosaur cover_type="$(arg cover_type)"
+    <xacro:nanosaur head_type="$(arg head_type)"
+                    flap_type="$(arg flap_type)"
                     use_nominal_extrinsics="$(arg use_nominal_extrinsics)"
                     diff_drive_emulation="$(arg diff_drive_emulation)" />
 

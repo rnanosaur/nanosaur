@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_head"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/d435.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/d435i_imu_modules.urdf.xacro"/>
+
+    <xacro:macro name="nanosaur_head" params="parent">
+
+        <gazebo reference="head">
+            <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
+        </gazebo>
+
+        <joint name="head_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${parent}"/>
+            <child link="head"/>
+        </joint>
+
+        <link name="head">
+            <visual>
+                <geometry>
+                    <mesh filename="${path_meshes}/nanosaur_head.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+</robot>

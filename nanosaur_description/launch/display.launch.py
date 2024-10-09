@@ -39,16 +39,22 @@ def generate_launch_description():
     nanosaur_description_path = get_package_share_directory('nanosaur_description')
     
     gui = LaunchConfiguration('gui')
-    cover_type = LaunchConfiguration('cover_type')
+    head_type = LaunchConfiguration('head_type')
+    flap_type = LaunchConfiguration('flap_type')
     diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
 
-    declare_cover_type_cmd = DeclareLaunchArgument(
-        name='cover_type',
-        default_value='fisheye',
-        description='Cover type to use. Options: pi, fisheye, realsense, zed.')
+    declare_head_type_cmd = DeclareLaunchArgument(
+        name='head_type',
+        default_value='realsense',
+        description='Head type to use. Options: empty, Realsense, zed.')
+
+    declare_flap_type_cmd = DeclareLaunchArgument(
+        name='flap_type',
+        default_value='empty',
+        description='Flap type to use. Options: empty, LD06.')
 
     declare_simulation_cmd = DeclareLaunchArgument(
         name='diff_drive_emulation',
@@ -91,13 +97,14 @@ def generate_launch_description():
     # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
     description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
-        launch_arguments={'cover_type': cover_type, 'diff_drive_emulation': diff_drive_emulation}.items()
+        launch_arguments={'head_type': head_type, 'flap_type': flap_type, 'diff_drive_emulation': diff_drive_emulation}.items()
         )
 
     # Define LaunchDescription variable and return it
     ld = LaunchDescription()
     
-    ld.add_action(declare_cover_type_cmd)
+    ld.add_action(declare_head_type_cmd)
+    ld.add_action(declare_flap_type_cmd)
     ld.add_action(declare_simulation_cmd)
     ld.add_action(declare_gui_cmd)
     ld.add_action(declare_rvizconfig_cmd)

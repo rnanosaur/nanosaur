@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_flap_LD06"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="nanosaur_flap_LD06" params="parent">
+
+        <joint name="nanosaur_flap_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${parent}"/>
+            <child link="nanosaur_flap"/>
+        </joint>
+
+        <link name="nanosaur_flap">
+            <visual>
+                <geometry><mesh filename="${path_meshes}/nanosaur_flap_LD06.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="LD06_joint" type="fixed">
+            <origin xyz="-0.057 0 0.065" rpy="0 0 -${M_PI/2}" />
+            <parent link="${parent}"/>
+            <child link="LD06"/>
+        </joint>
+
+        <link name="LD06">
+            <visual>
+                <geometry><mesh filename="${path_meshes}/parts/LD06.stl" /></geometry>
+                <material name="Black" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0.017" rpy="0 0 0" />
+                <geometry>
+                    <cylinder length="0.036" radius="0.02"/>
+                </geometry>
+                <material name="Black" />
+            </collision>
+        </link>
+
+    </xacro:macro>
+
+</robot>

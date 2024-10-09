@@ -41,7 +41,8 @@ def launch_setup(context: LaunchContext, support_package):
     namespace = context.perform_substitution(support_package)
 
     xacro_path = LaunchConfiguration('xacro_path')
-    cover_type = LaunchConfiguration('cover_type')
+    head_type = LaunchConfiguration('head_type')
+    flap_type = LaunchConfiguration('flap_type')
     diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     use_nominal_extrinsics = LaunchConfiguration('use_nominal_extrinsics')
 
@@ -53,7 +54,8 @@ def launch_setup(context: LaunchContext, support_package):
             'robot_description': Command(
                 [
                     'xacro ', xacro_path, ' ',
-                    'cover_type:=', cover_type, ' ',
+                    'head_type:=', head_type, ' ',
+                    'flap_type:=', flap_type, ' ',
                     'diff_drive_emulation:=', diff_drive_emulation, ' ',
                     'use_nominal_extrinsics:=', use_nominal_extrinsics, ' ',
                 ])
@@ -83,10 +85,15 @@ def generate_launch_description():
         default_value='nanosaur',
         description='nanosaur namespace name. If you are working with multiple robot you can change this namespace.')
 
-    declare_cover_type_cmd = DeclareLaunchArgument(
-        name='cover_type',
-        default_value='fisheye',
-        description='Cover type to use. Options: pi, fisheye, realsense, zed.')
+    declare_head_type_cmd = DeclareLaunchArgument(
+        name='head_type',
+        default_value='realsense',
+        description='Head type to use. Options: empty, Realsense, zed.')
+
+    declare_flap_type_cmd = DeclareLaunchArgument(
+        name='flap_type',
+        default_value='empty',
+        description='Flap type to use. Options: empty, LD06.')
 
     declare_simulation_cmd = DeclareLaunchArgument(
         name='diff_drive_emulation',
@@ -103,7 +110,8 @@ def generate_launch_description():
     ld.add_action(nanosaur_cmd)
     ld.add_action(declare_model_path_cmd)
     ld.add_action(declare_simulation_cmd)
-    ld.add_action(declare_cover_type_cmd)
+    ld.add_action(declare_head_type_cmd)
+    ld.add_action(declare_flap_type_cmd)
     ld.add_action(declare_use_nominal_extrinsics_cmd)
     ld.add_action(OpaqueFunction(function=launch_setup, args=[namespace]))
 

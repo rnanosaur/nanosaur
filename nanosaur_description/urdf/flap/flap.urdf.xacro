@@ -2,22 +2,15 @@
 <robot name="nanosaur_flap"
     xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:macro name="flap">
+    <xacro:macro name="nanosaur_flap" params="parent">
 
         <joint name="nanosaur_flap_joint" type="fixed">
             <origin xyz="0 0 0" rpy="0 0 0" />
-            <parent link="nanosaur_base"/>
+            <parent link="${parent}"/>
             <child link="nanosaur_flap"/>
         </joint>
 
         <link name="nanosaur_flap">
-            <inertial>
-                <mass value="0.018"/>
-                <origin rpy="0 0 0" xyz="-0.063 0 0.065"/>
-                <inertia ixx="7565.043" ixy="-0.00384" ixz="300.2704"
-                        iyy="2254.45646" iyz="0.00019"
-                        izz="9538.576"/>
-            </inertial>
             <visual>
                 <geometry><mesh filename="${path_meshes}/nanosaur_flap.stl" scale="0.001 0.001 0.001"/></geometry>
                 <material name="Green" />

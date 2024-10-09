@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_head_realsense"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/d435.urdf.xacro" />
+    <xacro:include filename="$(find nanosaur_description)/urdf/head/d435i_imu_modules.urdf.xacro"/>
+
+    <xacro:macro name="nanosaur_head_realsense" params="parent name:=camera use_nominal_extrinsics:=false">
+
+        <gazebo reference="head">
+            <material>Gazebo/Green</material>
+            <!-- Ignition color reference -->
+            <visual>
+                <material>
+                    <ambient>0.0 0.5 0.0 1.0</ambient>
+                    <diffuse>0.0 0.5 0.0 1.0</diffuse>
+                    <specular>0.0 0.5 0.0 1.0</specular>
+                </material>
+            </visual>
+        </gazebo>
+
+        <joint name="head_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${parent}"/>
+            <child link="head"/>
+        </joint>
+
+        <link name="head">
+            <visual>
+                <geometry>
+                    <mesh filename="${path_meshes}/nanosaur_head_realsense_d435.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <xacro:sensor_d435 parent="${parent}" name="${name}" use_nominal_extrinsics="${use_nominal_extrinsics}">
+            <origin xyz="0.026 0 0.058" rpy="0 0 0" />
+        </xacro:sensor_d435>
+        <xacro:d435i_imu_modules name="${name}" use_nominal_extrinsics="${use_nominal_extrinsics}"/>
+
+    </xacro:macro>
+</robot>
