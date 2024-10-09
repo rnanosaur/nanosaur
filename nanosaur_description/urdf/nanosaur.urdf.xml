@@ -16,7 +16,7 @@
      <link name="base_link" />
 
      <joint name="nanosaur_base_joint" type="fixed">
-          <origin xyz="0 0 0.0" rpy="0 0 0" />
+          <origin xyz="0 0 0.05" rpy="0 0 0" />
           <parent link="base_link"/>
           <child link="nanosaur_base"/>
      </joint>
