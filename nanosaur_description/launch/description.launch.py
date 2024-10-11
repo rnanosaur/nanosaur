@@ -72,7 +72,7 @@ def generate_launch_description():
     default_xacro_path = os.path.join(
         get_package_share_directory('nanosaur_description'),
         'urdf',
-        'nanosaur.urdf.xml'
+        'nanosaur.urdf.xacro'
     )
 
     declare_model_path_cmd = DeclareLaunchArgument(

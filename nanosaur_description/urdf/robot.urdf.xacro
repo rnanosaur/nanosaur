@@ -21,11 +21,11 @@
 
         <link name="nanosaur_base">
             <inertial>
-                <mass value="0.412"/>
+                <mass value="0.453"/>
                 <origin rpy=" 0 0 0" xyz="0.0 0 0.0"/>
-                <inertia ixx="922734.27556" ixy="0458.391" ixz="225029.72"
-                        iyy="1.701e-06" iyz="-3998.88622"
-                        izz="1995920.29749"/>
+                <inertia ixx="982653.79909" ixy="-2069.061" ixz="193876.45537"
+                        iyy="1888714.1125" iyz="-4847.17947"
+                        izz="2199329.1679"/>
             </inertial>
             <visual>
                 <geometry><mesh filename="${path_meshes}/nanosaur_base.stl" scale="0.001 0.001 0.001"/></geometry>
