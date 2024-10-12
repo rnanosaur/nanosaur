@@ -17,7 +17,7 @@
         timeout : 0.5
         priority: 100
       keyboard:
-        topic   : key_vel
+        topic   : /cmd_vel
         timeout : 0.5
         priority: 90
       tablet:
