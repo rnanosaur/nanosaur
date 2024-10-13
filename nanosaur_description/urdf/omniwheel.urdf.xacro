@@ -58,7 +58,7 @@
             <origin xyz="0 0 ${omni_wheel_height / 2}" rpy="0 0 0" />
             <parent link="motor_${type}_${position}"/>
             <child link="omniwheel_${type}_${position}"/>
-            <axis xyz="0 0 ${-1 * orientation}" />
+            <axis xyz="0 0 1" />
             <limit effort="1000" velocity="1000"/>
         </joint>
 
@@ -92,7 +92,7 @@
             <origin xyz="0 0 0" rpy="0 0 0" />
             <parent link="omniwheel_${type}_${position}"/>
             <child link="omniwheel_${type}_${position}_wheels"/>
-            <axis xyz="0 0 ${-1 * orientation}" />
+            <axis xyz="0 0 1" />
         </joint>
 
         <link name="omniwheel_${type}_${position}_wheels">
@@ -105,14 +105,10 @@
             </visual>
         </link>
 
-        <!-- Reference:
-            https://github.com/gazebosim/gz-sim/issues/2261
-        -->
+        <!-- Reference https://github.com/gazebosim/gz-sim/issues/2261 -->
         <gazebo reference="omniwheel_${type}_${position}">
-            <mu1 value="1.0"/>
-            <mu2 value="1.0"/>
-            <fdir1 value="1 0 ${fdir1_direction}"/>
-            <turnGravityOff>false</turnGravityOff>
+            <mu1 value="0.01"/>
+            <mu2 value="0.01"/>
         </gazebo>
 
 
