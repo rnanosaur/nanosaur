@@ -4,27 +4,14 @@
     <!-- nanosaur parts -->
     <xacro:include filename="$(find nanosaur_description)/urdf/robot.urdf.xacro" />
 
-    <!-- Enable simulation mode.
-         Add extra wheel and center sprocket for differential drive simulation -->
-    <xacro:arg name="diff_drive_emulation" default="false" />
     <!-- camera definitions -->
     <xacro:arg name="head_type" default="empty" /> <!--options: empty, realsense, zedmini -->
     <xacro:arg name="flap_type" default="empty" /> <!--options: empty, LD06 -->
     <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
 
-     <!-- nanosaur definition -->
-     <link name="base_link" />
-
-     <joint name="nanosaur_base_joint" type="fixed">
-          <origin xyz="0 0 0.05" rpy="0 0 0" />
-          <parent link="base_link"/>
-          <child link="nanosaur_base"/>
-     </joint>
-
     <!-- nanosaur robot -->
     <xacro:nanosaur head_type="$(arg head_type)"
                     flap_type="$(arg flap_type)"
-                    use_nominal_extrinsics="$(arg use_nominal_extrinsics)"
-                    diff_drive_emulation="$(arg diff_drive_emulation)" />
+                    use_nominal_extrinsics="$(arg use_nominal_extrinsics)" />
 
 </robot>

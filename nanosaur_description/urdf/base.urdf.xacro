@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_base" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="nanosaur_base" params="base_name length width height mass">
+
+        <link name="${base_name}">
+            <collision>
+                <origin xyz="${nanosaur_body_offset_x} 0 ${height / 2 - nanosaur_wheel_offset_z}" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${length} ${width} ${height}" />
+                </geometry>
+            </collision>
+
+            <xacro:inertial_box m="${mass}" x="${length}" y="${width}" z="${height}">
+                <origin xyz="${nanosaur_body_offset_x} 0 ${height / 2 - nanosaur_wheel_offset_z}" rpy="0 0 0"/>
+            </xacro:inertial_box>
+        </link>
+
+        <joint name="nansosaur_chassis_joint" type="fixed">
+            <origin xyz="0 0 ${0.042 - nanosaur_wheel_offset_z}" rpy="0 0 0"/>
+            <parent link="${base_name}"/>
+            <child link="nanosaur_chassis"/>
+        </joint>
+
+        <link name="nanosaur_chassis">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry><mesh filename="${path_meshes}/nanosaur_base.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="nanosaur_cover_batteries_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="nanosaur_chassis"/>
+            <child link="nanosaur_cover_batteries"/>
+        </joint>
+
+        <link name="nanosaur_cover_batteries">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry><mesh filename="${path_meshes}/nanosaur_cover_batteries.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="nanosaur_cover_electronics_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="nanosaur_chassis"/>
+            <child link="nanosaur_cover_electronics"/>
+        </joint>
+
+        <link name="nanosaur_cover_electronics">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry><mesh filename="${path_meshes}/nanosaur_cover_electronics.stl" scale="0.001 0.001 0.001"/></geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="NVIDIA_jetson_joint" type="fixed">
+            <origin xyz="0.056 0.0078 0.0085" rpy="0 0 0"/>
+            <parent link="nanosaur_chassis"/>
+            <child link="NVIDIA_jetson"/>
+        </joint>
+
+        <link name="NVIDIA_jetson">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+                <geometry><mesh filename="${path_meshes}/parts/NVIDIA_Jetson_Orin_Nano_DevKit.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="motor2040_joint" type="fixed">
+            <origin xyz="0 0 -0.035" rpy="0 ${M_PI} 0"/>
+            <parent link="nanosaur_chassis"/>
+            <child link="motor2040"/>
+        </joint>
+
+        <link name="motor2040">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/motor2040.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+
+        <joint name="nanosaur_PCB_electronics_joint" type="fixed">
+            <origin xyz="-0.046 -0.015 0.0225" rpy="0 0 0" />
+            <parent link="nanosaur_chassis"/>
+            <child link="nanosaur_PCB_electronics"/>
+        </joint>
+
+        <link name="nanosaur_PCB_electronics">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry><mesh filename="${path_meshes}/parts/nanosaur_PCB_electronics.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="nanosaur_PCB_oleds_joint" type="fixed">
+            <origin xyz="0.053 0 0.037" rpy="0 ${M_PI / 5.5} 0" />
+            <parent link="nanosaur_chassis"/>
+            <child link="nanosaur_PCB_oleds"/>
+        </joint>
+
+        <link name="nanosaur_PCB_oleds">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI / 2}" />
+                <geometry><mesh filename="${path_meshes}/parts/nanosaur_PCB_oleds.stl"/></geometry>
+                <material name="DarkGrey" />
+            </visual>
+        </link>
+
+        <joint name="display_left_joint" type="fixed">
+            <origin xyz="-0.0122 0.021 0.003" rpy="0 0 0" />
+            <parent link="nanosaur_PCB_oleds"/>
+            <child link="display_left"/>
+        </joint>
+
+        <link name="display_left">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+        <joint name="display_right_joint" type="fixed">
+            <origin xyz="-0.0122 -0.021 0.003" rpy="0 0 0" />
+            <parent link="nanosaur_PCB_oleds"/>
+            <child link="display_right"/>
+        </joint>
+
+        <link name="display_right">
+            <inertial>
+                <mass value="0.01"/>
+                <origin rpy=" 0 0 0" xyz="0 0 0"/>
+                <inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/OLED_Module.stl"/>
+                </geometry>
+                <material name="Black" />
+            </visual>
+        </link>
+
+    </xacro:macro>
+
+</robot>

@@ -43,7 +43,6 @@ def launch_setup(context: LaunchContext, support_package):
     xacro_path = LaunchConfiguration('xacro_path')
     head_type = LaunchConfiguration('head_type')
     flap_type = LaunchConfiguration('flap_type')
-    diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     use_nominal_extrinsics = LaunchConfiguration('use_nominal_extrinsics')
 
     robot_state_publisher_node = Node(
@@ -56,7 +55,6 @@ def launch_setup(context: LaunchContext, support_package):
                     'xacro ', xacro_path, ' ',
                     'head_type:=', head_type, ' ',
                     'flap_type:=', flap_type, ' ',
-                    'diff_drive_emulation:=', diff_drive_emulation, ' ',
                     'use_nominal_extrinsics:=', use_nominal_extrinsics, ' ',
                 ])
         }]
@@ -95,11 +93,6 @@ def generate_launch_description():
         default_value='empty',
         description='Flap type to use. Options: empty, LD06.')
 
-    declare_simulation_cmd = DeclareLaunchArgument(
-        name='diff_drive_emulation',
-        default_value='false',
-        description='Enable urdf for differential drive emulation, for simulation.')
-
     declare_use_nominal_extrinsics_cmd = DeclareLaunchArgument(
         name='use_nominal_extrinsics',
         default_value='false',
@@ -109,7 +102,6 @@ def generate_launch_description():
     ld = LaunchDescription()    
     ld.add_action(nanosaur_cmd)
     ld.add_action(declare_model_path_cmd)
-    ld.add_action(declare_simulation_cmd)
     ld.add_action(declare_head_type_cmd)
     ld.add_action(declare_flap_type_cmd)
     ld.add_action(declare_use_nominal_extrinsics_cmd)

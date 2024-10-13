@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<robot name="mecanum_wheel" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="mecanum_wheel" params="position side parent radius length xyz mass mu">
+
+        <!-- Define orientation -->
+        <xacro:if value="${side == 'left'}">
+            <xacro:property name="orientation" value="-1"/>
+        </xacro:if>
+        <xacro:if value="${side == 'right'}">
+            <xacro:property name="orientation" value="1"/>
+        </xacro:if>
+
+        <link name="${position}_${side}_mecanum_link">
+            <visual>
+                <origin xyz="0 ${orientation * (length / 2 - 0.002)} 0" rpy="${orientation * M_PI/2} 0 0" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/mecanum_cover.stl"/>
+                </geometry>
+                <material name="Black" />
+            </visual>
+
+            <collision>
+                <origin xyz="0 0 0" rpy="${M_PI/2} 0 0"/>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+            </collision>
+
+            <xacro:inertial_cylinder m="${mass}" r="${radius}" l="${length}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+
+        <gazebo reference="${position}_${side}_mecanum_link">
+            <mu1>${mu}</mu1>
+            <mu2>${mu}</mu2>
+        </gazebo>
+
+        <joint name="${position}_${side}_mecanum_joint" type="continuous">
+            <axis xyz="0 1 0" />
+            <parent link="${parent}"/>
+            <child link="${position}_${side}_mecanum_link"/>
+            <origin xyz="${xyz}" rpy="0 0 0"/>
+        </joint>
+
+        <!-- Visual effect miniwheels in green -->
+        <link name="${position}_${side}_mecanum_wheels_link">
+            <visual>
+                <origin xyz="0 ${orientation * (length / 2 - 0.002)} 0" rpy="${orientation * M_PI/2} 0 0" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/mecanum_wheels.stl"/>
+                </geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="${position}_${side}_mecanum_wheels_link_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${position}_${side}_mecanum_link"/>
+            <child link="${position}_${side}_mecanum_wheels_link"/>
+            <axis xyz="0 1 0" />
+        </joint>
+
+    </xacro:macro>
+
+</robot>

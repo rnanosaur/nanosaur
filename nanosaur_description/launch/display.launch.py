@@ -41,7 +41,6 @@ def generate_launch_description():
     gui = LaunchConfiguration('gui')
     head_type = LaunchConfiguration('head_type')
     flap_type = LaunchConfiguration('flap_type')
-    diff_drive_emulation = LaunchConfiguration('diff_drive_emulation')
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
@@ -55,11 +54,6 @@ def generate_launch_description():
         name='flap_type',
         default_value='empty',
         description='Flap type to use. Options: empty, LD06.')
-
-    declare_simulation_cmd = DeclareLaunchArgument(
-        name='diff_drive_emulation',
-        default_value='false',
-        description='Enable urdf for differential drive emulation, for simulation.')
 
     declare_gui_cmd = DeclareLaunchArgument(
         name='gui',
@@ -97,7 +91,7 @@ def generate_launch_description():
     # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
     description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
-        launch_arguments={'head_type': head_type, 'flap_type': flap_type, 'diff_drive_emulation': diff_drive_emulation}.items()
+        launch_arguments={'head_type': head_type, 'flap_type': flap_type}.items()
         )
 
     # Define LaunchDescription variable and return it
@@ -105,7 +99,6 @@ def generate_launch_description():
     
     ld.add_action(declare_head_type_cmd)
     ld.add_action(declare_flap_type_cmd)
-    ld.add_action(declare_simulation_cmd)
     ld.add_action(declare_gui_cmd)
     ld.add_action(declare_rvizconfig_cmd)
     ld.add_action(description_launch)

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot name="nanosaur_properties" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Global properties -->
+    <xacro:property name="M_PI" value="3.14159"/>
+    <!--https://github.com/ros-simulation/gazebo_ros_pkgs/pull/1284 -->
+    <!--I cannot use the solution below for remote machines-->
+    <!--<xacro:property name="path_meshes" value="file://$(find nanosaur_description)/meshes"/>-->
+    <!--<xacro:property name="path_meshes" value="package://nanosaur_description/meshes"/>-->
+
+    <xacro:property name="nanosaur_mass" value="0.5"/>
+    <xacro:property name="nanosaur_width" value="0.123"/>
+    <xacro:property name="nanosaur_length" value="0.182"/>
+    <xacro:property name="nanosaur_height" value="0.103"/>
+
+    <xacro:property name="nanosaur_body_offset_x" value="0.015"/>
+    <xacro:property name="nanosaur_wheel_offset_z" value="0.007"/>
+    <!-- Longitudinal distance between front and back wheels, in meters. -->
+    <xacro:property name="nanosaur_wheelbase" value="0.1"/>
+    <!-- Lateral distance between left and right wheels, in meters. -->
+    <xacro:property name="nanosaur_wheel_separation" value="0.101"/>
+
+    <xacro:property name="mecanum_mass" value="0.015"/>
+    <xacro:property name="mecanum_radius" value="${0.037 / 2}"/>
+    <xacro:property name="mecanum_length" value="0.024"/>
+    <xacro:property name="mecanum_friction" value="0.1"/>
+
+</robot>
