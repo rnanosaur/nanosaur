@@ -1,4 +1,4 @@
 - git:
-    local-name: nanosaur
+    local-name: nanosaur_simulations
     version: nanosaur2
-    uri: https://github.com/rnanosaur/nanosaur.git
+    uri: https://github.com/rnanosaur/nanosaur_simulations.git
