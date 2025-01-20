@@ -5,13 +5,13 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/robot.urdf.xacro" />
 
     <!-- camera definitions -->
-    <xacro:arg name="head_type" default="empty" /> <!--options: empty, realsense, zedmini -->
-    <xacro:arg name="flap_type" default="empty" /> <!--options: empty, LD06 -->
+    <xacro:arg name="camera_type" default="empty" /> <!--options: empty, realsense, zedmini -->
+    <xacro:arg name="lidar_type" default="empty" /> <!--options: empty, LD06 -->
     <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
 
     <!-- nanosaur robot -->
-    <xacro:nanosaur head_type="$(arg head_type)"
-                    flap_type="$(arg flap_type)"
+    <xacro:nanosaur camera_type="$(arg camera_type)"
+                    lidar_type="$(arg lidar_type)"
                     use_nominal_extrinsics="$(arg use_nominal_extrinsics)" />
 
 </robot>

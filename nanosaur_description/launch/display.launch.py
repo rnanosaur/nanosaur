@@ -39,21 +39,21 @@ def generate_launch_description():
     nanosaur_description_path = get_package_share_directory('nanosaur_description')
     
     gui = LaunchConfiguration('gui')
-    head_type = LaunchConfiguration('head_type')
-    flap_type = LaunchConfiguration('flap_type')
+    camera_type = LaunchConfiguration('camera_type')
+    lidar_type = LaunchConfiguration('lidar_type')
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
 
-    declare_head_type_cmd = DeclareLaunchArgument(
-        name='head_type',
-        default_value='realsense',
-        description='Head type to use. Options: empty, Realsense, zed.')
-
-    declare_flap_type_cmd = DeclareLaunchArgument(
-        name='flap_type',
+    declare_camera_type_cmd = DeclareLaunchArgument(
+        name='camera_type',
         default_value='empty',
-        description='Flap type to use. Options: empty, LD06.')
+        description='camera type to use. Options: empty, Realsense, zed.')
+
+    declare_lidar_type_cmd = DeclareLaunchArgument(
+        name='lidar_type',
+        default_value='empty',
+        description='Lidar type to use. Options: empty, LD06.')
 
     declare_gui_cmd = DeclareLaunchArgument(
         name='gui',
@@ -91,14 +91,14 @@ def generate_launch_description():
     # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
     description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
-        launch_arguments={'head_type': head_type, 'flap_type': flap_type}.items()
+        launch_arguments={'camera_type': camera_type, 'lidar_type': lidar_type}.items()
         )
 
     # Define LaunchDescription variable and return it
     ld = LaunchDescription()
     
-    ld.add_action(declare_head_type_cmd)
-    ld.add_action(declare_flap_type_cmd)
+    ld.add_action(declare_camera_type_cmd)
+    ld.add_action(declare_lidar_type_cmd)
     ld.add_action(declare_gui_cmd)
     ld.add_action(declare_rvizconfig_cmd)
     ld.add_action(description_launch)

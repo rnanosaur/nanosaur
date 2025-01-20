@@ -37,27 +37,27 @@ def generate_launch_description():
     
     nanosaur_visualization = get_package_share_directory('nanosaur_visualization')
     
-    head_type = LaunchConfiguration('head_type')
-    flap_type = LaunchConfiguration('flap_type')
-    namespace = LaunchConfiguration('namespace', default="nanosaur")
+    camera_type = LaunchConfiguration('camera_type')
+    lidar_type = LaunchConfiguration('lidar_type')
+    robot_name = LaunchConfiguration('robot_name', default="nanosaur")
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_visualization, 'rviz', 'robot.rviz')
 
     nanosaur_cmd = DeclareLaunchArgument(
-        name='namespace',
+        name='robot_name',
         default_value='nanosaur',
-        description='nanosaur namespace name. If you are working with multiple robot you can change this namespace.')
+        description='robot name (namespace). If you are working with multiple robot you can change this parameter.')
 
-    declare_head_type_cmd = DeclareLaunchArgument(
-        name='head_type',
+    declare_camera_type_cmd = DeclareLaunchArgument(
+        name='camera_type',
         default_value='realsense',
-        description='Head type to use. Options: empty, Realsense, zed.')
+        description='camera type to use. Options: empty, Realsense, zed.')
 
-    declare_flap_type_cmd = DeclareLaunchArgument(
-        name='flap_type',
+    declare_lidar_type_cmd = DeclareLaunchArgument(
+        name='lidar_type',
         default_value='empty',
-        description='Flap type to use. Options: empty, LD06.')
+        description='Lidar type to use. Options: empty, LD06.')
     
     declare_rvizconfig_cmd = DeclareLaunchArgument(
         name='rvizconfig',
@@ -69,15 +69,15 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         output='screen',
-        namespace=namespace,
+        namespace=robot_name,
         arguments=['-d', rvizconfig],
     )
 
     # Define LaunchDescription variable and return it
     ld = LaunchDescription()
     ld.add_action(nanosaur_cmd)
-    ld.add_action(declare_head_type_cmd)
-    ld.add_action(declare_flap_type_cmd)
+    ld.add_action(declare_camera_type_cmd)
+    ld.add_action(declare_lidar_type_cmd)
     ld.add_action(declare_rvizconfig_cmd)
     ld.add_action(rviz_node)
 

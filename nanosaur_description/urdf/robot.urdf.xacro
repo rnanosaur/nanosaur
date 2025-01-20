@@ -12,7 +12,7 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/head/head.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
 
-    <xacro:macro name="nanosaur" params="head_type flap_type use_nominal_extrinsics path_meshes:=package://nanosaur_description/meshes">
+    <xacro:macro name="nanosaur" params="camera_type lidar_type use_nominal_extrinsics path_meshes:=package://nanosaur_description/meshes">
 
         <link name="base_link"/>
 
@@ -70,18 +70,18 @@
                 mu="${mecanum_friction}" />   
 
         <!-- Nanosaur heads -->
-        <xacro:if value="${head_type == 'empty'}">
+        <xacro:if value="${camera_type == 'empty'}">
             <xacro:nanosaur_head parent="nanosaur_chassis" />
         </xacro:if>
-        <xacro:if value="${head_type == 'realsense'}">
+        <xacro:if value="${camera_type == 'realsense'}">
             <xacro:nanosaur_head_realsense parent="nanosaur_chassis" name="camera" use_nominal_extrinsics="${use_nominal_extrinsics}" />
         </xacro:if>
 
         <!-- Nanosaur flap -->
-        <xacro:if value="${flap_type == 'empty'}">
+        <xacro:if value="${lidar_type == 'empty'}">
             <xacro:nanosaur_flap parent="nanosaur_chassis" />
         </xacro:if>
-        <xacro:if value="${flap_type == 'LD06'}">
+        <xacro:if value="${lidar_type == 'LD06'}">
             <xacro:nanosaur_flap_LD06 parent="nanosaur_chassis" />
         </xacro:if>
 

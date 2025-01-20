@@ -60,7 +60,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /nanosaur/robot_description
+        Value: robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -68,6 +68,167 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        NVIDIA_jetson:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_accel_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_accel_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_gyro_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_gyro_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_infra1_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_infra1_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_infra2_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_infra2_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        display_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        display_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_mecanum_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_mecanum_wheels_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_mecanum_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_mecanum_wheels_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        motor2040:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_PCB_electronics:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_PCB_oleds:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_chassis:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_cover_batteries:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_cover_electronics:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        nanosaur_flap:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_left_mecanum_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_left_mecanum_wheels_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_right_mecanum_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_right_mecanum_wheels_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
@@ -81,13 +242,136 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        NVIDIA_jetson:
+          Value: true
+        base_link:
+          Value: true
+        camera_accel_frame:
+          Value: true
+        camera_accel_optical_frame:
+          Value: true
+        camera_bottom_screw_frame:
+          Value: true
+        camera_color_frame:
+          Value: true
+        camera_color_optical_frame:
+          Value: true
+        camera_depth_frame:
+          Value: true
+        camera_depth_optical_frame:
+          Value: true
+        camera_gyro_frame:
+          Value: true
+        camera_gyro_optical_frame:
+          Value: true
+        camera_infra1_frame:
+          Value: true
+        camera_infra1_optical_frame:
+          Value: true
+        camera_infra2_frame:
+          Value: true
+        camera_infra2_optical_frame:
+          Value: true
+        camera_link:
+          Value: true
+        display_left:
+          Value: true
+        display_right:
+          Value: true
+        front_left_mecanum_link:
+          Value: true
+        front_left_mecanum_wheels_link:
+          Value: true
+        front_right_mecanum_link:
+          Value: true
+        front_right_mecanum_wheels_link:
+          Value: true
+        head:
+          Value: true
+        motor2040:
+          Value: true
+        nanosaur_PCB_electronics:
+          Value: true
+        nanosaur_PCB_oleds:
+          Value: true
+        nanosaur_base:
+          Value: true
+        nanosaur_chassis:
+          Value: true
+        nanosaur_cover_batteries:
+          Value: true
+        nanosaur_cover_electronics:
+          Value: true
+        nanosaur_flap:
+          Value: true
+        rear_left_mecanum_link:
+          Value: true
+        rear_left_mecanum_wheels_link:
+          Value: true
+        rear_right_mecanum_link:
+          Value: true
+        rear_right_mecanum_wheels_link:
+          Value: true
       Marker Scale: 0.20000000298023224
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        base_link:
+          nanosaur_base:
+            front_left_mecanum_link:
+              front_left_mecanum_wheels_link:
+                {}
+            front_right_mecanum_link:
+              front_right_mecanum_wheels_link:
+                {}
+            nanosaur_chassis:
+              NVIDIA_jetson:
+                {}
+              camera_bottom_screw_frame:
+                camera_link:
+                  camera_accel_frame:
+                    camera_accel_optical_frame:
+                      {}
+                  camera_color_frame:
+                    camera_color_optical_frame:
+                      {}
+                  camera_depth_frame:
+                    camera_depth_optical_frame:
+                      {}
+                  camera_gyro_frame:
+                    camera_gyro_optical_frame:
+                      {}
+                  camera_infra1_frame:
+                    camera_infra1_optical_frame:
+                      {}
+                  camera_infra2_frame:
+                    camera_infra2_optical_frame:
+                      {}
+              head:
+                {}
+              motor2040:
+                {}
+              nanosaur_PCB_electronics:
+                {}
+              nanosaur_PCB_oleds:
+                display_left:
+                  {}
+                display_right:
+                  {}
+              nanosaur_cover_batteries:
+                {}
+              nanosaur_cover_electronics:
+                {}
+              nanosaur_flap:
+                {}
+            rear_left_mecanum_link:
+              rear_left_mecanum_wheels_link:
+                {}
+            rear_right_mecanum_link:
+              rear_right_mecanum_wheels_link:
+                {}
       Update Interval: 0
       Value: true
     - Class: rviz_default_plugins/Image
@@ -102,7 +386,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /nanosaur/camera/infra1/image_raw
+        Value: camera/infra1/image_raw
       Value: true
   Enabled: true
   Global Options:
@@ -188,5 +472,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1574
-  X: 330
-  Y: 833
+  X: 109
+  Y: 764
