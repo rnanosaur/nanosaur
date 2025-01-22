@@ -1,0 +1,34 @@
+
+services:
+  nanosaur_simulator:
+    image: nanosaur-simulator:latest
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - USER=${USER}
+      - HOST_USER_UID=${USER_UID}
+      - HOST_USER_GID=${USER_GID}
+      - SIMULATOR_PACKAGE=${SIMULATION}
+    network_mode: host
+    ipc: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /run/jtop.sock:/run/jtop.sock:ro
+
+  nanosaur-perception:
+    image: nanosaur-perception:latest
+    volumes:
+      - /run/jtop.sock:/run/jtop.sock:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.Xauthority:/home/admin/.Xauthority:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=0
+    command: engines:="[vslam, test]"
+    runtime: nvidia
+    network_mode: host
+    ipc: host
+    privileged: true
+    stdin_open: true
+    tty: true
