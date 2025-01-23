@@ -31,6 +31,7 @@ services:
     command: >
       ros2 launch nanosaur_${SIMULATION} nanosaur_bridge.launch.py ${COMMANDS}
     network_mode: host
+    restart: always
     ipc: host
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -50,6 +51,7 @@ services:
       ros2 launch nanosaur_perception perception.launch.py ${COMMANDS}
     runtime: nvidia
     network_mode: host
+    restart: always
     ipc: host
     privileged: true
     stdin_open: true
