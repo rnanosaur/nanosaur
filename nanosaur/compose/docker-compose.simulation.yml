@@ -3,7 +3,7 @@ services:
 
   # service always disabled
   nanosaur_gazebo:
-    image: nanosaur/gazebo
+    image: nanosaur/simulation:gazebo
     environment:
       - DISPLAY=${DISPLAY}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
@@ -22,7 +22,7 @@ services:
       - disabled
 
   nanosaur_simulator:
-    image: nanosaur/simulation
+    image: nanosaur/nanosaur:simulation
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - USER=${USER}
@@ -37,7 +37,7 @@ services:
       - /run/jtop.sock:/run/jtop.sock:ro
 
   nanosaur-perception:
-    image: nanosaur/perception:latest
+    image: nanosaur/perception:simulation
     environment:
       - DISPLAY=${DISPLAY}
       - NVIDIA_VISIBLE_DEVICES=all
