@@ -44,6 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <test_depend>ament_lint_common</test_depend>
 
    <exec_depend>teleop_twist_joy</exec_depend>
+   <exec_depend>teleop_twist_keyboard</exec_depend>
    <exec_depend>twist_mux</exec_depend>
 
    <export>

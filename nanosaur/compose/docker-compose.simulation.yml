@@ -2,7 +2,7 @@
 services:
 
   # service always disabled
-  nanosaur_gazebo:
+  nanosaur-gazebo:
     image: nanosaur/simulation:gazebo
     environment:
       - DISPLAY=${DISPLAY}
@@ -19,9 +19,9 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /home/rbonghi/.Xauthority:/home/admin/.Xauthority:rw
     profiles:
-      - disabled
+      - "gazebo"
 
-  nanosaur_simulator:
+  nanosaur-simulator:
     image: nanosaur/nanosaur:simulation
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
