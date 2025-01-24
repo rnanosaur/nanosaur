@@ -28,7 +28,7 @@
 if [ -n "$HOST_USER_UID" ] && [ -n "$HOST_USER_GID" ]; then
 
     if [ ! $(getent group ${HOST_USER_GID}) ]; then
-        echo "Creating non-root container '${USER}' for host user uid=${HOST_USER_UID}:gid=${HOST_USER_GID}"
+        # echo "Creating non-root container '${USER}' for host user uid=${HOST_USER_UID}:gid=${HOST_USER_GID}"
         groupadd --gid ${HOST_USER_GID} ${USER} &>/dev/null
     else
         CONFLICTING_GROUP_NAME=`getent group ${HOST_USER_GID} | cut -d: -f1`
@@ -36,7 +36,7 @@ if [ -n "$HOST_USER_UID" ] && [ -n "$HOST_USER_GID" ]; then
     fi
 
     if [ ! $(getent passwd ${HOST_USER_UID}) ]; then
-        echo "User with UID ${HOST_USER_UID} does not exist. Creating user '${USER}'"
+        # echo "User with UID ${HOST_USER_UID} does not exist. Creating user '${USER}'"
         useradd --no-log-init --uid ${HOST_USER_UID} --gid ${HOST_USER_GID} -m ${USER} &>/dev/null
     else
         CONFLICTING_USER_NAME=`getent passwd ${HOST_USER_UID} | cut -d: -f1`
@@ -64,7 +64,7 @@ if [ -n "$HOST_USER_UID" ] && [ -n "$HOST_USER_GID" ]; then
     # Source ROS workspace if exists
     if [[ ! -z "${ROS_WS}" ]]; then
         source ${ROS_WS}/install/setup.bash
-        echo "ROS workspace sourced: ${ROS_WS}"
+        # echo "ROS workspace sourced: ${ROS_WS}"
     fi
 
     # Execute command
