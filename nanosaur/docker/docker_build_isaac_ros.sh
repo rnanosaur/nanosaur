@@ -160,6 +160,8 @@ CONFIG_DOCKER_SEARCH_DIRS=(${DOCKERFILE_PATHS[@]})
 EOL
     color_echo "green" ".isaac_ros_common-config created successfully in isaac_ros_common/scripts."
 
+    ON_EXIT+=("rm $ISAAC_ROS_COMMON_DIR/scripts/.isaac_ros_common-config")
+
     # Build the image layers
     # color_echo "green" "- Build the image layers with Isaac ROS build_image_layers.sh"
     ./scripts/build_image_layers.sh --context_dir $TEMP_DIR --image_key "$BASE_IMAGE_KEY" --image_name "$IMAGE_NAME"
