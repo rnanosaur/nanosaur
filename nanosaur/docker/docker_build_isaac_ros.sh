@@ -135,13 +135,13 @@ main() {
         done
     done
 
-    # Check if Dockerfile.$NANOSAUR_DOCKERFILE is found in any of the specified workspaces
+    # Check if DOCKER_FILE_IMAGE_TAG is found in any of the specified workspaces
     if [ -z "$DOCKERFILE_PATHS" ]; then
-        color_echo "red" "tags $NANOSAUR_DOCKERFILE not found in any of the specified workspaces."
+        color_echo "red" "tags $DOCKER_FILE_IMAGE_TAG found in any of the specified workspaces."
         exit 1
     fi
 
-    color_echo "green" "Dockerfile.$NANOSAUR_DOCKERFILE found at $DOCKERFILE_PATHS"
+    color_echo "green" "$DOCKER_FILE_IMAGE_TAG found! Building image layers..."
 
     # Get the platform
     PLATFORM="$(uname -m)"
