@@ -1,0 +1,62 @@
+# Copyright (C) 2025, Raffaello Bonghi <raffaello@rnext.it>
+# All rights reserved
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1. Redistributions of source code must retain the above copyright 
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of the copyright holder nor the names of its 
+#    contributors may be used to endorse or promote products derived 
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
+# BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+# OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# https://nvidia-isaac-ros.github.io/concepts/docker_devenv/index.html#development-environment
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG WORKSPACE_DIR=/nanosaur_ws
+
+# Copy the repository
+COPY ./src ${WORKSPACE_DIR}/src
+# Copy scripts
+RUN cp ${WORKSPACE_DIR}/src/nanosaur/nanosaur/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set the working directory
+WORKDIR ${WORKSPACE_DIR}
+
+# Install dependencies
+RUN sudo apt-get update && \
+    pip3 install -U jetson-stats && \
+    rosdep update && \
+    rosdep install --from-paths src --ignore-src -r -y&& \
+    rm -rf /var/lib/apt/lists/*
+
+# Compile the workspace
+RUN source ${ROS_ROOT:?}/setup.bash && colcon build && rm -rf build src log
+
+# https://docs.docker.com/engine/reference/builder/#stopsignal
+# https://hynek.me/articles/docker-signals/
+STOPSIGNAL SIGINT
+
+# Set the ROS workspace environment variables
+ENV ROS_WS=${WORKSPACE_DIR}
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["ros2", "launch", "nanosaur_perception", "perception.launch.py"]
