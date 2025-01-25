@@ -2,8 +2,9 @@
 services:
 
   # service always disabled
-  nanosaur-gazebo:
+  gazebo:
     image: nanosaur/simulation:gazebo
+    container_name: gazebo
     environment:
       - DISPLAY=${DISPLAY}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
@@ -21,8 +22,9 @@ services:
     profiles:
       - "gazebo"
 
-  nanosaur-simulator:
-    image: nanosaur/nanosaur:simulation
+  core:
+    image: nanosaur/nanosaur:${CORE_TAG}
+    container_name: ${ROBOT_NAME}-${CORE_TAG}
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - USER=${USER}
@@ -36,8 +38,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/jtop.sock:/run/jtop.sock:ro
 
-  nanosaur-perception:
-    image: nanosaur/perception:simulation
+  perception:
+    image: nanosaur/perception:${PERCEPTION_TAG}
+    container_name: ${ROBOT_NAME}-perception-${CORE_TAG}
     environment:
       - DISPLAY=${DISPLAY}
       - NVIDIA_VISIBLE_DEVICES=all
