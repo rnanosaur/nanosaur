@@ -13,6 +13,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
+      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
     network_mode: host
     ipc: host
     stdin_open: true
@@ -40,6 +41,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
+      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
     network_mode: host
     ipc: host
     stdin_open: true
