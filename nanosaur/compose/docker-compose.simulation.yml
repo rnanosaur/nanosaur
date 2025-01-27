@@ -51,7 +51,7 @@ services:
     profiles:
       - "gazebo"
 
-  core:
+  robot:
     image: nanosaur/nanosaur:${CORE_TAG}
     container_name: ${ROBOT_NAME}-${CORE_TAG}
     environment:
