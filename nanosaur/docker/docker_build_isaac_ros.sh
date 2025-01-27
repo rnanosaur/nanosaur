@@ -108,7 +108,7 @@ main() {
     mkdir -p "$TEMP_DIR/src"
     for folder in "${WS_FOLDERS[@]}"; do
         # echo "Copying $folder to $TEMP_DIR/src"
-        cp -r "$folder"/* "$TEMP_DIR/src"
+        cp -r "$folder"/* "$TEMP_DIR/src" || { color_echo "red" "Failed to copy $folder to $TEMP_DIR/src"; exit 1; }
     done
 
     DOCKERFILE_PATHS=()
