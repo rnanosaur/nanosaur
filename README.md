@@ -16,6 +16,14 @@ Meet nanosaur:
 * 🐳 nanosaur [Docker Hub](https://hub.docker.com/u/nanosaur)
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 <!-- INTRO END -->
+<!-- CI START -->
+## CI & CD
+
+| package | CI | Downloads | Health |
+|:-------:|:--:|:---------:|:------:|
+| [![PyPI - Version](https://img.shields.io/pypi/v/nanosaur?label=nanosaur)](https://badge.fury.io/py/nanosaur) | [![Lint and Fix](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml/badge.svg)](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml) | [![PyPI - Downloads](https://img.shields.io/pypi/dm/nanosaur)](https://pypistats.org/packages/nanosaur) | [![nanosaur](https://snyk.io/advisor/python/nanosaur/badge.svg)](https://snyk.io/advisor/python/nanosaur) |
+
+<!-- CI END -->
 <!-- LICENSE START -->
 ## License
 
