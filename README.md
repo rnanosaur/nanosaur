@@ -11,7 +11,7 @@
 Meet nanosaur:
 
 * 🦕 Website: [nanosaur.ai](https://nanosaur.ai)
-* 🦄 Do you need an help? [Discord](https://discord.gg/rCHgeUpUj9)
+* 🦄 Do you need any help? [Discord](https://discord.gg/rCHgeUpUj9)
 * 🧰 For technical details follow [wiki](https://github.com/rnanosaur/nanosaur/wiki)
 * 🐳 nanosaur [Docker hub](https://hub.docker.com/u/nanosaur)
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
@@ -21,7 +21,7 @@ Meet nanosaur:
 
 * All code is Under license [MIT](LICENSE)
 
-For more information about this project please follow [nanosaur.ai/about](https://nanosaur.ai/about/#license)
+For more information about this project, please follow [nanosaur.ai/about](https://nanosaur.ai/about/#license)
 <!-- LICENSE END -->
 ### License mesh
 
@@ -31,5 +31,5 @@ For more information about this project please follow [nanosaur.ai/about](https:
 <!-- CREDITS START -->
 ## Contact Information
 
-For any questions or inquiries, please contact us at [raffaello@nanosaur.ai](mailto:raffaello@nanosaur.ai).
+For any questions or inquiries, please get in touch with us at [raffaello@nanosaur.ai](mailto:raffaello@nanosaur.ai).
 <!-- CREDITS END -->
