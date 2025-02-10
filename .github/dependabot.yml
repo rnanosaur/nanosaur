@@ -3,7 +3,7 @@
 version: 2
 updates:
 - package-ecosystem: docker
-  directory: /
+  directory: /nanosaur/docker
   schedule:
     interval: daily
 - package-ecosystem: github-actions
