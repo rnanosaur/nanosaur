@@ -41,6 +41,7 @@ def generate_launch_description():
     gui = LaunchConfiguration('gui')
     camera_type = LaunchConfiguration('camera_type')
     lidar_type = LaunchConfiguration('lidar_type')
+    rollers = LaunchConfiguration('rollers')
     rvizconfig = LaunchConfiguration('rvizconfig')
     
     default_rviz_config_path = os.path.join(nanosaur_description_path, 'rviz', 'urdf.rviz')
@@ -54,6 +55,11 @@ def generate_launch_description():
         name='lidar_type',
         default_value='empty',
         description='Lidar type to use. Options: empty, LD06.')
+
+    declare_rollers_cmd = DeclareLaunchArgument(
+        name='rollers',
+        default_value='false',
+        description='Flag to enable rollers on the mecanum wheels for a more detailed simulation.')
 
     declare_gui_cmd = DeclareLaunchArgument(
         name='gui',
@@ -91,7 +97,7 @@ def generate_launch_description():
     # https://answers.ros.org/question/306935/ros2-include-a-launch-file-from-a-launch-file/
     description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nanosaur_description_path, '/launch/description.launch.py']),
-        launch_arguments={'camera_type': camera_type, 'lidar_type': lidar_type}.items()
+        launch_arguments={'camera_type': camera_type, 'lidar_type': lidar_type, 'rollers': rollers}.items()
         )
 
     # Define LaunchDescription variable and return it
@@ -99,6 +105,7 @@ def generate_launch_description():
     
     ld.add_action(declare_camera_type_cmd)
     ld.add_action(declare_lidar_type_cmd)
+    ld.add_action(declare_rollers_cmd)
     ld.add_action(declare_gui_cmd)
     ld.add_action(declare_rvizconfig_cmd)
     ld.add_action(description_launch)

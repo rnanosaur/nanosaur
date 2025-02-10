@@ -23,6 +23,9 @@
     <xacro:property name="mecanum_mass" value="0.015"/>
     <xacro:property name="mecanum_radius" value="${0.037 / 2}"/>
     <xacro:property name="mecanum_length" value="0.024"/>
+    <xacro:property name="mecanum_radius_roller" value="${0.065 / 2}"/>
+    <xacro:property name="mecanum_length_roller" value="0.023"/>
+    <xacro:property name="mecanum_mass_roller" value="0.003"/>
     <xacro:property name="mecanum_friction" value="0.1"/>
 
 </robot>

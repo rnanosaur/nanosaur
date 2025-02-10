@@ -12,7 +12,7 @@
     <xacro:include filename="$(find nanosaur_description)/urdf/head/head.urdf.xacro" />
     <xacro:include filename="$(find nanosaur_description)/urdf/head/head_realsense.urdf.xacro" />
 
-    <xacro:macro name="nanosaur" params="camera_type lidar_type use_nominal_extrinsics path_meshes:=package://nanosaur_description/meshes">
+    <xacro:macro name="nanosaur" params="camera_type lidar_type rollers use_nominal_extrinsics path_meshes:=package://nanosaur_description/meshes">
 
         <link name="base_link"/>
 
@@ -30,44 +30,64 @@
                 mass="${nanosaur_mass}" />
 
         <xacro:mecanum_wheel
-                position="front"
-                side="left"
+                name="front_left"
+                side="1"
                 parent="nanosaur_base"
+                enable_rollers="${rollers}"
                 radius="${mecanum_radius}"
                 length="${mecanum_length}"
-                xyz="${nanosaur_wheelbase / 2} ${nanosaur_wheel_separation / 2} 0"
                 mass="${mecanum_mass}"
-                mu="${mecanum_friction}" />
+                radius_roller="${mecanum_radius_roller}"
+                length_roller="${mecanum_length_roller}"
+                mass_roller="${mecanum_mass_roller}"
+                mu="${mecanum_friction}">
+                <origin xyz="${nanosaur_wheelbase / 2} ${nanosaur_wheel_separation / 2} 0" rpy="0 0 ${M_PI/2}"/>
+        </xacro:mecanum_wheel>
 
         <xacro:mecanum_wheel
-                position="front"
-                side="right"
+                name="front_right"
+                side="-1"
                 parent="nanosaur_base"
+                enable_rollers="${rollers}"
                 radius="${mecanum_radius}"
                 length="${mecanum_length}"
-                xyz="${nanosaur_wheelbase / 2} -${nanosaur_wheel_separation / 2} 0"
                 mass="${mecanum_mass}"
-                mu="${mecanum_friction}" />
+                radius_roller="${mecanum_radius_roller}"
+                length_roller="${mecanum_length_roller}"
+                mass_roller="${mecanum_mass_roller}"
+                mu="${mecanum_friction}">
+                <origin xyz="${nanosaur_wheelbase / 2} ${-nanosaur_wheel_separation / 2} 0" rpy="0 0 ${M_PI/2}"/>
+        </xacro:mecanum_wheel>
 
         <xacro:mecanum_wheel
-                position="rear"
-                side="left"
+                name="rear_left"
+                side="1"
                 parent="nanosaur_base"
+                enable_rollers="${rollers}"
                 radius="${mecanum_radius}"
                 length="${mecanum_length}"
-                xyz="-${nanosaur_wheelbase / 2} ${nanosaur_wheel_separation / 2} 0"
                 mass="${mecanum_mass}"
-                mu="${mecanum_friction}" />
+                radius_roller="${mecanum_radius_roller}"
+                length_roller="${mecanum_length_roller}"
+                mass_roller="${mecanum_mass_roller}"
+                mu="${mecanum_friction}">
+                <origin xyz="${-nanosaur_wheelbase / 2} ${nanosaur_wheel_separation / 2} 0" rpy="0 0 ${M_PI/2}"/>
+        </xacro:mecanum_wheel>
 
         <xacro:mecanum_wheel
-                position="rear"
-                side="right"
+                name="rear_right"
+                side="-1"
                 parent="nanosaur_base"
+                enable_rollers="${rollers}"
                 radius="${mecanum_radius}"
                 length="${mecanum_length}"
-                xyz="-${nanosaur_wheelbase / 2} -${nanosaur_wheel_separation / 2} 0"
                 mass="${mecanum_mass}"
-                mu="${mecanum_friction}" />   
+                radius_roller="${mecanum_radius_roller}"
+                length_roller="${mecanum_length_roller}"
+                mass_roller="${mecanum_mass_roller}"
+                mu="${mecanum_friction}">
+                <origin xyz="${-nanosaur_wheelbase / 2} ${-nanosaur_wheel_separation / 2} 0" rpy="0 0 ${M_PI/2}"/>
+        </xacro:mecanum_wheel>
 
         <!-- Nanosaur heads -->
         <xacro:if value="${camera_type == 'empty'}">

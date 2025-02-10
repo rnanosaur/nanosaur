@@ -43,6 +43,7 @@ def launch_setup(context: LaunchContext, support_package):
     xacro_path = LaunchConfiguration('xacro_path')
     camera_type = LaunchConfiguration('camera_type')
     lidar_type = LaunchConfiguration('lidar_type')
+    rollers = LaunchConfiguration('rollers')
     use_nominal_extrinsics = LaunchConfiguration('use_nominal_extrinsics')
 
     robot_state_publisher_node = Node(
@@ -55,6 +56,7 @@ def launch_setup(context: LaunchContext, support_package):
                     'xacro ', xacro_path, ' ',
                     'camera_type:=', camera_type, ' ',
                     'lidar_type:=', lidar_type, ' ',
+                    'rollers:=', rollers, ' ',
                     'use_nominal_extrinsics:=', use_nominal_extrinsics, ' ',
                 ])
         }]
@@ -92,6 +94,11 @@ def generate_launch_description():
         name='lidar_type',
         default_value='empty',
         description='Lidar type to use. Options: empty, LD06.')
+    
+    declare_rollers_cmd = DeclareLaunchArgument(
+        name='rollers',
+        default_value='false',
+        description='Flag to enable rollers on the mecanum wheels for a more detailed simulation.')
 
     declare_use_nominal_extrinsics_cmd = DeclareLaunchArgument(
         name='use_nominal_extrinsics',
@@ -104,6 +111,7 @@ def generate_launch_description():
     ld.add_action(declare_model_path_cmd)
     ld.add_action(declare_camera_type_cmd)
     ld.add_action(declare_lidar_type_cmd)
+    ld.add_action(declare_rollers_cmd)
     ld.add_action(declare_use_nominal_extrinsics_cmd)
     ld.add_action(OpaqueFunction(function=launch_setup, args=[robot_name]))
 

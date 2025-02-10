@@ -1,19 +1,154 @@
 <?xml version="1.0"?>
 <robot name="mecanum_wheel" xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:macro name="mecanum_wheel" params="position side parent radius length xyz mass mu">
-
-        <!-- Define orientation -->
-        <xacro:if value="${side == 'left'}">
-            <xacro:property name="orientation" value="-1"/>
-        </xacro:if>
-        <xacro:if value="${side == 'right'}">
-            <xacro:property name="orientation" value="1"/>
-        </xacro:if>
-
-        <link name="${position}_${side}_mecanum_link">
+    <!--
+        Macro: visual_rollers
+        Parameters:
+            - name: name of the mecanum wheel
+            - side: 1 or -1, depending on the side of the wheel
+        Description:
+            This macro creates a visual effect of miniwheels in green.
+    -->
+    <xacro:macro name="visual_rollers" params="name side">
+        <link name="${name}_mecanum_wheels_link">
             <visual>
-                <origin xyz="0 ${orientation * (length / 2 - 0.002)} 0" rpy="${orientation * M_PI/2} 0 0" />
+                <origin xyz="0 0 0" rpy="0 ${side * M_PI/2} 0" />
+                <geometry>
+                    <mesh filename="${path_meshes}/parts/mecanum_wheels.stl"/>
+                </geometry>
+                <material name="Green" />
+            </visual>
+        </link>
+
+        <joint name="${name}_mecanum_wheels_link_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <axis xyz="1 0 0" />
+            <parent link="${name}_mecanum_link"/>
+            <child link="${name}_mecanum_wheels_link"/>
+        </joint>
+    </xacro:macro>
+
+    <!--
+        Macro: roller_origin
+        Parameters:
+            - th: Angle in radians.
+            - side: Indicates the side of the roller (1 or -1).
+            - radius: Radius of the roller.
+        Description:
+            This macro defines the origin of a roller based on the given parameters.
+            Depending on the value of 'side', it sets the origin's position (xyz) and orientation (rpy).
+            For side == 1, it calculates the origin with positive trigonometric functions.
+            For side == -1, it calculates the origin with negative trigonometric functions.
+    -->
+    <xacro:macro name="roller_origin" params="th side radius">
+        <xacro:if value="${side==1}">
+            <origin xyz="0 ${radius*cos(th)} ${radius*sin(th)}" rpy="${atan(-tan(th)*sqrt(2.0))} ${asin(cos(th)/sqrt(2.0))} ${atan(sin(th))}" />
+        </xacro:if>
+        <xacro:if value="${side==-1}">
+            <origin xyz="0 ${radius*cos(th)} ${radius*sin(th)}" rpy="${atan(-tan(th)*sqrt(2.0))} ${asin(-cos(th)/sqrt(2.0))} ${atan(-sin(th))}" />
+        </xacro:if>
+    </xacro:macro>
+
+
+    <!--
+        Macro: roller_loop
+        Parameters:
+            - name: Name of the rollers.
+            - side: Indicates the side of the rollers (1 or -1).
+            - radius: Radius of the rollers.
+            - radius_roller: Radius of the roller.
+            - length_roller: Length of the roller.
+            - mass_roller: Mass of the roller.
+            - mu: Friction coefficient of the roller.
+            - num: Number of rollers.
+            - loop: Loop counter.
+        Description:
+            This macro creates the rollers of a mecanum wheel.
+            It creates a link and joint for each roller of the mecanum wheel.
+            It calls the 'roller_origin' macro to set the origin of the roller.
+            It calls itself recursively to create all the rollers of the mecanum wheel.
+    -->
+    <xacro:macro name="roller_loop" params="name side radius radius_roller length_roller mass_roller mu num loop">
+        <xacro:if value="${loop}">
+            <link name="${name}_roller${loop}_link">
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 ${side * M_PI/2} 0" />
+                    <geometry>
+                        <mesh filename="${path_meshes}/parts/mecanum_mini_wheel.stl" />
+                    </geometry>
+                    <material name="Green" />
+                </visual>
+
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 ${side * M_PI/2} 0" />
+                    <geometry>
+                        <mesh filename="${path_meshes}/parts/mecanum_mini_wheel.stl" />
+                    </geometry>
+                </collision>
+
+                <xacro:inertial_cylinder m="${mass_roller}" r="${radius_roller}" l="${length_roller}">
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
+                </xacro:inertial_cylinder>
+            </link>
+
+            <gazebo reference="${name}_roller${loop}_link">
+                <mu1>${mu}</mu1>
+                <mu2>${mu}</mu2>
+            </gazebo>
+
+            <joint name="${name}_roller${loop}_joint" type="continuous">
+                <xacro:roller_origin th="${radians(360/num*(loop-1))}" side="${side}" radius="${radius}" />
+                <axis xyz="1 0 0" />
+                <parent link="${name}_mecanum_link" />
+                <child link="${name}_roller${loop}_link" />
+                <dynamics damping="0.001" friction="0.0001" />
+            </joint>
+            <xacro:roller_loop name="${name}" side="${side}" radius="${radius}" radius_roller="${radius_roller}" length_roller="${length_roller}" mass_roller="${mass_roller}" mu="${mu}" num="${num}" loop="${loop - 1}" />
+        </xacro:if>
+    </xacro:macro>
+
+    <!--
+        Macro: rollers_link
+        Parameters:
+            - name: Name of the rollers.
+            - side: Indicates the side of the rollers (1 or -1).
+            - radius: Radius of the rollers.
+            - radius_roller: Radius of the roller.
+            - length_roller: Length of the roller.
+            - mass_roller: Mass of the roller.
+            - mu: Friction coefficient of the roller.
+        Description:
+            This macro creates the rollers of a mecanum wheel.
+            It calls the 'roller_loop' macro to create the rollers of the mecanum wheel.
+    -->
+    <xacro:macro name="rollers_link" params="name side radius radius_roller length_roller mass_roller mu">
+        <xacro:roller_loop name="${name}" side="${side}" radius="${radius}" radius_roller="${radius_roller}" length_roller="${length_roller}" mass_roller="${mass_roller}" mu="${mu}" num="6" loop="6" />
+    </xacro:macro>
+
+    <!--
+        Macro: mecanum_wheel
+        Parameters:
+            - name: name of the mecanum wheel
+            - side: 1 or -1, depending on the side of the wheel
+            - parent: parent link
+            - enable_rollers: enable or disable the rollers
+            - radius: radius of the wheel
+            - length: length of the wheel
+            - mass: mass of the wheel
+            - radius_roller: radius of the roller
+            - length_roller: length of the roller
+            - mass_roller: mass of the roller
+            - mu: friction coefficient of the wheel
+            - origin: origin of the wheel
+        Description:
+            This macro creates a mecanum wheel.
+            It creates a link and joint for the mecanum wheel.
+            It creates a visual effect of miniwheels in green.
+    -->
+    <xacro:macro name="mecanum_wheel" params="name side parent enable_rollers radius length mass radius_roller length_roller mass_roller mu *origin">
+        <link name="${name}_mecanum_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 ${side * M_PI/2} 0" />
                 <geometry>
                     <mesh filename="${path_meshes}/parts/mecanum_cover.stl"/>
                 </geometry>
@@ -21,7 +156,7 @@
             </visual>
 
             <collision>
-                <origin xyz="0 0 0" rpy="${M_PI/2} 0 0"/>
+                <origin xyz="0 0 0" rpy="0 ${M_PI/2} 0"/>
                 <geometry>
                     <cylinder radius="${radius}" length="${length}"/>
                 </geometry>
@@ -32,35 +167,32 @@
             </xacro:inertial_cylinder>
         </link>
 
-        <gazebo reference="${position}_${side}_mecanum_link">
+        <gazebo reference="${name}_mecanum_link">
             <mu1>${mu}</mu1>
             <mu2>${mu}</mu2>
         </gazebo>
 
-        <joint name="${position}_${side}_mecanum_joint" type="continuous">
-            <axis xyz="0 1 0" />
+        <joint name="${name}_mecanum_joint" type="continuous">
+            <xacro:insert_block name="origin" />
+            <axis xyz="1 0 0" />
             <parent link="${parent}"/>
-            <child link="${position}_${side}_mecanum_link"/>
-            <origin xyz="${xyz}" rpy="0 0 0"/>
+            <child link="${name}_mecanum_link"/>
         </joint>
 
-        <!-- Visual effect miniwheels in green -->
-        <link name="${position}_${side}_mecanum_wheels_link">
-            <visual>
-                <origin xyz="0 ${orientation * (length / 2 - 0.002)} 0" rpy="${orientation * M_PI/2} 0 0" />
-                <geometry>
-                    <mesh filename="${path_meshes}/parts/mecanum_wheels.stl"/>
-                </geometry>
-                <material name="Green" />
-            </visual>
-        </link>
-
-        <joint name="${position}_${side}_mecanum_wheels_link_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <parent link="${position}_${side}_mecanum_link"/>
-            <child link="${position}_${side}_mecanum_wheels_link"/>
-            <axis xyz="0 1 0" />
-        </joint>
+        <xacro:if value="${enable_rollers}">
+            <!--
+                If rollers are enabled, create the rollers of the mecanum wheel.
+                Call the 'rollers_link' macro to create the rollers of the mecanum wheel. 
+            -->
+            <xacro:rollers_link name="${name}" side="${side}" radius="${radius - radius_roller}" radius_roller="${radius_roller}" length_roller="${length_roller}" mass_roller="${mass_roller}" mu="${mu}" />
+        </xacro:if>
+        <xacro:unless value="${enable_rollers}">
+            <!--
+                If rollers are disabled, create a visual effect of miniwheels in green.
+                Call the 'visual_rollers' macro to create the visual effect of miniwheels in green.
+            -->
+            <xacro:visual_rollers name="${name}" side="${side}" />
+        </xacro:unless>
 
     </xacro:macro>
 

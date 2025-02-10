@@ -7,11 +7,13 @@
     <!-- camera definitions -->
     <xacro:arg name="camera_type" default="empty" /> <!--options: empty, realsense, zedmini -->
     <xacro:arg name="lidar_type" default="empty" /> <!--options: empty, LD06 -->
+    <xacro:arg name="rollers" default="false" /> <!--options: true, false -->
     <xacro:arg name="use_nominal_extrinsics" default="false" /> <!-- ONLY FOR REALSENSE -->
 
     <!-- nanosaur robot -->
     <xacro:nanosaur camera_type="$(arg camera_type)"
                     lidar_type="$(arg lidar_type)"
+                    rollers="$(arg rollers)"
                     use_nominal_extrinsics="$(arg use_nominal_extrinsics)" />
 
 </robot>
