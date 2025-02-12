@@ -1,0 +1,45 @@
+name: Release nanosaur 
+
+on:
+  push:
+    tags:
+      - "*.*.*"  # Trigger when a tag with format X.X.X is pushed
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Extract latest release notes
+        id: get_release_notes
+        run: |
+          TAG=${{ github.ref_name }}  # Get the current tag (e.g., 1.2.0)
+          sed -n "/## \[${TAG}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +3 > release_notes.txt
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body_path: release_notes.txt  # This is where the file is referenced
+          draft: false
+          prerelease: false
+
+  notify:
+    name: "Notify socials"
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "**nanosaur ${{ github.ref_name }}** has been deployed!\nTo install follow the documentation: https://nanosaur.ai"
