@@ -3,7 +3,7 @@ name: Release nanosaur
 on:
   push:
     tags:
-      - "*.*.*"  # Trigger when a tag with format X.X.X is pushed
+      - "[0-9]+.[0-9]+.[0-9]+(-*.*)?"  # Trigger when a tag with format X.X.X is pushed
 
 jobs:
   publish:
@@ -12,6 +12,16 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Determine if this is a prerelease
+        id: check_prerelease
+        run: |
+          TAG=${{ github.ref_name }}
+          if [[ "$TAG" =~ -[a-zA-Z]+[0-9]*$ ]]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+          else
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Extract latest release notes
         id: get_release_notes
@@ -29,7 +39,7 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           body_path: release_notes.txt  # This is where the file is referenced
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.check_prerelease.outputs.IS_PRERELEASE }}
 
   notify:
     name: "Notify socials"
