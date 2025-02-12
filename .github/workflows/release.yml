@@ -3,7 +3,7 @@ name: Release nanosaur
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+(-*.*)?"  # Trigger when a tag with format X.X.X is pushed
+        - "*.*.*"  # Trigger when a tag with format X.X.X is pushed
 
 jobs:
   publish:
