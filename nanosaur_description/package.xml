@@ -30,8 +30,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <name>nanosaur_description</name>
    <version>2.0.0</version>
    <description>This package collect nanosaur meshes and urdf</description>
-   <author email="raffaello@rnext.it">Raffaello Bonghi</author>
-   <maintainer email="raffaello@rnext.it">Raffaello Bonghi</maintainer>
+   <author email="raffaello@nanosaur.ai">Raffaello Bonghi</author>
+   <maintainer email="raffaello@nanosaur.ai">Raffaello Bonghi</maintainer>
    <license>MIT and CC BY-NC-SA 4.0</license>
 
    <url type="website">https://nanosaur.ai</url>
