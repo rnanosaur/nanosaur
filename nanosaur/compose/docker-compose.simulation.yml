@@ -3,7 +3,7 @@ services:
 
   # service always disabled
   isaac-sim:
-    image: nanosaur/simulation:isaac-sim
+    image: nanosaur/simulation:isaac-sim${NANOSAUR_VERSION:-}
     container_name: isaac-sim
     runtime: nvidia
     environment:
@@ -33,7 +33,7 @@ services:
 
   # service always disabled
   gazebo:
-    image: nanosaur/simulation:gazebo
+    image: nanosaur/simulation:gazebo${NANOSAUR_VERSION:-}
     container_name: gazebo
     environment:
       - DISPLAY=${DISPLAY}
@@ -54,7 +54,7 @@ services:
       - "gazebo"
 
   nanosaur:
-    image: nanosaur/nanosaur:${CORE_TAG}
+    image: nanosaur/nanosaur:${CORE_TAG}${NANOSAUR_VERSION:-}
     container_name: ${ROBOT_NAME}-${CORE_TAG}
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
@@ -70,7 +70,7 @@ services:
       - /run/jtop.sock:/run/jtop.sock:ro
 
   perception:
-    image: nanosaur/perception:${PERCEPTION_TAG}
+    image: nanosaur/perception:${PERCEPTION_TAG}${NANOSAUR_VERSION:-}
     container_name: ${ROBOT_NAME}-perception-${CORE_TAG}
     environment:
       - DISPLAY=${DISPLAY}
