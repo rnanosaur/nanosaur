@@ -18,23 +18,32 @@ Meet nanosaur:
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 <!-- INTRO END -->
 <!-- DISTRO START -->
+## Distribution
 
+In this section is show up the current nanosaur version and map of the software version used.
+
+In bold the latest release.
+
+| Version | Branch | ROS | Isaac ROS Release | Isaac ROS Distro | Isaac Sim |
+| --- | --- | --- | --- | --- | --- |
+| **2.0.0** | **nanosaur2** | **humble** | **release-3.2** | **ros2_humble** | **>=4.1, <=4.5** |
 <!-- DISTRO END -->
 <!-- CI START -->
 ## CI & CD
 
 | 📦 package | 🏗️ CI | Downloads | Health |
 |:----------:|:-----:|:---------:|:------:|
-| [![PyPI - Version](https://img.shields.io/pypi/v/nanosaur?label=nanosaur)](https://badge.fury.io/py/nanosaur) | [![Lint and Fix](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml/badge.svg)](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml) | [![PyPI - Downloads](https://img.shields.io/pypi/dm/nanosaur)](https://pypistats.org/packages/nanosaur) | [![nanosaur](https://snyk.io/advisor/python/nanosaur/badge.svg)](https://snyk.io/advisor/python/nanosaur) |
+| [![GitHub Release](https://img.shields.io/github/v/release/rnanosaur/nanosaur?label=nanosaur)](https://nanosaur.ai) | [![Release nanosaur](https://github.com/rnanosaur/nanosaur/actions/workflows/release.yml/badge.svg)](https://github.com/rnanosaur/nanosaur/actions/workflows/release.yml) | [![GitHub forks](https://img.shields.io/github/forks/rnanosaur/nanosaur)](https://nanosaur.ai) | --- |
+| [![PyPI - Version](https://img.shields.io/pypi/v/nanosaur?label=nanosaur-cli)](https://badge.fury.io/py/nanosaur) | [![Lint and Fix](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml/badge.svg)](https://github.com/rnanosaur/nanosaur_pkg/actions/workflows/flake8-lint.yml) | [![PyPI - Downloads](https://img.shields.io/pypi/dm/nanosaur)](https://pypistats.org/packages/nanosaur) | [![nanosaur](https://snyk.io/advisor/python/nanosaur/badge.svg)](https://snyk.io/advisor/python/nanosaur) |
+| [![Website Badge](https://img.shields.io/badge/Website-green)](https://nanosaur.ai) | [![pages-build-deployment](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment) | --- | --- |
 
-|    | 🐳 Image | 🏗️ CI | Downloads | Size |
-|:-:|:-------:|:-----:|:---------:|:----:|
-| 🦕 | [nanosaur/nanosaur:simulation](https://hub.docker.com/r/nanosaur/nanosaur) | TODO | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/nanosaur) |
-| 🖼️ | [nanosaur/perception:simulation](https://hub.docker.com/r/nanosaur/perception) | TODO | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/perception)](https://hub.docker.com/r/nanosaur/perception) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/perception/simulation)](https://hub.docker.com/r/nanosaur/perception) |
-| 👨‍💻 | [nanosaur/simulation:isaac-sim](https://hub.docker.com/r/nanosaur/simulation) | TODO | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/simulation) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/simulation/isaac-sim)](https://hub.docker.com/r/nanosaur/simulation) |
-| 👨‍💻 | [nanosaur/simulation:gazebo](https://hub.docker.com/r/nanosaur/simulation) | TODO | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/simulation) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/simulation/gazebo)](https://hub.docker.com/r/nanosaur/simulation) |
+|    | 🐳 Image | Platform | Downloads | Size |
+|:-:|:-------:|:------:|:---------:|:----:|
+| 🦕 | [nanosaur/nanosaur:simulation](https://hub.docker.com/r/nanosaur/nanosaur) | x86_64 🖥️ | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/nanosaur) |
+| 🖼️ | [nanosaur/perception:simulation](https://hub.docker.com/r/nanosaur/perception) | x86_64 🖥️ | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/perception)](https://hub.docker.com/r/nanosaur/perception) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/perception/simulation)](https://hub.docker.com/r/nanosaur/perception) |
+| 👨‍💻 | [nanosaur/simulation:isaac-sim](https://hub.docker.com/r/nanosaur/simulation) | x86_64 🖥️ | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/simulation) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/simulation/isaac-sim)](https://hub.docker.com/r/nanosaur/simulation) |
+| 👨‍💻 | [nanosaur/simulation:gazebo](https://hub.docker.com/r/nanosaur/simulation) | x86_64 🖥️ | [![Docker Pulls](https://img.shields.io/docker/pulls/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/simulation) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nanosaur/simulation/gazebo)](https://hub.docker.com/r/nanosaur/simulation) |
 
-Website: [![pages-build-deployment](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment)
 <!-- CI END -->
 <!-- LICENSE START -->
 ## License
