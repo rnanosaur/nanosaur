@@ -1,58 +1,6 @@
 
 services:
 
-  # service always disabled
-  isaac-sim:
-    image: nanosaur/simulation:isaac-sim${NANOSAUR_VERSION:-}
-    container_name: isaac-sim
-    runtime: nvidia
-    environment:
-      - ACCEPT_EULA=Y
-      - PRIVACY_CONSENT=Y
-      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-      - USER=${USER}
-      - HOST_USER_UID=${USER_UID}
-      - HOST_USER_GID=${USER_GID}
-      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
-    network_mode: host
-    ipc: host
-    stdin_open: true
-    tty: true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${ROBOT_HOME}/isaac-sim-cache/cache/kit:/isaac-sim/kit/cache:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/cache/ov:/home/ubuntu/.cache/ov:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/cache/pip:/home/ubuntu/.cache/pip:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/cache/glcache:/home/ubuntu/.cache/nvidia/GLCache:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/cache/computecache:/home/ubuntu/.nv/ComputeCache:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/logs:/home/ubuntu/.nvidia-omniverse/logs:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/data:/home/ubuntu/.local/share/ov/data:rw
-      - ${ROBOT_HOME}/isaac-sim-cache/documents:/home/ubuntu/Documents:rw
-    profiles:
-      - "isaac-sim"
-
-  # service always disabled
-  gazebo:
-    image: nanosaur/simulation:gazebo${NANOSAUR_VERSION:-}
-    container_name: gazebo
-    environment:
-      - DISPLAY=${DISPLAY}
-      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-      - USER=${USER}
-      - HOST_USER_UID=${USER_UID}
-      - HOST_USER_GID=${USER_GID}
-      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
-    network_mode: host
-    ipc: host
-    stdin_open: true
-    tty: true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /home/rbonghi/.Xauthority:/home/admin/.Xauthority:rw
-    profiles:
-      - "gazebo"
-
   nanosaur:
     image: nanosaur/nanosaur:${CORE_TAG}${NANOSAUR_VERSION:-}
     container_name: ${ROBOT_NAME}-${CORE_TAG}
@@ -92,3 +40,57 @@ services:
       - /run/jtop.sock:/run/jtop.sock:ro
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ~/.Xauthority:/home/admin/.Xauthority:rw
+
+  # Simulation Isaac Sim service
+  # service always disabled
+  isaac-sim:
+    image: nanosaur/simulation:isaac-sim${NANOSAUR_VERSION:-}
+    container_name: isaac-sim
+    runtime: nvidia
+    environment:
+      - ACCEPT_EULA=Y
+      - PRIVACY_CONSENT=Y
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - USER=${USER}
+      - HOST_USER_UID=${USER_UID}
+      - HOST_USER_GID=${USER_GID}
+      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
+    network_mode: host
+    ipc: host
+    stdin_open: true
+    tty: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${ROBOT_HOME}/isaac-sim-cache/cache/kit:/isaac-sim/kit/cache:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/cache/ov:/home/ubuntu/.cache/ov:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/cache/pip:/home/ubuntu/.cache/pip:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/cache/glcache:/home/ubuntu/.cache/nvidia/GLCache:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/cache/computecache:/home/ubuntu/.nv/ComputeCache:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/logs:/home/ubuntu/.nvidia-omniverse/logs:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/data:/home/ubuntu/.local/share/ov/data:rw
+      - ${ROBOT_HOME}/isaac-sim-cache/documents:/home/ubuntu/Documents:rw
+    profiles:
+      - "isaac-sim"
+
+  # Simulation Gazebo service
+  # service always disabled
+  gazebo:
+    image: nanosaur/simulation:gazebo${NANOSAUR_VERSION:-}
+    container_name: gazebo
+    environment:
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - USER=${USER}
+      - HOST_USER_UID=${USER_UID}
+      - HOST_USER_GID=${USER_GID}
+      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
+    network_mode: host
+    ipc: host
+    stdin_open: true
+    tty: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /home/rbonghi/.Xauthority:/home/admin/.Xauthority:rw
+    profiles:
+      - "gazebo"
