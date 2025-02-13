@@ -17,6 +17,9 @@ Meet nanosaur:
 * 🐳 nanosaur [Docker Hub](https://hub.docker.com/u/nanosaur)
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 <!-- INTRO END -->
+<!-- DISTRO START -->
+
+<!-- DISTRO END -->
 <!-- CI START -->
 ## CI & CD
 
