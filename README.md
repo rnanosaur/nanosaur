@@ -37,9 +37,9 @@ Meet nanosaur:
 <!-- DISTRIBUTION START -->
 ## Distribution
 
-In this section is show up the current nanosaur version and map of the software version used.
+This section displays the current nanosaur version and the map of the software version in use.
 
-In bold the latest release.
+The latest release is in bold.
 
 | Version | Branch | ROS | Isaac ROS Release | Isaac ROS Distro | Isaac Sim |
 | --- | --- | --- | --- | --- | --- |
