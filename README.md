@@ -28,7 +28,6 @@ List of all nanosaur software release and CI/CD status.
 | [![PyPI - Version](https://img.shields.io/pypi/v/nanosaur?label=nanosaur-cli)](https://badge.fury.io/py/nanosaur) | [![Publish Python Package](https://github.com/rnanosaur/nanosaur_cli/actions/workflows/release.yml/badge.svg)](https://github.com/rnanosaur/nanosaur_cli/actions/workflows/release.yml) | [![PyPI - Downloads](https://img.shields.io/pypi/dm/nanosaur)](https://pypistats.org/packages/nanosaur) | [![nanosaur](https://snyk.io/advisor/python/nanosaur/badge.svg)](https://snyk.io/advisor/python/nanosaur) |
 | [![Website Badge](https://img.shields.io/badge/Website-green)](https://nanosaur.ai) | [![pages-build-deployment](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/rnanosaur/rnanosaur.github.io/actions/workflows/pages/pages-build-deployment) | --- | --- |
 
-
 ### Docker Images
 
 List of Docker images for nanosaur sorted by category and architecture supported. (The docker pulls are related to the Docker Hub repository)
