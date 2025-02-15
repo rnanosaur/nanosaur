@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.0-pre1] - 2025-02-15
+
+Improve CI and align [`nanosaur_robot`](https://github.com/rnanosaur/nanosaur_robot) on the new `nanosaur2` branch.
+
 ## [2.0.0-pre0] - 2025-02-12
 
 New nanosaur and fully reshape of the nanosaur code. This new release works only in Simulation.
