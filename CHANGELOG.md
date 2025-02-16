@@ -4,7 +4,7 @@
 
 ### Features
 
-- Added a special Dockerfile for debugging called `nanosaur/nanosaur:debug`
+- Added a special Dockerfile for debugging called `nanosaur/nanosaur:diagnostic`
 
 ## [2.0.0-pre1] - 2025-02-15
 
