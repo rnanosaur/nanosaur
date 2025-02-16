@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0-pre2]
+
+### Features
+
+- Added a special Dockerfile for debugging called `nanosaur/nanosaur:debug`
+
 ## [2.0.0-pre1] - 2025-02-15
 
 Improve CI and align [`nanosaur_robot`](https://github.com/rnanosaur/nanosaur_robot) on the new `nanosaur2` branch.
