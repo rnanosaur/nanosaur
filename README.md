@@ -13,7 +13,7 @@ Meet nanosaur:
 
 * 🦕 Website: [nanosaur.ai](https://nanosaur.ai)
 * 🦄 Do you need any help? [Discord](https://discord.gg/rCHgeUpUj9)
-* 🧰 For technical details, follow [wiki](https://github.com/rnanosaur/nanosaur/wiki)
+* 🗂️ For technical details, follow the [documentation](https://nanosaur.ai/docs/)
 * 🐳 nanosaur [Docker Hub](https://hub.docker.com/u/nanosaur)
 * ⁉️ Something wrong? Open an [issue](https://github.com/rnanosaur/nanosaur/issues)
 <!-- INTRO END -->
@@ -36,6 +36,7 @@ List of Docker images for nanosaur sorted by category and architecture supported
 |:---:|:-----:|---------|-------|------|
 | 🦕 | 🖥️ x86_64 | [nanosaur/nanosaur:simulation](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Size](https://img.shields.io/docker/image-size/nanosaur/nanosaur/simulation)](https://hub.docker.com/r/nanosaur/nanosaur) |
 | 🦕 | 🕹️ Jetson | [nanosaur/nanosaur:robot](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Size](https://img.shields.io/docker/image-size/nanosaur/nanosaur/robot)](https://hub.docker.com/r/nanosaur/nanosaur) |
+| 🦕 | 🖥️ x86_64 | [nanosaur/nanosaur:diagnostic](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Pulls](https://img.shields.io/docker/pulls/nanosaur/nanosaur)](https://hub.docker.com/r/nanosaur/nanosaur) | [![nanosaur/nanosaur Size](https://img.shields.io/docker/image-size/nanosaur/nanosaur/diagnostic)](https://hub.docker.com/r/nanosaur/nanosaur) |
 | 🖼️ | 🖥️ x86_64 | [nanosaur/perception:simulation](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Pulls](https://img.shields.io/docker/pulls/nanosaur/perception)](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Size](https://img.shields.io/docker/image-size/nanosaur/perception/simulation)](https://hub.docker.com/r/nanosaur/perception) |
 | 🖼️ | 🕹️ Jetson | [nanosaur/perception:realsense](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Pulls](https://img.shields.io/docker/pulls/nanosaur/perception)](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Size](https://img.shields.io/docker/image-size/nanosaur/perception/realsense)](https://hub.docker.com/r/nanosaur/perception) |
 | 🖼️ | 🕹️ Jetson | [nanosaur/perception:zed](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Pulls](https://img.shields.io/docker/pulls/nanosaur/perception)](https://hub.docker.com/r/nanosaur/perception) | [![nanosaur/perception Size](https://img.shields.io/docker/image-size/nanosaur/perception/zed)](https://hub.docker.com/r/nanosaur/perception) |
