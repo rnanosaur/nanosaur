@@ -9,8 +9,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
-    command: >
-      ros2 launch nanosaur_${SIMULATION} nanosaur_bridge.launch.py ${COMMANDS}
+      - NANOSAUR_COMMANDS=${COMMANDS:-}
     network_mode: host
     ipc: host
     volumes:
@@ -28,8 +27,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
-    command: >
-      ros2 launch nanosaur_perception perception.launch.py ${COMMANDS}
+      - NANOSAUR_COMMANDS=${COMMANDS:-}
     runtime: nvidia
     network_mode: host
     ipc: host
@@ -54,7 +52,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
-      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
+      - SIMULATION_COMMANDS=${SIMULATION_COMMANDS:-}
     network_mode: host
     ipc: host
     stdin_open: true
@@ -83,7 +81,7 @@ services:
       - USER=${USER}
       - HOST_USER_UID=${USER_UID}
       - HOST_USER_GID=${USER_GID}
-      - SIMULATION_HEADLESS=${SIMULATION_HEADLESS:-false}
+      - SIMULATION_COMMANDS=${SIMULATION_COMMANDS:-}
     network_mode: host
     ipc: host
     stdin_open: true
@@ -91,7 +89,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /home/rbonghi/.Xauthority:/home/admin/.Xauthority:rw
+      - /home/${USER}/.Xauthority:/home/admin/.Xauthority:rw
     profiles:
       - "gazebo"
 
@@ -113,6 +111,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/jtop.sock:/run/jtop.sock:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /home/rbonghi/.Xauthority:/home/admin/.Xauthority:rw
+      - /home/${USER}/.Xauthority:/home/admin/.Xauthority:rw
     profiles:
       - "diagnostic"
