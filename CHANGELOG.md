@@ -4,7 +4,13 @@
 
 ### Features
 
-- Added a special Dockerfile for debugging called `nanosaur/nanosaur:diagnostic`
+- Added a special Dockerfile for debugging called `nanosaur/nanosaur:diagnostic` built multi-platform
+- Improve [`nanosaur_simulation`](https://github.com/rnanosaur/nanosaur_simulation) to support different word load
+- New docker in [`nanosaur_simulation`](https://github.com/rnanosaur/nanosaur_simulation) to convert from sdf to udf (waiting merge: <https://github.com/gazebosim/gz-usd/pull/10> )
+
+### Fixes
+
+- `docker-compose.yml` improved
 
 ## [2.0.0-pre1] - 2025-02-15
 
@@ -45,6 +51,15 @@ Renamed version from nanosaur 2.1
 ## [1.6.0] - 2022-06-08
 
 Renamed version from nanosaur 2.0
+
+### Features
+
+- Fully Isaac ROS integration
+- New repository for perception [nanosaur_perception](https://github.com/rnanosaur/nanosaur_perception)
+- Release cover for:
+  - Realsense d435
+  - ZED mini camera
+- New documentation
 
 ### Fixes
 
