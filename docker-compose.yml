@@ -69,6 +69,7 @@ services:
       - ${ROBOT_HOME}/isaac-sim-cache/documents:/home/ubuntu/Documents:rw
     profiles:
       - "isaac-sim"
+      - "desktop"
 
   # Simulation Gazebo service
   # service always disabled
@@ -92,6 +93,7 @@ services:
       - /home/${USER}/.Xauthority:/home/admin/.Xauthority:rw
     profiles:
       - "gazebo"
+      - "desktop"
 
   # Diagnostic service
   diagnostic:
@@ -114,3 +116,5 @@ services:
       - /home/${USER}/.Xauthority:/home/admin/.Xauthority:rw
     profiles:
       - "diagnostic"
+      - "desktop"
+      - "robot"
